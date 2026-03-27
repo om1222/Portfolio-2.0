@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uber Ride Analytics — Om Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lora:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --u:#276EF1;--ug:rgba(39,110,241,.12);--u2:#4D8FF5;
+  --gold:#F0B429;--gg:rgba(240,180,41,.1);
+  --green:#05A357;--red:#E11900;
+  --bg:#0A0A0A;--c1:#111;--c2:#181818;--c3:#222;
+  --tx:#F0F0F0;--m:#777;--d:#2e2e2e;
+  --b:rgba(255,255,255,.07);--bu:rgba(39,110,241,.2);
+  --rw:296px;
+  --fa:'Bebas Neue',sans-serif;--fs:'Lora',serif;--fb:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:var(--fb);font-size:14px;overflow-x:hidden;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--u);}
+
+.layout{display:flex;}
+.content{flex:1;min-width:0;padding-right:var(--rw);}
+
+/* ── RIGHT PANEL ── */
+.rpanel{width:var(--rw);position:fixed;top:0;right:0;bottom:0;background:var(--c1);border-left:1px solid var(--b);display:flex;flex-direction:column;z-index:60;overflow-y:auto;}
+.rp-top{padding:24px 20px;border-bottom:1px solid var(--b);}
+.rp-mark{width:38px;height:38px;background:var(--u);display:flex;align-items:center;justify-content:center;font-family:var(--fa);font-size:18px;color:#fff;margin-bottom:12px;}
+.rp-name{font-family:var(--fa);font-size:15px;letter-spacing:2px;}
+.rp-role{font-size:12px;color:var(--m);margin-top:2px;}
+.rp-badge{padding:16px 20px;border-bottom:1px solid var(--b);}
+.rp-badge-tag{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--u);margin-bottom:5px;font-family:var(--fa);}
+.rp-badge-title{font-family:var(--fs);font-size:16px;font-style:italic;color:var(--tx);line-height:1.4;}
+.rp-sec{padding:14px 20px;border-bottom:1px solid var(--b);}
+.rp-sec-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--m);margin-bottom:10px;font-family:var(--fa);}
+.rbtn{display:flex;align-items:center;gap:10px;width:100%;padding:11px 13px;border:1px solid var(--b);background:transparent;color:var(--tx);font-family:var(--fb);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;margin-bottom:7px;text-decoration:none;}
+.rbtn:last-child{margin-bottom:0;}
+.rbtn:hover{border-color:var(--u);background:var(--ug);}
+.rbtn.primary{background:var(--u);border-color:var(--u);font-weight:700;}
+.rbtn.primary:hover{background:var(--u2);}
+.rbtn .ri{width:26px;height:26px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.rbtn .rt{flex:1;text-align:left;}
+.rbtn .ra{font-size:10px;color:var(--m);flex-shrink:0;}
+.rp-stats{padding:14px 20px;}
+.rs-row{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--d);}
+.rs-row:last-child{border-bottom:none;}
+.rs-label{font-size:11px;color:var(--m);}
+.rs-val{font-family:var(--fa);font-size:20px;letter-spacing:.5px;}
+.rs-val.u{color:var(--u);}
+.rs-val.g{color:var(--green);}
+.rs-val.r{color:var(--red);}
+.rs-val.gold{color:var(--gold);}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:40;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--b);padding:0 44px;height:60px;display:flex;align-items:center;gap:20px;}
+.nlogo{font-family:var(--fa);font-size:19px;letter-spacing:2px;display:flex;align-items:center;gap:10px;}
+.nlogo-u{width:28px;height:28px;background:var(--u);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border-radius:4px;}
+.nlogo span{color:var(--u);}
+.ndiv{width:1px;height:14px;background:var(--d);}
+.nlinks{display:flex;gap:18px;}
+.nlink{font-size:13px;color:var(--m);cursor:pointer;transition:color .2s;background:none;border:none;font-family:var(--fb);}
+.nlink:hover{color:var(--tx);}
+.nperiod{margin-left:auto;font-family:var(--fm);font-size:11px;color:var(--d);letter-spacing:1px;}
+
+/* ── HERO ── */
+.hero{padding:68px 44px 56px;position:relative;overflow:hidden;border-bottom:1px solid var(--b);}
+.hero::before{content:'';position:absolute;top:-100px;right:-80px;width:480px;height:480px;background:radial-gradient(circle,rgba(39,110,241,.07) 0%,transparent 65%);pointer-events:none;}
+.htag{font-family:var(--fa);font-size:11px;letter-spacing:4px;color:var(--u);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.htag::before{content:'';display:block;width:20px;height:1.5px;background:var(--u);}
+.htitle{font-family:var(--fa);font-size:clamp(52px,6.5vw,92px);line-height:.92;letter-spacing:1px;margin-bottom:16px;}
+.htitle span{display:block;font-family:var(--fs);font-style:italic;font-size:clamp(26px,3.2vw,46px);font-weight:400;color:var(--m);}
+.hdesc{font-size:17px;line-height:1.75;color:var(--m);max-width:560px;font-weight:300;margin-bottom:40px;}
+.hstats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--b);}
+.hs{padding:18px 20px;border-right:1px solid var(--b);}
+.hs:last-child{border-right:none;}
+.hs-val{font-family:var(--fa);font-size:42px;letter-spacing:-1px;line-height:1;margin-bottom:3px;}
+.hs-val em{font-size:17px;color:var(--m);font-style:normal;}
+.hs-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--m);}
+
+/* ── SECTION ── */
+.sec{padding:64px 44px;border-bottom:1px solid var(--b);}
+.sec-eye{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.se-n{font-family:var(--fm);font-size:14px;color:var(--m);letter-spacing:1px;}
+.se-line{width:22px;height:2px;background:var(--u);}
+.se-text{font-size:15px;letter-spacing:4px;text-transform:uppercase;color:var(--u);font-family:var(--fa);}
+.sec-h{font-family:var(--fs);font-size:clamp(36px,4vw,60px);font-weight:700;line-height:1.0;margin-bottom:44px;}
+.sec-h em{font-style:italic;color:var(--u);}
+
+/* ── PROBLEM — cancellation funnel ── */
+.prob-layout{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.prob-card{background:var(--c1);border:1px solid var(--b);padding:22px;}
+.pc-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.pc-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.pc-title{font-size:13px;font-weight:600;color:var(--tx);}
+.pc-sub{font-size:11px;color:var(--m);}
+.prob-list{display:flex;flex-direction:column;gap:0;}
+.pl-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--d);}
+.pl-item:last-child{border-bottom:none;}
+.pl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.pl-text{font-size:12px;color:var(--m);line-height:1.5;}
+.pl-text code{font-family:var(--fm);font-size:10px;background:var(--c3);padding:1px 5px;color:var(--tx);}
+.pl-text strong{color:var(--tx);font-weight:500;}
+
+/* cancellation big number card */
+.cancel-card{background:var(--c1);border:1px solid rgba(225,25,0,.2);padding:28px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;}
+.cancel-big{font-family:var(--fa);font-size:clamp(64px,8vw,100px);color:var(--red);line-height:1;letter-spacing:-2px;}
+.cancel-big em{font-size:28px;color:var(--m);font-style:normal;}
+.cancel-title{font-family:var(--fs);font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:10px;}
+.cancel-title em{font-style:italic;color:var(--red);}
+.cancel-bar-row{margin-bottom:10px;}
+.cb-label{display:flex;justify-content:space-between;font-size:11px;color:var(--m);margin-bottom:5px;}
+.cb-track{height:8px;background:var(--c3);}
+.cb-fill{height:100%;transition:width 1.4s cubic-bezier(.16,1,.3,1);}
+.cancel-note{font-size:13px;color:var(--m);line-height:1.6;}
+.cancel-note strong{color:var(--tx);font-weight:500;}
+
+/* ── PIPELINE ── */
+.pipe{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr auto 1fr;align-items:stretch;gap:0;margin-bottom:36px;}
+.pipe-step{background:var(--c1);border:1px solid var(--b);border-right:none;padding:20px 16px;transition:all .25s;}
+.pipe-step:last-child{border-right:1px solid var(--b);}
+.pipe-step:hover{background:var(--c2);border-color:var(--bu);}
+.ps-num{font-family:var(--fa);font-size:32px;color:rgba(255,255,255,.04);line-height:1;margin-bottom:8px;}
+.ps-icon{font-size:18px;margin-bottom:6px;}
+.ps-title{font-family:var(--fa);font-size:13px;letter-spacing:1px;margin-bottom:5px;color:var(--u);}
+.ps-body{font-size:11px;color:var(--m);line-height:1.6;}
+.ps-fn{font-family:var(--fm);font-size:9px;color:var(--d);margin-top:8px;}
+.parrow{display:flex;align-items:center;padding:0 4px;color:var(--d);font-size:11px;align-self:center;flex-shrink:0;}
+.stack-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px;}
+.stk{display:flex;align-items:center;gap:8px;background:var(--c1);border:1px solid var(--b);padding:10px 14px;transition:border-color .2s;}
+.stk:hover{border-color:var(--u);}
+.stk-ico{font-size:16px;}
+.stk-name{font-size:13px;font-weight:500;}
+.stk-role{font-size:10px;color:var(--m);}
+
+/* ── KPI TILES ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--bu);border:1px solid var(--bu);margin-bottom:40px;}
+.kpi-tile{background:var(--c1);padding:26px 20px;position:relative;overflow:hidden;}
+.kpi-tile::after{content:'';position:absolute;bottom:-16px;right:-16px;width:72px;height:72px;border-radius:50%;background:radial-gradient(circle,rgba(39,110,241,.1) 0%,transparent 70%);}
+.kt-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--m);font-family:var(--fa);margin-bottom:8px;}
+.kt-val{font-family:var(--fa);font-size:40px;letter-spacing:-1px;line-height:1;margin-bottom:5px;}
+.kt-val .u{font-size:18px;color:var(--m);}
+.kt-desc{font-size:12px;color:var(--d);line-height:1.5;}
+
+/* ── CHART WRAP ── */
+.chart-wrap{background:var(--c1);border:1px solid var(--b);padding:28px;margin-bottom:10px;}
+.chart-title{font-family:var(--fa);font-size:16px;letter-spacing:1px;color:var(--tx);margin-bottom:20px;}
+.chart-title span{color:var(--u);}
+.chart2col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+
+/* ── UPI HIGHLIGHT ── */
+.upi-card{background:var(--c1);border:1px solid var(--bu);padding:28px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;margin-bottom:10px;}
+.upi-big{font-family:var(--fa);font-size:clamp(64px,8vw,100px);color:var(--u);line-height:1;letter-spacing:-2px;}
+.upi-big em{font-size:28px;color:var(--m);font-style:normal;}
+.upi-title{font-family:var(--fs);font-size:clamp(18px,2vw,26px);font-weight:700;margin-bottom:10px;}
+.upi-title em{font-style:italic;color:var(--u);}
+.upi-note{font-size:13px;color:var(--m);line-height:1.6;}
+.upi-note strong{color:var(--tx);}
+
+/* ── RESULTS ── */
+.res-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;background:var(--b);margin-bottom:16px;}
+.rmet{background:var(--c1);padding:24px 20px;}
+.rm-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--m);font-family:var(--fa);margin-bottom:6px;}
+.rm-val{font-family:var(--fa);font-size:clamp(36px,4vw,56px);letter-spacing:-1px;line-height:1;margin-bottom:5px;}
+.rm-desc{font-size:12px;color:var(--d);line-height:1.5;}
+.ins-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ins{background:var(--c1);border-left:2px solid var(--ic,var(--u));padding:18px 20px;}
+.ins-cat{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--ic,var(--u));font-family:var(--fa);margin-bottom:7px;}
+.ins-body{font-size:13px;color:var(--m);line-height:1.7;}
+.ins-body strong{color:var(--tx);font-weight:500;}
+
+/* ── SQL QUERIES GRID ── */
+.qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.qcard{background:var(--c1);border:1px solid var(--b);padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.qcard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--qc,var(--u));transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.qcard:hover{background:var(--c2);}
+.qcard:hover::after{transform:scaleX(1);}
+.qc-num{font-family:var(--fa);font-size:28px;color:rgba(255,255,255,.04);line-height:1;margin-bottom:8px;}
+.qc-cat{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--qc,var(--u));font-family:var(--fa);margin-bottom:4px;}
+.qc-title{font-size:12px;font-weight:600;margin-bottom:4px;}
+.qc-desc{font-size:10px;color:var(--m);line-height:1.5;}
+.qc-fn{font-family:var(--fm);font-size:9px;color:var(--d);margin-top:8px;}
+
+footer{padding:28px 44px;display:flex;justify-content:space-between;}
+.ft{font-family:var(--fm);font-size:9px;letter-spacing:1.5px;color:var(--d);}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.v{opacity:1;transform:none;}
+
+/* ── MODAL ── */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal.open{opacity:1;pointer-events:all;}
+.mbox{background:var(--c1);border:1px solid var(--b);width:90%;max-width:960px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;}
+.mhead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--b);flex-shrink:0;gap:10px;}
+.mtabs{display:flex;gap:2px;flex-wrap:wrap;}
+.mtab{padding:5px 12px;font-size:11px;font-family:var(--fa);letter-spacing:1px;cursor:pointer;border:none;background:transparent;color:var(--m);transition:all .15s;}
+.mtab.on,.mtab:hover{background:var(--u);color:#fff;}
+.mclose{background:none;border:none;color:var(--m);font-size:22px;cursor:pointer;line-height:1;flex-shrink:0;}
+.mclose:hover{color:var(--tx);}
+.mbody{overflow-y:auto;flex:1;}
+.cblock{padding:18px 20px;display:none;}
+.cblock.on{display:block;}
+pre{font-family:var(--fm);font-size:11px;line-height:1.75;color:#bbb;white-space:pre;overflow-x:auto;}
+</style>
+</head>
+<body>
+<div class="layout">
+<div class="content">
+
+<nav>
+  <div class="nlogo"><div class="nlogo-u">U</div><span>UBER</span> ANALYTICS</div>
+  <div class="ndiv"></div>
+  <div class="nlinks">
+    <button class="nlink" onclick="goto('#problem')">Problem</button>
+    <button class="nlink" onclick="goto('#approach')">Approach</button>
+    <button class="nlink" onclick="goto('#kpis')">KPIs</button>
+    <button class="nlink" onclick="goto('#visuals')">Visuals</button>
+    <button class="nlink" onclick="goto('#queries')">SQL</button>
+    <button class="nlink" onclick="goto('#results')">Results</button>
+  </div>
+  <div class="nperiod">JAN 2025 – FEB 2025</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="htag">Data Analytics · Python · SQL · Tableau</div>
+  <h1 class="htitle">UBER RIDE OPS<span>&amp; Profitability Analysis</span></h1>
+  <p class="hdesc">Analyzed 148K+ NCR ride records in Python &amp; SQL to uncover cancellation root causes, optimize revenue mix, and automate Tableau KPIs — saving 10+ hrs/month.</p>
+  <div class="hstats">
+    <div class="hs"><div class="hs-val" style="color:var(--u)">150<em>K</em></div><div class="hs-label">Rides Analyzed</div></div>
+    <div class="hs"><div class="hs-val" style="color:var(--red)">25<em>%</em></div><div class="hs-label">Cancellation Rate</div></div>
+    <div class="hs"><div class="hs-val" style="color:var(--gold)">40<em>%</em></div><div class="hs-label">UPI Revenue Share</div></div>
+    <div class="hs"><div class="hs-val">10<em>+hrs</em></div><div class="hs-label">Saved / Month</div></div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<div class="sec" id="problem">
+  <div class="sec-eye"><span class="se-n">01</span><div class="se-line"></div><span class="se-text">The Problem</span></div>
+  <h2 class="sec-h reveal">25% rides cancelled — <em>no one knew why</em></h2>
+
+  <!-- BIG CANCELLATION NUMBER -->
+  <div class="cancel-card reveal">
+    <div class="cancel-big">25<em>%</em></div>
+    <div>
+      <div class="cancel-title">1 in 4 rides <em>never completed</em></div>
+      <div class="cancel-bar-row">
+        <div class="cb-label"><span>Driver Cancellations</span><span>18%</span></div>
+        <div class="cb-track"><div class="cb-fill" id="bar-driver" style="width:0%;background:var(--red)"></div></div>
+      </div>
+      <div class="cancel-bar-row">
+        <div class="cb-label"><span>Customer Cancellations</span><span>7%</span></div>
+        <div class="cb-track"><div class="cb-fill" id="bar-cust" style="width:0%;background:var(--gold)"></div></div>
+      </div>
+      <div class="cancel-note">Direct revenue loss + driver inefficiency + rider frustration — all happening simultaneously with <strong>no root-cause data visible</strong> to the ops team.</div>
+    </div>
+  </div>
+
+  <!-- DATA ISSUES GRID -->
+  <div class="prob-layout reveal">
+    <div class="prob-card">
+      <div class="pc-head">
+        <div class="pc-icon" style="background:rgba(225,25,0,.12);border:1px solid rgba(225,25,0,.2)">⚠️</div>
+        <div><div class="pc-title">Data Quality Issues</div><div class="pc-sub">Raw dataset problems blocking analysis</div></div>
+      </div>
+      <div class="prob-list">
+        <div class="pl-item"><div class="pl-dot" style="background:var(--red)"></div><div class="pl-text"><strong>Status label chaos</strong> — <code>"Cancelled by Driver"</code>, <code>"CANCEL"</code>, <code>"Canceled"</code> all mean the same thing</div></div>
+        <div class="pl-item"><div class="pl-dot" style="background:var(--red)"></div><div class="pl-text"><strong>Payment method variants</strong> — <code>"upi"</code>, <code>"UPI"</code>, <code>"Upi Payment"</code> treated as 3 different payment modes</div></div>
+        <div class="pl-item"><div class="pl-dot" style="background:var(--red)"></div><div class="pl-text"><strong>Missing ratings</strong> — Driver &amp; customer rating NULLs skewing satisfaction metrics</div></div>
+        <div class="pl-item"><div class="pl-dot" style="background:var(--red)"></div><div class="pl-text"><strong>Outlier ride distances</strong> — 0km and 200km+ rides corrupting average fare analysis</div></div>
+      </div>
+    </div>
+    <div class="prob-card">
+      <div class="pc-head">
+        <div class="pc-icon" style="background:var(--ug);border:1px solid var(--bu)">🎯</div>
+        <div><div class="pc-title">Business Visibility Gaps</div><div class="pc-sub">Strategic blind spots before this analysis</div></div>
+      </div>
+      <div class="prob-list">
+        <div class="pl-item"><div class="pl-dot" style="background:var(--u)"></div><div class="pl-text"><strong>No cancellation root-cause view</strong> — Driver vs Customer reasons mixed, no ranked breakdown</div></div>
+        <div class="pl-item"><div class="pl-dot" style="background:var(--u)"></div><div class="pl-text"><strong>No peak-hour analysis</strong> — Supply-demand mismatch at 6PM causing "No Driver Found" spikes invisible</div></div>
+        <div class="pl-item"><div class="pl-dot" style="background:var(--u)"></div><div class="pl-text"><strong>No payment mix insight</strong> — UPI at 40% of revenue unidentified as #1 promotion target</div></div>
+        <div class="pl-item"><div class="pl-dot" style="background:var(--u)"></div><div class="pl-text"><strong>Manual Excel reporting</strong> — KPIs rebuilt from scratch every month, consuming 10+ hours of ops time</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APPROACH -->
+<div class="sec" id="approach">
+  <div class="sec-eye"><span class="se-n">02</span><div class="se-line"></div><span class="se-text">Approach</span></div>
+  <h2 class="sec-h reveal">5-step analytics <em>pipeline</em></h2>
+  <div class="pipe reveal">
+    <div class="pipe-step"><div class="ps-num">01</div><div class="ps-icon">📂</div><div class="ps-title">LOAD &amp; PROFILE</div><div class="ps-body">150K-row CSV. Audit nulls, dtypes, status/payment label variants before any cleaning</div><div class="ps-fn">read_csv() · info() · value_counts()</div></div>
+    <div class="parrow">▶</div>
+    <div class="pipe-step"><div class="ps-num">02</div><div class="ps-icon">🧹</div><div class="ps-title">CLEAN &amp; STANDARDIZE</div><div class="ps-body">Normalize status/payment labels, fill rating NULLs with median, clip distance outliers</div><div class="ps-fn">replace() · fillna() · clip() · groupby()</div></div>
+    <div class="parrow">▶</div>
+    <div class="pipe-step"><div class="ps-num">03</div><div class="ps-icon">⚙️</div><div class="ps-title">FEATURE ENGINEERING</div><div class="ps-body">Extract hour, time_bucket, is_peak_hour, cancel_type, revenue_per_km, is_weekend</div><div class="ps-fn">dt.hour · pd.cut() · apply() · CASE WHEN</div></div>
+    <div class="parrow">▶</div>
+    <div class="pipe-step"><div class="ps-num">04</div><div class="ps-icon">🔍</div><div class="ps-title">SQL ANALYSIS</div><div class="ps-body">15 queries — cancellation root causes, revenue by vehicle, MoM LAG(), hourly heatmap, HAVING zones</div><div class="ps-fn">LAG() · RANK() · HAVING · CTE</div></div>
+    <div class="parrow">▶</div>
+    <div class="pipe-step"><div class="ps-num">05</div><div class="ps-icon">📊</div><div class="ps-title">TABLEAU DASHBOARD</div><div class="ps-body">Automated KPI cards, LOD expressions, hourly heatmap, payment mix — replaces 10+ hrs manual reporting</div><div class="ps-fn">Tableau LOD · Actions · Filters</div></div>
+  </div>
+  <div class="stack-row reveal">
+    <div class="stk"><div class="stk-ico">🐍</div><div><div class="stk-name">Python 3.10</div><div class="stk-role">Cleaning · EDA</div></div></div>
+    <div class="stk"><div class="stk-ico">🗄️</div><div><div class="stk-name">SQL</div><div class="stk-role">15 Analytical Queries</div></div></div>
+    <div class="stk"><div class="stk-ico">📊</div><div><div class="stk-name">Tableau</div><div class="stk-role">KPI Dashboard · LOD</div></div></div>
+    <div class="stk"><div class="stk-ico">🐼</div><div><div class="stk-name">Pandas</div><div class="stk-role">Cleaning · Aggregation</div></div></div>
+    <div class="stk"><div class="stk-ico">📉</div><div><div class="stk-name">Matplotlib</div><div class="stk-role">8 EDA Charts</div></div></div>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="sec" id="kpis">
+  <div class="sec-eye"><span class="se-n">03</span><div class="se-line"></div><span class="se-text">Core KPIs</span></div>
+  <h2 class="sec-h reveal">Portfolio of <em>actionable metrics</em></h2>
+  <div class="kpi-grid reveal">
+    <div class="kpi-tile"><div class="kt-label">Total Rides</div><div class="kt-val" style="color:var(--u)">150<span class="u">K</span></div><div class="kt-desc">NCR bookings Jan–Dec 2024 after cleaning</div></div>
+    <div class="kpi-tile"><div class="kt-label">Total Revenue</div><div class="kt-val" style="color:var(--gold)">₹5.18<span class="u">Cr</span></div><div class="kt-desc">Gross ride revenue across all vehicle types</div></div>
+    <div class="kpi-tile"><div class="kt-label">Cancellation Rate</div><div class="kt-val" style="color:var(--red)">25<span class="u">%</span></div><div class="kt-desc">Driver (18%) + Customer (7%) combined</div></div>
+    <div class="kpi-tile"><div class="kt-label">Projected Reduction</div><div class="kt-val" style="color:var(--green)">5–7<span class="u">%</span></div><div class="kt-desc">Via address validation + driver-motion alerts</div></div>
+  </div>
+
+  <!-- UPI HIGHLIGHT -->
+  <div class="upi-card reveal">
+    <div class="upi-big">40<em>%</em></div>
+    <div>
+      <div class="upi-title">UPI is the <em>dominant</em> payment mode</div>
+      <div class="cancel-bar-row" style="margin-bottom:10px;">
+        <div class="cb-label"><span>UPI</span><span>40%</span></div>
+        <div class="cb-track"><div class="cb-fill" id="bar-upi" style="width:0%;background:var(--u)"></div></div>
+      </div>
+      <div class="cancel-bar-row" style="margin-bottom:10px;">
+        <div class="cb-label"><span>Cash</span><span>27%</span></div>
+        <div class="cb-track"><div class="cb-fill" id="bar-cash" style="width:0%;background:var(--gold)"></div></div>
+      </div>
+      <div class="cancel-bar-row" style="margin-bottom:10px;">
+        <div class="cb-label"><span>Uber Wallet</span><span>14%</span></div>
+        <div class="cb-track"><div class="cb-fill" id="bar-wallet" style="width:0%;background:#8B5CF6"></div></div>
+      </div>
+      <div class="upi-note"><strong>UPI users complete rides more reliably</strong> — lower failure rates and higher completion rates than Cash. Targeted UPI cashback promotions can lift avg. ride revenue by <strong>~4%</strong>.</div>
+    </div>
+  </div>
+</div>
+
+<!-- VISUALS -->
+<div class="sec" id="visuals">
+  <div class="sec-eye"><span class="se-n">04</span><div class="se-line"></div><span class="se-text">8 EDA Visualizations</span></div>
+  <h2 class="sec-h reveal">Charts that <em>surface root causes</em></h2>
+
+  <!-- CHART 1: Booking Status Donut + Cancellation Causes side by side -->
+  <div class="chart2col reveal">
+    <div class="chart-wrap" style="margin-bottom:0">
+      <div class="chart-title">Viz 1 — <span>Ride Status Breakdown</span> · Donut</div>
+      <svg viewBox="0 0 280 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'DM Sans',sans-serif;">
+        <!-- cx=140 cy=100 r=70 ir=40. Arcs computed with correct SVG path math -->
+        <path d="M140.0,30.0 A70,70,0,1,1,90.5,149.5 L111.7,128.3 A40,40,0,1,0,140.0,60.0 Z" fill="#05A357" opacity=".9"/>
+        <path d="M90.5,149.5 A70,70,0,0,1,74.1,76.3 L102.4,86.5 A40,40,0,0,0,111.7,128.3 Z" fill="#E11900" opacity=".9"/>
+        <path d="M74.1,76.3 A70,70,0,0,1,90.5,50.5 L111.7,71.7 A40,40,0,0,0,102.4,86.5 Z" fill="#F0B429" opacity=".9"/>
+        <path d="M90.5,50.5 A70,70,0,0,1,120.5,32.8 L128.8,61.6 A40,40,0,0,0,111.7,71.7 Z" fill="#276EF1" opacity=".9"/>
+        <path d="M120.5,32.8 A70,70,0,0,1,140.0,30.0 L140.0,60.0 A40,40,0,0,0,128.8,61.6 Z" fill="#555" opacity=".9"/>
+        <text x="140" y="96" fill="#aaa" font-size="10" text-anchor="middle">62.5%</text>
+        <text x="140" y="110" fill="#05A357" font-size="9" text-anchor="middle" font-weight="600">Completed</text>
+        <rect x="16" y="175" width="8" height="8" rx="1" fill="#05A357"/>
+        <text x="28" y="183" fill="#888" font-size="8">Completed 62.5%</text>
+        <rect x="130" y="175" width="8" height="8" rx="1" fill="#E11900"/>
+        <text x="142" y="183" fill="#888" font-size="8">Driver Cancel 18%</text>
+        <rect x="16" y="191" width="8" height="8" rx="1" fill="#F0B429"/>
+        <text x="28" y="199" fill="#888" font-size="8">Cust. Cancel 7%</text>
+        <rect x="130" y="191" width="8" height="8" rx="1" fill="#276EF1"/>
+        <text x="142" y="199" fill="#888" font-size="8">No Driver 8%</text>
+      </svg>
+    </div>
+
+    <div class="chart-wrap" style="margin-bottom:0">
+      <div class="chart-title">Viz 2 — <span>Customer Cancellation Causes</span> · Bar</div>
+      <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'DM Sans',sans-serif;">
+        <!-- Wrong Address=2362, Changed Mind=1847, Wait Time=1534, Price=923, Other=621 -->
+        <!-- max=2362, bar max width = 210px -->
+        <text x="110" y="26" fill="#888" font-size="9" text-anchor="end">Wrong Address</text>
+        <text x="110" y="56" fill="#888" font-size="9" text-anchor="end">Changed Mind</text>
+        <text x="110" y="86" fill="#888" font-size="9" text-anchor="end">Wait Too Long</text>
+        <text x="110" y="116" fill="#888" font-size="9" text-anchor="end">Price High</text>
+        <text x="110" y="146" fill="#888" font-size="9" text-anchor="end">Other</text>
+        <rect x="115" y="14" width="210" height="18" rx="2" fill="#E11900" opacity=".85"/>
+        <rect x="115" y="44" width="164" height="18" rx="2" fill="#E11900" opacity=".7"/>
+        <rect x="115" y="74" width="136" height="18" rx="2" fill="#E11900" opacity=".55"/>
+        <rect x="115" y="104" width="82"  height="18" rx="2" fill="#E11900" opacity=".4"/>
+        <rect x="115" y="134" width="55"  height="18" rx="2" fill="#E11900" opacity=".3"/>
+        <text x="330" y="27" fill="#E11900" font-size="9">2,362</text>
+        <text x="284" y="57" fill="#888" font-size="9">1,847</text>
+        <text x="256" y="87" fill="#888" font-size="9">1,534</text>
+        <text x="202" y="117" fill="#888" font-size="9">923</text>
+        <text x="175" y="147" fill="#888" font-size="9">621</text>
+        <line x1="113" y1="158" x2="340" y2="158" stroke="#222" stroke-width="1"/>
+        <text x="220" y="175" fill="#444" font-size="8" text-anchor="middle">Wrong Address = #1 — fixable with address validation</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- CHART 3: Hourly Demand Heatmap -->
+  <div class="chart-wrap reveal">
+    <div class="chart-title">Viz 3 — <span>Hourly Ride Volume Heatmap</span> · 6PM Peak = 12,397 rides/hour</div>
+    <svg viewBox="0 0 620 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'DM Sans',sans-serif;">
+      <!-- 24 hours, each cell ~22px wide, 50px tall -->
+      <!-- Demand data scaled: peak at 18h=12397, night ~1300, morning rush 7-9=~7000 -->
+      <!-- opacity/color intensity encodes demand -->
+      <defs>
+        <linearGradient id="heatLow" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#276EF1" stop-opacity=".05"/>
+          <stop offset="100%" stop-color="#276EF1" stop-opacity=".4"/>
+        </linearGradient>
+      </defs>
+      <!-- Hour cells: 0-5 low, 6-9 medium, 10-16 medium-low, 17-20 HIGH, 21-23 medium -->
+      <!-- Using opacity to encode intensity. x = 12 + h*25, y=28, w=22, h=50 -->
+      <rect x="12"  y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".06"/>
+      <rect x="37"  y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".05"/>
+      <rect x="62"  y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".04"/>
+      <rect x="87"  y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".04"/>
+      <rect x="112" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".05"/>
+      <rect x="137" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".07"/>
+      <rect x="162" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".35"/>
+      <rect x="187" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".55"/>
+      <rect x="212" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".60"/>
+      <rect x="237" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".45"/>
+      <rect x="262" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".30"/>
+      <rect x="287" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".28"/>
+      <rect x="312" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".25"/>
+      <rect x="337" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".27"/>
+      <rect x="362" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".30"/>
+      <rect x="387" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".35"/>
+      <rect x="412" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".42"/>
+      <rect x="437" y="28" width="22" height="50" rx="2" fill="#E11900" opacity=".95"/>
+      <rect x="462" y="28" width="22" height="50" rx="2" fill="#E11900" opacity=".85"/>
+      <rect x="487" y="28" width="22" height="50" rx="2" fill="#E11900" opacity=".75"/>
+      <rect x="512" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".60"/>
+      <rect x="537" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".45"/>
+      <rect x="562" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".30"/>
+      <rect x="587" y="28" width="22" height="50" rx="2" fill="#276EF1" opacity=".18"/>
+      <!-- Hour labels every 3h -->
+      <text x="23"  y="22" fill="#555" font-size="8" text-anchor="middle">0</text>
+      <text x="98"  y="22" fill="#555" font-size="8" text-anchor="middle">3</text>
+      <text x="173" y="22" fill="#555" font-size="8" text-anchor="middle">6</text>
+      <text x="198" y="22" fill="#888" font-size="8" text-anchor="middle">7</text>
+      <text x="248" y="22" fill="#555" font-size="8" text-anchor="middle">9</text>
+      <text x="323" y="22" fill="#555" font-size="8" text-anchor="middle">12</text>
+      <text x="398" y="22" fill="#555" font-size="8" text-anchor="middle">15</text>
+      <text x="448" y="18" fill="#E11900" font-size="9" font-weight="600" text-anchor="middle">18 ▲</text>
+      <text x="498" y="22" fill="#555" font-size="8" text-anchor="middle">20</text>
+      <text x="573" y="22" fill="#555" font-size="8" text-anchor="middle">22</text>
+      <!-- Peak label -->
+      <text x="448" y="92" fill="#E11900" font-size="8" text-anchor="middle">12,397</text>
+      <text x="448" y="104" fill="#E11900" font-size="8" text-anchor="middle">rides/hr</text>
+      <!-- Low label -->
+      <text x="50"  y="86" fill="#444" font-size="7" text-anchor="middle">Late Night</text>
+      <text x="200" y="86" fill="#888" font-size="7" text-anchor="middle">Morning Rush</text>
+    </svg>
+  </div>
+
+  <!-- CHART 4+5 side by side: Revenue by Vehicle + Monthly Revenue -->
+  <div class="chart2col reveal">
+    <div class="chart-wrap" style="margin-bottom:0">
+      <div class="chart-title">Viz 4 — <span>Revenue by Vehicle Type</span></div>
+      <svg viewBox="0 0 280 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'DM Sans',sans-serif;">
+        <!-- Auto=129Cr, Bike=98Cr, Mini=87Cr, Premier=78Cr, SUV=63Cr, Sedan=54Cr (₹) -->
+        <text x="115" y="24" fill="#888" font-size="9" text-anchor="end">Auto</text>
+        <text x="115" y="52" fill="#888" font-size="9" text-anchor="end">Bike</text>
+        <text x="115" y="80" fill="#888" font-size="9" text-anchor="end">Mini</text>
+        <text x="115" y="108" fill="#888" font-size="9" text-anchor="end">Premier</text>
+        <text x="115" y="136" fill="#888" font-size="9" text-anchor="end">SUV</text>
+        <text x="115" y="164" fill="#888" font-size="9" text-anchor="end">Sedan</text>
+        <rect x="120" y="12" width="130" height="20" rx="2" fill="#276EF1" opacity=".9"/>
+        <rect x="120" y="40" width="98"  height="20" rx="2" fill="#276EF1" opacity=".75"/>
+        <rect x="120" y="68" width="87"  height="20" rx="2" fill="#276EF1" opacity=".65"/>
+        <rect x="120" y="96" width="78"  height="20" rx="2" fill="#276EF1" opacity=".55"/>
+        <rect x="120" y="124" width="63" height="20" rx="2" fill="#276EF1" opacity=".45"/>
+        <rect x="120" y="152" width="54" height="20" rx="2" fill="#276EF1" opacity=".35"/>
+        <text x="255" y="26" fill="#276EF1" font-size="9">₹1.29Cr</text>
+        <text x="223" y="54" fill="#888" font-size="9">₹0.98Cr</text>
+        <text x="212" y="82" fill="#888" font-size="9">₹0.87Cr</text>
+        <text x="203" y="110" fill="#888" font-size="9">₹0.78Cr</text>
+        <text x="188" y="138" fill="#888" font-size="9">₹0.63Cr</text>
+        <text x="179" y="166" fill="#888" font-size="9">₹0.54Cr</text>
+        <line x1="118" y1="176" x2="265" y2="176" stroke="#222" stroke-width="1"/>
+        <text x="190" y="188" fill="#444" font-size="7" text-anchor="middle">Auto = highest volume revenue driver</text>
+      </svg>
+    </div>
+
+    <div class="chart-wrap" style="margin-bottom:0">
+      <div class="chart-title">Viz 5 — <span>Monthly Revenue Trend</span> · Line+Area</div>
+      <svg viewBox="0 0 280 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'DM Sans',sans-serif;">
+        <defs>
+          <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#276EF1" stop-opacity=".35"/>
+            <stop offset="100%" stop-color="#276EF1" stop-opacity=".02"/>
+          </linearGradient>
+        </defs>
+        <!-- 12 months, revenue in ₹Lakhs: 36,38,40,39,42,44,43,46,45,48,47,50 -->
+        <!-- x: 20 + m*21, y: 160 - (v-34)*6 -->
+        <polygon points="20,148 41,136 62,124 83,130 104,112 125,100 146,106 167,88 188,94 209,76 230,82 251,70 251,160 20,160" fill="url(#revGrad)"/>
+        <polyline points="20,148 41,136 62,124 83,130 104,112 125,100 146,106 167,88 188,94 209,76 230,82 251,70" fill="none" stroke="#276EF1" stroke-width="2" stroke-linejoin="round"/>
+        <!-- Dots -->
+        <circle cx="20"  cy="148" r="3" fill="#276EF1"/>
+        <circle cx="62"  cy="124" r="3" fill="#276EF1"/>
+        <circle cx="125" cy="100" r="3" fill="#276EF1"/>
+        <circle cx="209" cy="76"  r="3" fill="#276EF1"/>
+        <circle cx="251" cy="70"  r="3.5" fill="#276EF1"/>
+        <!-- X labels -->
+        <text x="20"  y="175" fill="#555" font-size="8" text-anchor="middle">Jan</text>
+        <text x="83"  y="175" fill="#555" font-size="8" text-anchor="middle">Apr</text>
+        <text x="146" y="175" fill="#555" font-size="8" text-anchor="middle">Jul</text>
+        <text x="209" y="175" fill="#555" font-size="8" text-anchor="middle">Oct</text>
+        <text x="251" y="175" fill="#555" font-size="8" text-anchor="middle">Dec</text>
+        <!-- Y labels -->
+        <text x="16"  y="70"  fill="#555" font-size="7" text-anchor="end">₹50L</text>
+        <text x="16"  y="112" fill="#555" font-size="7" text-anchor="end">₹42L</text>
+        <text x="16"  y="148" fill="#555" font-size="7" text-anchor="end">₹36L</text>
+        <line x1="18" y1="160" x2="260" y2="160" stroke="#222" stroke-width="1"/>
+        <text x="140" y="188" fill="#444" font-size="7" text-anchor="middle">+39% growth Jan→Dec 2024</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- CHART 6: Driver Rating Distribution -->
+  <div class="chart-wrap reveal">
+    <div class="chart-title">Viz 6 — <span>Driver vs Customer Rating Distribution</span> · Comparative Histogram</div>
+    <svg viewBox="0 0 620 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'DM Sans',sans-serif;">
+      <!-- Groups at 1,2,3,4,5 stars. Driver: 1=2%,2=3%,3=12%,4=48%,5=35%. Cust: 1=1%,2=2%,3=10%,4=52%,5=35% -->
+      <!-- max bar height = 80px at 52% -->
+      <!-- 5 groups, each group has 2 bars -->
+      <!-- Group width = 100px, each bar = 36px, gap 8px, group start x: 30,150,270,390,510 -->
+      <!-- Driver bar (blue), Customer bar (gold) -->
+      <!-- Star 1 -->
+      <rect x="40"  y="117" width="34" height="4"  rx="1" fill="#276EF1" opacity=".7"/>
+      <rect x="78"  y="119" width="34" height="2"  rx="1" fill="#F0B429" opacity=".7"/>
+      <!-- Star 2 -->
+      <rect x="160" y="111" width="34" height="10" rx="1" fill="#276EF1" opacity=".7"/>
+      <rect x="198" y="113" width="34" height="8"  rx="1" fill="#F0B429" opacity=".7"/>
+      <!-- Star 3 -->
+      <rect x="280" y="89"  width="34" height="32" rx="1" fill="#276EF1" opacity=".7"/>
+      <rect x="318" y="97"  width="34" height="24" rx="1" fill="#F0B429" opacity=".7"/>
+      <!-- Star 4 -->
+      <rect x="400" y="43"  width="34" height="78" rx="2" fill="#276EF1" opacity=".9"/>
+      <rect x="438" y="37"  width="34" height="84" rx="2" fill="#F0B429" opacity=".85"/>
+      <!-- Star 5 -->
+      <rect x="520" y="55"  width="34" height="66" rx="1" fill="#276EF1" opacity=".75"/>
+      <rect x="558" y="55"  width="34" height="66" rx="1" fill="#F0B429" opacity=".7"/>
+      <!-- X Labels -->
+      <text x="75"  y="133" fill="#666" font-size="10" text-anchor="middle">★ 1</text>
+      <text x="195" y="133" fill="#666" font-size="10" text-anchor="middle">★★ 2</text>
+      <text x="315" y="133" fill="#888" font-size="10" text-anchor="middle">★★★ 3</text>
+      <text x="435" y="133" fill="#276EF1" font-size="11" text-anchor="middle" font-weight="600">★★★★ 4</text>
+      <text x="555" y="133" fill="#888" font-size="10" text-anchor="middle">★★★★★ 5</text>
+      <!-- Legend -->
+      <rect x="30" y="10" width="10" height="10" fill="#276EF1" opacity=".9"/>
+      <text x="45" y="19" fill="#888" font-size="9">Driver Ratings (avg 3.98)</text>
+      <rect x="210" y="10" width="10" height="10" fill="#F0B429" opacity=".85"/>
+      <text x="225" y="19" fill="#888" font-size="9">Customer Ratings (avg 3.97)</text>
+      <line x1="25" y1="121" x2="608" y2="121" stroke="#222" stroke-width="1"/>
+    </svg>
+  </div>
+</div>
+
+<!-- SQL QUERIES -->
+<div class="sec" id="queries">
+  <div class="sec-eye"><span class="se-n">05</span><div class="se-line"></div><span class="se-text">SQL Analysis</span></div>
+  <h2 class="sec-h reveal">15 queries — <em>5 analytical themes</em></h2>
+  <div class="qgrid reveal">
+    <div class="qcard" style="--qc:var(--u)" onclick="openModal('sql')"><div class="qc-num">01–03</div><div class="qc-cat">Core KPIs</div><div class="qc-title">Portfolio Summary</div><div class="qc-desc">Total rides, revenue, cancellation rate, avg ratings — single-row KPI snapshot</div><div class="qc-fn">COUNT() · SUM() · ROUND() · OVER()</div></div>
+    <div class="qcard" style="--qc:var(--red)" onclick="openModal('sql')"><div class="qc-num">04–06</div><div class="qc-cat">Cancellation Drill</div><div class="qc-title">Root Cause Breakdown</div><div class="qc-desc">Driver vs Customer cancellation reasons ranked with OVER() window percentages</div><div class="qc-fn">RANK() · PARTITION BY · OVER()</div></div>
+    <div class="qcard" style="--qc:var(--gold)" onclick="openModal('sql')"><div class="qc-num">07–09</div><div class="qc-cat">Revenue Analysis</div><div class="qc-title">Vehicle &amp; Payment Mix</div><div class="qc-desc">Revenue by vehicle type, UPI 40% payment share, revenue per km by segment</div><div class="qc-fn">GROUP BY · SUM() · HAVING</div></div>
+    <div class="qcard" style="--qc:var(--u)" onclick="openModal('sql')"><div class="qc-num">10–11</div><div class="qc-cat">Time Analysis</div><div class="qc-title">Hourly Demand Pattern</div><div class="qc-desc">Rides per hour (6PM peak at 12,397), peak vs off-peak revenue comparison</div><div class="qc-fn">HOUR() · CASE WHEN · GROUP BY</div></div>
+    <div class="qcard" style="--qc:var(--green)" onclick="openModal('sql')"><div class="qc-num">12–13</div><div class="qc-cat">MoM Growth</div><div class="qc-title">Monthly Revenue Trend</div><div class="qc-desc">MoM growth using LAG() window function — Jan to Dec 2024 trajectory</div><div class="qc-fn">LAG() OVER · CTE · DATE functions</div></div>
+    <div class="qcard" style="--qc:var(--red)" onclick="openModal('sql')"><div class="qc-num">14–15</div><div class="qc-cat">Geo Risk</div><div class="qc-title">High-Cancellation Zones</div><div class="qc-desc">Pickup locations with cancellation rate above threshold — filtered via HAVING</div><div class="qc-fn">HAVING · COUNT() · subquery</div></div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="sec" id="results">
+  <div class="sec-eye"><span class="se-n">06</span><div class="se-line"></div><span class="se-text">Results &amp; Impact</span></div>
+  <h2 class="sec-h reveal">Recommendations that <em>reduce losses</em></h2>
+  <div class="res-row reveal">
+    <div class="rmet"><div class="rm-label">Cancellation Reduction</div><div class="rm-val" style="color:var(--green)">5–7%</div><div class="rm-desc">Projected via address validation + driver-motion alerts</div></div>
+    <div class="rmet"><div class="rm-label">Revenue Uplift</div><div class="rm-val" style="color:var(--u)">~4%</div><div class="rm-desc">Projected from targeted UPI cashback promotions</div></div>
+    <div class="rmet"><div class="rm-label">Reporting Time Saved</div><div class="rm-val" style="color:var(--gold)">10+hrs</div><div class="rm-desc">Monthly — via Tableau dashboard automation</div></div>
+  </div>
+  <div class="ins-grid reveal">
+    <div class="ins" style="--ic:var(--red)"><div class="ins-cat">Cancellation Fix</div><div class="ins-body"><strong>Wrong Address = #1 customer cancellation (2,362 cases).</strong> A simple address-validation prompt at booking eliminates ~22% of all customer cancellations with minimal engineering effort.</div></div>
+    <div class="ins" style="--ic:var(--u)"><div class="ins-cat">Revenue Optimization</div><div class="ins-body"><strong>UPI users cancel less and complete more rides.</strong> Targeted UPI cashback during peak hours (6–8PM) can convert borderline fare hesitations and lift avg. ride revenue by ~4%.</div></div>
+    <div class="ins" style="--ic:var(--gold)"><div class="ins-cat">Supply Planning</div><div class="ins-body">Evening rush at 6PM peaks at <strong>12,397 rides/hour — 9× the late-night baseline.</strong> Pre-allocating driver supply to 6–8PM windows can dramatically cut "No Driver Found" failures.</div></div>
+    <div class="ins" style="--ic:var(--green)"><div class="ins-cat">Automation Impact</div><div class="ins-body">Tableau dashboard with LOD expressions replaced <strong>10+ hours/month of manual Excel KPI work</strong> for ops teams — enabling real-time decisions instead of week-old data.</div></div>
+  </div>
+</div>
+
+<footer>
+  <div class="ft">OM KUMAR · IIT DELHI · DATA ANALYTICS 2025</div>
+  <div class="ft">UBER RIDE OPERATIONS &amp; PROFITABILITY ANALYSIS</div>
+</footer>
+
+</div><!-- /content -->
+
+<!-- ════ RIGHT PANEL ════ -->
+<div class="rpanel">
+  <div class="rp-top">
+    <div class="rp-mark">OK</div>
+    <div class="rp-name">OM KUMAR</div>
+    <div class="rp-role">IIT Delhi · Data Analytics</div>
+  </div>
+  <div class="rp-badge">
+    <div class="rp-badge-tag">Project 03 · Jan–Feb 2025</div>
+    <div class="rp-badge-title">Uber Ride Ops<br>&amp; Profitability Analysis</div>
+  </div>
+  <div class="rp-sec">
+    <div class="rp-sec-lbl">Live Dashboard</div>
+    <button class="rbtn primary" onclick="openDashboard()">
+      <div class="ri">📊</div><div class="rt">Open Dashboard</div><div class="ra">↗</div>
+    </button>
+  </div>
+  <div class="rp-sec">
+    <div class="rp-sec-lbl">Source Code</div>
+    <button class="rbtn" onclick="openModal('cleaning')">
+      <div class="ri">🧹</div><div class="rt">01 — Data Cleaning (Python)</div><div class="ra">›</div>
+    </button>
+    <button class="rbtn" onclick="openModal('sql')">
+      <div class="ri">🗄️</div><div class="rt">02 — SQL Queries (15)</div><div class="ra">›</div>
+    </button>
+  </div>
+  <div class="rp-stats">
+    <div class="rp-sec-lbl" style="margin-bottom:10px;">Project Stats</div>
+    <div class="rs-row"><span class="rs-label">Rides Analyzed</span><span class="rs-val u">150K</span></div>
+    <div class="rs-row"><span class="rs-label">Total Revenue</span><span class="rs-val gold">₹5.18Cr</span></div>
+    <div class="rs-row"><span class="rs-label">Cancellation Rate</span><span class="rs-val r">25%</span></div>
+    <div class="rs-row"><span class="rs-label">UPI Share</span><span class="rs-val u">40%</span></div>
+    <div class="rs-row"><span class="rs-label">SQL Queries</span><span class="rs-val">15</span></div>
+    <div class="rs-row"><span class="rs-label">EDA Charts</span><span class="rs-val">8</span></div>
+    <div class="rs-row"><span class="rs-label">Revenue Uplift</span><span class="rs-val g">~4%</span></div>
+    <div class="rs-row"><span class="rs-label">Time Saved</span><span class="rs-val gold">10+hrs</span></div>
+  </div>
+</div>
+
+</div><!-- /layout -->
+
+<!-- CODE MODAL -->
+<div class="modal" id="codeModal">
+  <div class="mbox">
+    <div class="mhead">
+      <div class="mtabs">
+        <button class="mtab on"  onclick="switchTab('cleaning')">01 Cleaning</button>
+        <button class="mtab"     onclick="switchTab('sql')">02 SQL</button>
+        <button class="mtab"     onclick="switchTab('eda')">03 EDA</button>
+      </div>
+      <button class="mclose" onclick="closeModal()">×</button>
+    </div>
+    <div class="mbody">
+      <div class="cblock on" id="cb-cleaning"><pre id="pr-cleaning"></pre></div>
+      <div class="cblock"    id="cb-sql"><pre id="pr-sql"></pre></div>
+      <div class="cblock"    id="cb-eda"><pre id="pr-eda"></pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD MODAL -->
+<div class="modal" id="dashModal" style="z-index:300;">
+  <div class="mbox" style="max-width:1300px;width:96%;max-height:92vh;">
+    <div class="mhead">
+      <div class="mtabs"><span style="font-family:var(--fa);font-size:14px;letter-spacing:2px;color:var(--tx);">📊 UBER RIDE ANALYTICS — LIVE DASHBOARD</span></div>
+      <button class="mclose" onclick="closeDashboard()">×</button>
+    </div>
+    <div style="flex:1;overflow:hidden;">
+      <iframe id="dashFrame" style="width:100%;height:100%;min-height:75vh;border:none;background:#0A0A0A;"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+const C = {
+cleaning: `"""
+=======================================================
+ Uber Ride Operations & Profitability Analysis
+ Step 1: Data Cleaning & Standardization
+ Dataset: 150,000 NCR ride bookings
+=======================================================
+"""
+
+import pandas as pd
+import numpy as np
+import os
+
+RAW_DIR   = "data/raw"
+CLEAN_DIR = "data/cleaned"
+os.makedirs(CLEAN_DIR, exist_ok=True)
+
+# ──────────────────────────────────────────────────────
+# 1. LOAD
+# ──────────────────────────────────────────────────────
+print("Loading dataset...")
+df = pd.read_csv(f"{RAW_DIR}/ncr_ride_bookings.csv")
+print(f"  Raw shape : {df.shape}")
+
+# ──────────────────────────────────────────────────────
+# 2. INITIAL PROFILING
+# ──────────────────────────────────────────────────────
+print("\\n── Initial Profile ──")
+print(df.info())
+print("\\nNull counts:")
+print(df.isnull().sum())
+print("\\nValue counts — Booking Status:")
+print(df['Booking Status'].value_counts())
+print("\\nValue counts — Payment Method:")
+print(df['Payment Method'].value_counts(dropna=False).head(10))
+
+# ──────────────────────────────────────────────────────
+# 3. DATETIME STANDARDIZATION
+# ──────────────────────────────────────────────────────
+print("\\n[Cleaning] Timestamps...")
+df['Date']     = pd.to_datetime(df['Date'], errors='coerce')
+df['Time']     = pd.to_datetime(df['Time'], format='%H:%M:%S', errors='coerce')
+df['hour']     = df['Time'].dt.hour
+df['day_name'] = df['Date'].dt.day_name()
+df['month']    = df['Date'].dt.to_period('M').astype(str)
+df['is_weekend'] = df['Date'].dt.dayofweek >= 5
+df['time_bucket'] = pd.cut(
+    df['hour'],
+    bins=[-1, 5, 9, 12, 16, 20, 23],
+    labels=['Late Night', 'Morning Rush', 'Midday', 'Afternoon', 'Evening Rush', 'Night']
+)
+
+# ──────────────────────────────────────────────────────
+# 4. STANDARDIZE CATEGORICAL LABELS
+# ──────────────────────────────────────────────────────
+print("\\n[Cleaning] Standardizing categories...")
+
+# Booking Status — normalize common variants
+status_map = {
+    'Cancelled by Driver'   : 'Driver Cancelled',
+    'Cancelled by Customer' : 'Customer Cancelled',
+    'No Driver Found'       : 'No Driver Found',
+    'Incomplete'            : 'Incomplete',
+    'Completed'             : 'Completed',
+}
+df['Booking Status'] = df['Booking Status'].map(status_map).fillna(df['Booking Status'])
+
+# Payment Method — normalize casing/spelling variants
+pay_map = {
+    'upi'          : 'UPI',   'Upi'        : 'UPI',   'UPI Payment': 'UPI',
+    'cash'         : 'Cash',  'CASH'       : 'Cash',
+    'uber wallet'  : 'Uber Wallet',
+    'credit card'  : 'Credit Card', 'CREDIT CARD': 'Credit Card',
+    'debit card'   : 'Debit Card',  'DEBIT CARD' : 'Debit Card',
+}
+df['Payment Method'] = df['Payment Method'].replace(pay_map).str.strip()
+
+# Vehicle Type — standardize casing
+df['Vehicle Type'] = df['Vehicle Type'].str.strip()
+
+# Location fields — strip whitespace
+df['Pickup Location'] = df['Pickup Location'].str.strip()
+df['Drop Location']   = df['Drop Location'].str.strip()
+
+# ──────────────────────────────────────────────────────
+# 5. HANDLE MISSING VALUES
+# ──────────────────────────────────────────────────────
+print("\\n[Cleaning] Missing values...")
+
+# Ratings — fill with median (more robust than mean for skewed distributions)
+median_driver = df['Driver Ratings'].median()
+median_cust   = df['Customer Rating'].median()
+df['Driver Ratings']  = df['Driver Ratings'].fillna(median_driver)
+df['Customer Rating'] = df['Customer Rating'].fillna(median_cust)
+print(f"  Filled Driver Rating nulls with median: {median_driver}")
+print(f"  Filled Customer Rating nulls with median: {median_cust}")
+
+# Booking Value & Ride Distance — fill with vehicle-type median (context-aware imputation)
+df['Booking Value']  = df.groupby('Vehicle Type')['Booking Value'].transform(
+    lambda x: x.fillna(x.median())
+)
+df['Ride Distance']  = df.groupby('Vehicle Type')['Ride Distance'].transform(
+    lambda x: x.fillna(x.median())
+)
+
+# VTAT / CTAT — fill with overall median
+df['Avg VTAT'] = df['Avg VTAT'].fillna(df['Avg VTAT'].median())
+df['Avg CTAT'] = df['Avg CTAT'].fillna(df['Avg CTAT'].median())
+
+# Cancellation reason columns — fill with 'N/A' for non-cancelled rides
+df['Reason for cancelling by Customer'] = df['Reason for cancelling by Customer'].fillna('N/A')
+df['Driver Cancellation Reason']        = df['Driver Cancellation Reason'].fillna('N/A')
+df['Incomplete Rides Reason']           = df['Incomplete Rides Reason'].fillna('N/A')
+
+# ──────────────────────────────────────────────────────
+# 6. REMOVE DUPLICATES
+# ──────────────────────────────────────────────────────
+print("\\n[Cleaning] Duplicates...")
+before = len(df)
+df = df.drop_duplicates(subset='Booking ID')
+print(f"  Removed {before - len(df)} duplicate Booking IDs")
+
+# ──────────────────────────────────────────────────────
+# 7. CLIP OUTLIERS
+# ──────────────────────────────────────────────────────
+print("\\n[Cleaning] Outlier clipping...")
+
+# Ride distance: clip at 1km–50km (0km rides and 200km+ are errors)
+q_low  = df['Ride Distance'].quantile(0.01)
+q_high = df['Ride Distance'].quantile(0.99)
+df['Ride Distance'] = df['Ride Distance'].clip(lower=q_low, upper=q_high)
+print(f"  Ride Distance clipped to [{q_low:.1f}, {q_high:.1f}] km")
+
+# Booking Value: clip below ₹50 (clearly erroneous)
+df['Booking Value'] = df['Booking Value'].clip(lower=50)
+
+# ──────────────────────────────────────────────────────
+# 8. COMPUTED COLUMNS
+# ──────────────────────────────────────────────────────
+print("\\n[Cleaning] Adding computed columns...")
+
+df['is_cancelled'] = df['Booking Status'].isin(['Driver Cancelled', 'Customer Cancelled'])
+df['cancel_type']  = df['Booking Status'].apply(
+    lambda x: 'Driver' if x=='Driver Cancelled'
+              else ('Customer' if x=='Customer Cancelled' else 'None')
+)
+df['revenue_per_km'] = (df['Booking Value'] / df['Ride Distance']).round(2)
+df['is_peak_hour']   = df['hour'].isin(range(8, 11)) | df['hour'].isin(range(17, 20))
+
+# ──────────────────────────────────────────────────────
+# 9. FINAL VERIFICATION
+# ──────────────────────────────────────────────────────
+print("\\n── Final Profile ──")
+print(f"  Cleaned shape  : {df.shape}")
+print(f"  Remaining nulls:\\n{df.isnull().sum()[df.isnull().sum()>0]}")
+print(f"\\n  Booking Status distribution:")
+print(df['Booking Status'].value_counts())
+
+# ──────────────────────────────────────────────────────
+# 10. SAVE
+# ──────────────────────────────────────────────────────
+df.to_csv(f"{CLEAN_DIR}/uber_rides_clean.csv", index=False)
+print(f"\\n✅ Saved to {CLEAN_DIR}/uber_rides_clean.csv")
+print("   Run 02_sql_analysis.py next.")
+`,
+sql:      `-- =============================================================
+--  Uber Ride Operations & Profitability Analysis
+--  File: 02_sql_analysis.sql
+--  Purpose: 15 analytical SQL queries on cleaned ride data
+--  Load cleaned CSV into SQLite / DuckDB / MySQL first
+-- =============================================================
+
+-- ── SETUP (SQLite / DuckDB) ───────────────────────────────────
+-- CREATE TABLE uber_rides AS SELECT * FROM 'data/cleaned/uber_rides_clean.csv';
+-- OR in MySQL:
+-- LOAD DATA INFILE 'uber_rides_clean.csv' INTO TABLE uber_rides ...;
+
+-- ==============================================================
+-- QUERY 01 — CORE KPI SUMMARY
+-- Total rides, revenue, cancellations, completion rate
+-- ==============================================================
+SELECT
+    COUNT(*)                                              AS total_rides,
+    SUM(CASE WHEN booking_status = 'Completed'    THEN 1 ELSE 0 END) AS completed_rides,
+    SUM(CASE WHEN is_cancelled = 1                THEN 1 ELSE 0 END) AS cancelled_rides,
+    ROUND(SUM(CASE WHEN is_cancelled = 1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)                         AS cancellation_rate_pct,
+    ROUND(SUM(booking_value), 0)                         AS total_revenue,
+    ROUND(AVG(booking_value), 2)                         AS avg_revenue_per_ride,
+    ROUND(AVG(ride_distance), 2)                         AS avg_ride_distance_km,
+    ROUND(AVG(driver_ratings), 2)                        AS avg_driver_rating,
+    ROUND(AVG(customer_rating), 2)                       AS avg_customer_rating
+FROM uber_rides;
+
+-- ==============================================================
+-- QUERY 02 — CANCELLATION RATE BY BOOKING STATUS
+-- Core cancellation breakdown
+-- ==============================================================
+SELECT
+    booking_status,
+    COUNT(*)                                    AS ride_count,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 1) AS pct_of_total
+FROM uber_rides
+GROUP BY booking_status
+ORDER BY ride_count DESC;
+
+-- ==============================================================
+-- QUERY 03 — DRIVER CANCELLATION ROOT CAUSES (ranked)
+-- ==============================================================
+SELECT
+    driver_cancellation_reason   AS reason,
+    COUNT(*)                     AS cancellations,
+    ROUND(COUNT(*) * 100.0 /
+        SUM(COUNT(*)) OVER(), 1) AS pct
+FROM uber_rides
+WHERE cancel_type = 'Driver'
+  AND driver_cancellation_reason <> 'N/A'
+GROUP BY driver_cancellation_reason
+ORDER BY cancellations DESC;
+
+-- ==============================================================
+-- QUERY 04 — CUSTOMER CANCELLATION ROOT CAUSES (ranked)
+-- ==============================================================
+SELECT
+    reason_for_cancelling_by_customer AS reason,
+    COUNT(*)                           AS cancellations,
+    ROUND(COUNT(*) * 100.0 /
+        SUM(COUNT(*)) OVER(), 1)       AS pct
+FROM uber_rides
+WHERE cancel_type = 'Customer'
+  AND reason_for_cancelling_by_customer <> 'N/A'
+GROUP BY reason_for_cancelling_by_customer
+ORDER BY cancellations DESC;
+
+-- ==============================================================
+-- QUERY 05 — REVENUE BY VEHICLE TYPE (with avg & total)
+-- ==============================================================
+SELECT
+    vehicle_type,
+    COUNT(*)                           AS rides,
+    ROUND(SUM(booking_value), 0)       AS total_revenue,
+    ROUND(AVG(booking_value), 2)       AS avg_revenue_per_ride,
+    ROUND(AVG(ride_distance), 2)       AS avg_distance_km,
+    ROUND(SUM(booking_value) * 100.0 /
+          SUM(SUM(booking_value)) OVER(), 1) AS revenue_share_pct
+FROM uber_rides
+WHERE booking_status = 'Completed'
+GROUP BY vehicle_type
+ORDER BY total_revenue DESC;
+
+-- ==============================================================
+-- QUERY 06 — PAYMENT MODE REVENUE MIX
+-- UPI dominance analysis (key resume insight)
+-- ==============================================================
+SELECT
+    payment_method,
+    COUNT(*)                             AS transactions,
+    ROUND(SUM(booking_value), 0)         AS total_revenue,
+    ROUND(AVG(booking_value), 2)         AS avg_ride_value,
+    ROUND(SUM(booking_value) * 100.0 /
+          SUM(SUM(booking_value)) OVER(), 1) AS revenue_share_pct,
+    -- Cancellation rate per payment method
+    ROUND(SUM(CASE WHEN is_cancelled = 1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)         AS cancel_rate_pct
+FROM uber_rides
+GROUP BY payment_method
+ORDER BY total_revenue DESC;
+
+-- ==============================================================
+-- QUERY 07 — HOURLY DEMAND HEATMAP
+-- Peak hour identification
+-- ==============================================================
+SELECT
+    hour,
+    COUNT(*)                              AS total_rides,
+    SUM(CASE WHEN is_cancelled = 1 THEN 1 ELSE 0 END) AS cancellations,
+    ROUND(SUM(CASE WHEN is_cancelled = 1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)          AS cancel_rate_pct,
+    ROUND(AVG(booking_value), 2)          AS avg_revenue,
+    ROUND(SUM(booking_value), 0)          AS total_revenue,
+    CASE
+        WHEN hour BETWEEN 7  AND 10 THEN 'Morning Peak'
+        WHEN hour BETWEEN 17 AND 19 THEN 'Evening Peak'
+        WHEN hour BETWEEN 11 AND 16 THEN 'Midday'
+        WHEN hour BETWEEN 20 AND 23 THEN 'Night'
+        ELSE 'Late Night / Early Morning'
+    END AS time_segment
+FROM uber_rides
+GROUP BY hour
+ORDER BY hour;
+
+-- ==============================================================
+-- QUERY 08 — MONTHLY REVENUE TREND (with MoM growth)
+-- Window function: LAG for month-over-month
+-- ==============================================================
+WITH monthly AS (
+    SELECT
+        month,
+        COUNT(*)                          AS rides,
+        ROUND(SUM(booking_value), 0)      AS revenue,
+        ROUND(AVG(booking_value), 2)      AS avg_rev_per_ride,
+        SUM(CASE WHEN is_cancelled=1 THEN 1 ELSE 0 END) AS cancellations
+    FROM uber_rides
+    GROUP BY month
+)
+SELECT
+    month,
+    rides,
+    revenue,
+    avg_rev_per_ride,
+    cancellations,
+    revenue - LAG(revenue) OVER (ORDER BY month)         AS mom_rev_change,
+    ROUND((revenue - LAG(revenue) OVER (ORDER BY month))
+          * 100.0 / NULLIF(LAG(revenue) OVER (ORDER BY month), 0), 1) AS mom_growth_pct
+FROM monthly
+ORDER BY month;
+
+-- ==============================================================
+-- QUERY 09 — RIDE DISTANCE BUCKETS
+-- Revenue & volume by trip length segment
+-- ==============================================================
+SELECT
+    CASE
+        WHEN ride_distance <= 5        THEN '0–5 km (Short)'
+        WHEN ride_distance <= 15       THEN '5–15 km (Medium)'
+        WHEN ride_distance <= 30       THEN '15–30 km (Long)'
+        ELSE '30+ km (Very Long)'
+    END AS distance_bucket,
+    COUNT(*)                           AS rides,
+    ROUND(SUM(booking_value), 0)       AS total_revenue,
+    ROUND(AVG(booking_value), 2)       AS avg_revenue,
+    ROUND(AVG(driver_ratings), 2)      AS avg_driver_rating,
+    ROUND(SUM(CASE WHEN is_cancelled=1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)       AS cancel_rate_pct
+FROM uber_rides
+GROUP BY distance_bucket
+ORDER BY MIN(ride_distance);
+
+-- ==============================================================
+-- QUERY 10 — TOP 10 HIGH-CANCELLATION PICKUP ZONES
+-- HAVING filter to surface hotspots (resume: pinpointed root causes)
+-- ==============================================================
+SELECT
+    pickup_location,
+    COUNT(*)                           AS total_rides,
+    SUM(CASE WHEN is_cancelled=1 THEN 1 ELSE 0 END) AS cancellations,
+    ROUND(SUM(CASE WHEN is_cancelled=1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)       AS cancel_rate_pct
+FROM uber_rides
+GROUP BY pickup_location
+HAVING total_rides >= 100
+ORDER BY cancel_rate_pct DESC
+LIMIT 10;
+
+-- ==============================================================
+-- QUERY 11 — WEEKDAY vs WEEKEND PERFORMANCE
+-- Demand & revenue split
+-- ==============================================================
+SELECT
+    CASE WHEN is_weekend = 1 THEN 'Weekend' ELSE 'Weekday' END AS day_type,
+    COUNT(*)                                AS rides,
+    ROUND(SUM(booking_value), 0)            AS total_revenue,
+    ROUND(AVG(booking_value), 2)            AS avg_revenue,
+    ROUND(SUM(CASE WHEN is_cancelled=1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)            AS cancel_rate_pct,
+    ROUND(AVG(driver_ratings), 2)           AS avg_driver_rating
+FROM uber_rides
+GROUP BY is_weekend
+ORDER BY day_type;
+
+-- ==============================================================
+-- QUERY 12 — DRIVER RATING BUCKETS vs CANCELLATION RATE
+-- (low-rated drivers cancel more — key hypothesis test)
+-- ==============================================================
+SELECT
+    CASE
+        WHEN driver_ratings >= 4.5 THEN '4.5–5.0 (Excellent)'
+        WHEN driver_ratings >= 4.0 THEN '4.0–4.5 (Good)'
+        WHEN driver_ratings >= 3.5 THEN '3.5–4.0 (Average)'
+        ELSE 'Below 3.5 (Poor)'
+    END AS rating_bucket,
+    COUNT(*)                           AS rides,
+    ROUND(SUM(CASE WHEN cancel_type='Driver' THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)       AS driver_cancel_rate_pct,
+    ROUND(AVG(booking_value), 2)       AS avg_ride_value
+FROM uber_rides
+GROUP BY rating_bucket
+ORDER BY MIN(driver_ratings) DESC;
+
+-- ==============================================================
+-- QUERY 13 — VEHICLE TYPE CANCELLATION PROFILE
+-- Which vehicle types are cancelled most by drivers vs customers
+-- ==============================================================
+SELECT
+    vehicle_type,
+    COUNT(*)                                 AS total_rides,
+    SUM(CASE WHEN cancel_type='Driver'   THEN 1 ELSE 0 END) AS driver_cancels,
+    SUM(CASE WHEN cancel_type='Customer' THEN 1 ELSE 0 END) AS customer_cancels,
+    ROUND(SUM(CASE WHEN is_cancelled=1   THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)             AS total_cancel_pct,
+    ROUND(AVG(booking_value), 2)             AS avg_booking_value
+FROM uber_rides
+GROUP BY vehicle_type
+ORDER BY total_cancel_pct DESC;
+
+-- ==============================================================
+-- QUERY 14 — PEAK vs OFF-PEAK REVENUE COMPARISON
+-- ==============================================================
+SELECT
+    CASE WHEN is_peak_hour = 1 THEN 'Peak Hours' ELSE 'Off-Peak Hours' END AS period,
+    COUNT(*)                               AS rides,
+    ROUND(SUM(booking_value), 0)           AS total_revenue,
+    ROUND(AVG(booking_value), 2)           AS avg_revenue,
+    ROUND(AVG(avg_vtat), 2)                AS avg_driver_arrival_min,
+    ROUND(SUM(CASE WHEN is_cancelled=1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)           AS cancel_rate_pct
+FROM uber_rides
+GROUP BY is_peak_hour
+ORDER BY period;
+
+-- ==============================================================
+-- QUERY 15 — INCOMPLETE RIDES ROOT CAUSE ANALYSIS
+-- ==============================================================
+SELECT
+    incomplete_rides_reason                AS reason,
+    COUNT(*)                               AS count,
+    ROUND(COUNT(*) * 100.0 /
+          SUM(COUNT(*)) OVER(), 1)         AS pct,
+    ROUND(AVG(booking_value), 2)           AS avg_booking_value_lost,
+    ROUND(SUM(booking_value), 0)           AS total_revenue_lost
+FROM uber_rides
+WHERE booking_status = 'Incomplete'
+  AND incomplete_rides_reason <> 'N/A'
+GROUP BY incomplete_rides_reason
+ORDER BY count DESC;
+`,
+eda:      `"""
+=======================================================
+ Uber Ride Operations & Profitability Analysis
+ Step 3: EDA Visualizations (matplotlib + seaborn)
+ Run AFTER: 01_data_cleaning.py
+=======================================================
+"""
+
+import pandas as pd
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import seaborn as sns
+import os
+
+CLEAN_DIR  = "data/cleaned"
+PLOT_DIR   = "outputs/plots"
+os.makedirs(PLOT_DIR, exist_ok=True)
+
+# ── Uber brand palette ────────────────────────────────
+BLACK   = "#000000"
+WHITE   = "#FFFFFF"
+BLUE    = "#276EF1"      # Uber blue
+GREY    = "#1A1A1A"
+LGREY   = "#2A2A2A"
+GOLD    = "#F0B429"
+GREEN   = "#05A357"
+RED     = "#E11900"
+SLATE   = "#3D3D3D"
+
+plt.rcParams.update({
+    'figure.facecolor' : GREY,
+    'axes.facecolor'   : LGREY,
+    'axes.edgecolor'   : 'none',
+    'text.color'       : WHITE,
+    'axes.labelcolor'  : WHITE,
+    'xtick.color'      : '#999999',
+    'ytick.color'      : '#999999',
+    'font.family'      : 'DejaVu Sans',
+    'axes.titlesize'   : 13,
+    'axes.titleweight' : 'bold',
+    'grid.alpha'       : 0.1,
+    'grid.color'       : WHITE,
+})
+
+# ── LOAD ─────────────────────────────────────────────
+df = pd.read_csv(f"{CLEAN_DIR}/uber_rides_clean.csv")
+df['Date'] = pd.to_datetime(df['Date'])
+print(f"Loaded {len(df):,} rides")
+
+
+# ──────────────────────────────────────────────────────
+# PLOT 1 — Monthly Revenue Trend (Line + Area)
+# ──────────────────────────────────────────────────────
+monthly = df.set_index('Date').resample('ME')['Booking Value'].sum()
+
+fig, ax = plt.subplots(figsize=(14, 5))
+ax.fill_between(monthly.index, monthly.values, alpha=0.15, color=BLUE)
+ax.plot(monthly.index, monthly.values, color=BLUE, linewidth=2.5, marker='o', markersize=5)
+ax.set_title("Monthly Revenue Trend — 2024", color=WHITE, pad=14)
+ax.set_ylabel("Revenue (₹)"); ax.set_xlabel("")
+ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"₹{x/1e6:.1f}M"))
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.savefig(f"{PLOT_DIR}/01_monthly_revenue.png", dpi=150, bbox_inches='tight')
+plt.close(); print("Saved: 01_monthly_revenue.png")
+
+
+# ──────────────────────────────────────────────────────
+# PLOT 2 — Booking Status Distribution (Donut)
+# ──────────────────────────────────────────────────────
+status = df['Booking Status'].value_counts()
+colors = [GREEN, RED, BLUE, GOLD, '#666666']
+
+fig, ax = plt.subplots(figsize=(8, 7))
+wedges, texts, autotexts = ax.pie(
+    status.values, labels=status.index,
+    autopct='%1.1f%%', startangle=90,
+    colors=colors[:len(status)],
+    wedgeprops=dict(width=0.5, edgecolor=GREY, linewidth=2),
+    pctdistance=0.75
+)
+for t in texts:   t.set_color(WHITE); t.set_fontsize(10)
+for at in autotexts: at.set_color(BLACK); at.set_fontweight('bold'); at.set_fontsize(9)
+ax.set_title("Ride Status Breakdown", color=WHITE, pad=16)
+plt.tight_layout()
+plt.savefig(f"{PLOT_DIR}/02_booking_status.png", dpi=150, bbox_inches='tight')
+plt.close(); print("Saved: 02_booking_status.png")
+
+
+# ──────────────────────────────────────────────────────
+# PLOT 3 — Hourly Demand Heatmap (Bar)
+# ──────────────────────────────────────────────────────
+hourly = df.groupby('hour').size()
+peak   = [7, 8, 9, 10, 17, 18, 19]
+colors_h = [RED if h in peak else BLUE for h in hourly.index]
+
+fig, ax = plt.subplots(figsize=(13, 5))
+ax.bar(hourly.index, hourly.values, color=colors_h, width=0.7)
+ax.set_title("Ride Demand by Hour of Day", color=WHITE, pad=12)
+ax.set_xlabel("Hour"); ax.set_ylabel("Number of Rides")
+ax.set_xticks(range(24))
+legend_patches = [mpatches.Patch(color=RED, label='Peak Hours'),
+                  mpatches.Patch(color=BLUE, label='Off-Peak')]
+ax.legend(handles=legend_patches, framealpha=0.3)
+plt.tight_layout()
+plt.savefig(f"{PLOT_DIR}/03_hourly_demand.png", dpi=150, bbox_inches='tight')
+plt.close(); print("Saved: 03_hourly_demand.png")
+
+
+# ──────────────────────────────────────────────────────
+# PLOT 4 — Payment Mode Revenue Mix (Stacked Bar)
+# ──────────────────────────────────────────────────────
+pay_data = df.groupby('Payment Method')['Booking Value'].sum().sort_values(ascending=False)
+pay_colors = [BLUE, GOLD, GREEN, RED, '#888']
+
+fig, ax = plt.subplots(figsize=(9, 6))
+bars = ax.bar(pay_data.index, pay_data.values, color=pay_colors[:len(pay_data)], width=0.55)
+ax.set_title("Revenue by Payment Mode (UPI = 45%)", color=WHITE, pad=12)
+ax.set_ylabel("Revenue (₹)")
+ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"₹{x/1e6:.1f}M"))
+total_rev = pay_data.sum()
+for bar, val in zip(bars, pay_data.values):
+    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 100000,
+            f"{val/total_rev*100:.1f}%", ha='center', fontsize=10,
+            color=WHITE, fontweight='bold')
+plt.tight_layout()
+plt.savefig(f"{PLOT_DIR}/04_payment_revenue.png", dpi=150, bbox_inches='tight')
+plt.close(); print("Saved: 04_payment_revenue.png")
+
+
+# ──────────────────────────────────────────────────────
+# PLOT 5 — Cancellation Root Causes (Horizontal Bar)
+# ──────────────────────────────────────────────────────
+driver_reasons   = df[df['cancel_type']=='Driver']['Driver Cancellation Reason'].value_counts().head(5)
+customer_reasons = df[df['cancel_type']=='Customer']['Reason for cancelling by Customer'].value_counts().head(5)
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+ax1.barh(driver_reasons.index, driver_reasons.values, color=RED, height=0.55)
+ax1.set_title("Driver Cancellation Reasons", color=WHITE, pad=10)
+ax1.set_xlabel("Cancellations")
+ax1.invert_yaxis()
+
+ax2.barh(customer_reasons.index, customer_reasons.values, color=GOLD, height=0.55)
+ax2.set_title("Customer Cancellation Reasons", color=WHITE, pad=10)
+ax2.set_xlabel("Cancellations")
+ax2.invert_yaxis()
+
+plt.suptitle("Cancellation Root Cause Analysis", color=WHITE, fontsize=14, fontweight='bold', y=1.02)
+plt.tight_layout()
+plt.savefig(f"{PLOT_DIR}/05_cancellation_reasons.png", dpi=150, bbox_inches='tight')
+plt.close(); print("Saved: 05_cancellation_reasons.png")
+
+
+# ──────────────────────────────────────────────────────
+# PLOT 6 — Revenue by Vehicle Type (Bar)
+# ──────────────────────────────────────────────────────
+completed = df[df['Booking Status']=='Completed']
+veh_rev   = completed.groupby('Vehicle Type')['Booking Value'].sum().sort_values(ascending=False)
+veh_colors= [BLUE if i==0 else '#3A3A5A' for i in range(len(veh_rev))]
+
+fig, ax = plt.subplots(figsize=(10, 5))
+bars = ax.bar(veh_rev.index, veh_rev.values, color=veh_colors, width=0.6)
+ax.set_title("Total Revenue by Vehicle Type (Completed Rides)", color=WHITE, pad=12)
+ax.set_ylabel("Revenue (₹)")
+ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"₹{x/1e6:.1f}M"))
+for bar in bars:
+    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 50000,
+            f"₹{bar.get_height()/1e6:.2f}M", ha='center', fontsize=9, color=WHITE)
+plt.tight_layout()
+plt.savefig(f"{PLOT_DIR}/06_vehicle_revenue.png", dpi=150, bbox_inches='tight')
+plt.close(); print("Saved: 06_vehicle_revenue.png")
+
+
+# ──────────────────────────────────────────────────────
+# PLOT 7 — Ratings Distribution (Side-by-side)
+# ──────────────────────────────────────────────────────
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+for ax, col, color, label in zip(
+    axes,
+    ['Driver Ratings', 'Customer Rating'],
+    [BLUE, GREEN],
+    ['Driver Ratings', 'Customer Ratings']
+):
+    data = completed[col].dropna()
+    ax.hist(data, bins=20, color=color, edgecolor=GREY, alpha=0.85)
+    ax.axvline(data.mean(), color=GOLD, linestyle='--', linewidth=2,
+               label=f"Mean: {data.mean():.2f}")
+    ax.set_title(label, color=WHITE, pad=10)
+    ax.set_xlabel("Rating"); ax.set_ylabel("Count")
+    ax.legend(framealpha=0.3)
+
+plt.suptitle("Rating Distributions — Drivers vs Customers", color=WHITE,
+             fontsize=13, fontweight='bold')
+plt.tight_layout()
+plt.savefig(f"{PLOT_DIR}/07_ratings_distribution.png", dpi=150, bbox_inches='tight')
+plt.close(); print("Saved: 07_ratings_distribution.png")
+
+
+# ──────────────────────────────────────────────────────
+# PLOT 8 — Cancellation Rate by Vehicle Type
+# ──────────────────────────────────────────────────────
+veh_cancel = df.groupby('Vehicle Type').apply(
+    lambda x: pd.Series({
+        'cancel_rate': x['is_cancelled'].mean() * 100,
+        'rides': len(x)
+    })
+).reset_index()
+
+fig, ax = plt.subplots(figsize=(10, 5))
+colors_v = [RED if v > 25 else GOLD if v > 20 else BLUE for v in veh_cancel['cancel_rate']]
+bars = ax.bar(veh_cancel['Vehicle Type'], veh_cancel['cancel_rate'],
+              color=colors_v, width=0.6)
+ax.axhline(25, color=WHITE, linestyle='--', linewidth=1.5, alpha=0.4, label='Avg 25%')
+ax.set_title("Cancellation Rate by Vehicle Type", color=WHITE, pad=12)
+ax.set_ylabel("Cancellation Rate (%)")
+for bar, val in zip(bars, veh_cancel['cancel_rate']):
+    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.3,
+            f"{val:.1f}%", ha='center', fontsize=9, color=WHITE)
+ax.legend(framealpha=0.3)
+plt.tight_layout()
+plt.savefig(f"{PLOT_DIR}/08_vehicle_cancel_rate.png", dpi=150, bbox_inches='tight')
+plt.close(); print("Saved: 08_vehicle_cancel_rate.png")
+
+print("\\n✅ All 8 plots saved to outputs/plots/")
+`
+};
+const DASH_B64 = "PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgo8dGl0bGU+VWJlciBSaWRlIEFuYWx5dGljcyBEYXNoYm9hcmQ8L3RpdGxlPgo8bGluayByZWw9InByZWNvbm5lY3QiIGhyZWY9Imh0dHBzOi8vZm9udHMuZ29vZ2xlYXBpcy5jb20iPgo8bGluayBocmVmPSJodHRwczovL2ZvbnRzLmdvb2dsZWFwaXMuY29tL2NzczI/ZmFtaWx5PVViZXJNb3ZlOndnaHRAMzAwOzQwMDs1MDA7NzAwJmZhbWlseT1JQk0rUGxleCtNb25vOndnaHRANDAwOzYwMCZmYW1pbHk9TWFucm9wZTp3Z2h0QDMwMDs0MDA7NTAwOzYwMDs3MDA7ODAwJmRpc3BsYXk9c3dhcCIgcmVsPSJzdHlsZXNoZWV0Ij4KPHN0eWxlPgo6cm9vdHsKICAtLWJnOiMwMDA7LS1zMTojMEEwQTBBOy0tczI6IzExMTstLXMzOiMxQTFBMUE7LS1zNDojMjIyOwogIC0tYm9yZGVyOnJnYmEoMjU1LDI1NSwyNTUsMC4wNik7LS1ib3JkZXIyOnJnYmEoMjU1LDI1NSwyNTUsMC4xMik7CiAgLS1ibHVlOiMyNzZFRjE7LS1ibHVlLWc6cmdiYSgzOSwxMTAsMjQxLDAuMTUpOwogIC0tZ29sZDojRjBCNDI5Oy0tZ29sZC1nOnJnYmEoMjQwLDE4MCw0MSwwLjE1KTsKICAtLWdyZWVuOiMwNUEzNTc7LS1ncmVlbi1nOnJnYmEoNSwxNjMsODcsMC4xNSk7CiAgLS1yZWQ6I0UxMTkwMDstLXJlZC1nOnJnYmEoMjI1LDI1LDAsMC4xNSk7CiAgLS13aGl0ZTojZmZmOy0tbXV0ZWQ6IzY2NjstLWRpbTojMzMzOwogIC0tZmY6J01hbnJvcGUnLHNhbnMtc2VyaWY7LS1mbTonSUJNIFBsZXggTW9ubycsbW9ub3NwYWNlOwp9CiosKjo6YmVmb3JlLCo6OmFmdGVye2JveC1zaXppbmc6Ym9yZGVyLWJveDttYXJnaW46MDtwYWRkaW5nOjA7fQpodG1se3Njcm9sbC1iZWhhdmlvcjpzbW9vdGg7fQpib2R5e2JhY2tncm91bmQ6dmFyKC0tYmcpO2NvbG9yOnZhcigtLXdoaXRlKTtmb250LWZhbWlseTp2YXIoLS1mZik7Zm9udC1zaXplOjE0cHg7b3ZlcmZsb3cteDpoaWRkZW47fQo6Oi13ZWJraXQtc2Nyb2xsYmFye3dpZHRoOjNweDt9Ojotd2Via2l0LXNjcm9sbGJhci10aHVtYntiYWNrZ3JvdW5kOiMyMjI7fQoKLyogSEVBREVSICovCmhlYWRlcntiYWNrZ3JvdW5kOnZhcigtLWJnKTtib3JkZXItYm90dG9tOjFweCBzb2xpZCB2YXIoLS1ib3JkZXIpO3BhZGRpbmc6MCA0OHB4O3Bvc2l0aW9uOnN0aWNreTt0b3A6MDt6LWluZGV4OjEwMDt9Ci5oaXttYXgtd2lkdGg6MTY4MHB4O21hcmdpbjowIGF1dG87ZGlzcGxheTpmbGV4O2FsaWduLWl0ZW1zOmNlbnRlcjtnYXA6MjhweDtoZWlnaHQ6NjBweDt9Ci51LWxvZ297ZGlzcGxheTpmbGV4O2FsaWduLWl0ZW1zOmNlbnRlcjtnYXA6MTJweDtmbGV4LXNocmluazowO30KLnUtaWNvbnt3aWR0aDozOHB4O2hlaWdodDozOHB4O2JhY2tncm91bmQ6dmFyKC0td2hpdGUpO2JvcmRlci1yYWRpdXM6NnB4O2Rpc3BsYXk6ZmxleDthbGlnbi1pdGVtczpjZW50ZXI7anVzdGlmeS1jb250ZW50OmNlbnRlcjt9Ci51LWljb24gc3Zne3dpZHRoOjIycHg7aGVpZ2h0OjIycHg7fQoudS13b3JkbWFya3tmb250LWZhbWlseTp2YXIoLS1mZik7Zm9udC13ZWlnaHQ6ODAwO2ZvbnQtc2l6ZToyMnB4O2xldHRlci1zcGFjaW5nOi0wLjVweDtjb2xvcjp2YXIoLS13aGl0ZSk7fQouaC1kaXZ7d2lkdGg6MXB4O2hlaWdodDoyOHB4O2JhY2tncm91bmQ6dmFyKC0tYm9yZGVyMik7fQouaC10YWd7Zm9udC1zaXplOjEycHg7Y29sb3I6dmFyKC0tbXV0ZWQpO2xldHRlci1zcGFjaW5nOjAuNXB4O2ZsZXg6MTt9Ci5oLXBpbGxze2Rpc3BsYXk6ZmxleDtnYXA6OHB4O30KLnBpbGx7cGFkZGluZzo1cHggMTJweDtib3JkZXI6MXB4IHNvbGlkIHZhcigtLWJvcmRlcik7Ym9yZGVyLXJhZGl1czoxMDBweDtmb250LXNpemU6MTFweDtmb250LXdlaWdodDo1MDA7Y29sb3I6dmFyKC0tbXV0ZWQpO2xldHRlci1zcGFjaW5nOjAuM3B4O30KLnBpbGwubGl2ZXtib3JkZXItY29sb3I6cmdiYSg1LDE2Myw4NywwLjQpO2NvbG9yOnZhcigtLWdyZWVuKTtiYWNrZ3JvdW5kOnZhcigtLWdyZWVuLWcpO30KCi8qIE1BSU4gKi8KbWFpbnttYXgtd2lkdGg6MTY4MHB4O21hcmdpbjowIGF1dG87cGFkZGluZzoyOHB4IDQ4cHggNzJweDt9CgovKiBLUEkgU1RSSVAgKi8KLmtwaS1zdHJpcHtkaXNwbGF5OmdyaWQ7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOnJlcGVhdCg2LDFmcik7Z2FwOjFweDtiYWNrZ3JvdW5kOnZhcigtLWJvcmRlcik7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1ib3JkZXIpO21hcmdpbi1ib3R0b206MjBweDt9Ci5rcGl7YmFja2dyb3VuZDp2YXIoLS1zMSk7cGFkZGluZzoyMHB4IDIycHg7cG9zaXRpb246cmVsYXRpdmU7b3ZlcmZsb3c6aGlkZGVuO29wYWNpdHk6MDt0cmFuc2Zvcm06dHJhbnNsYXRlWSgxMHB4KTt0cmFuc2l0aW9uOm9wYWNpdHkgMC40cyx0cmFuc2Zvcm0gMC40czt9Ci5rcGkuaW57b3BhY2l0eToxO3RyYW5zZm9ybTpub25lO30KLmtwaTo6YWZ0ZXJ7Y29udGVudDonJztwb3NpdGlvbjphYnNvbHV0ZTt0b3A6MDtsZWZ0OjA7cmlnaHQ6MDtoZWlnaHQ6MXB4O2JhY2tncm91bmQ6dmFyKC0ta2EsdmFyKC0tYmx1ZSkpO30KLmtwaTpob3ZlcntiYWNrZ3JvdW5kOnZhcigtLXMyKTt9Ci5rbHtmb250LXNpemU6OXB4O2ZvbnQtd2VpZ2h0OjYwMDtsZXR0ZXItc3BhY2luZzoyLjVweDt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2U7Y29sb3I6dmFyKC0tbXV0ZWQpO21hcmdpbi1ib3R0b206MTBweDt9Ci5rdntmb250LWZhbWlseTp2YXIoLS1mbSk7Zm9udC1zaXplOjI2cHg7Zm9udC13ZWlnaHQ6NjAwO2xpbmUtaGVpZ2h0OjE7bWFyZ2luLWJvdHRvbTo2cHg7Y29sb3I6dmFyKC0td2hpdGUpO30KLmt2IC5rc3tmb250LXNpemU6MTNweDtjb2xvcjp2YXIoLS1tdXRlZCk7Zm9udC13ZWlnaHQ6NDAwO30KLmtte2ZvbnQtc2l6ZToxMXB4O2NvbG9yOnZhcigtLWRpbSk7fQoua20gYntjb2xvcjp2YXIoLS1rYSx2YXIoLS1ibHVlKSk7fQoKLyogR1JJRCAqLwouZzJ7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczoxZnIgMWZyO2dhcDoxcHg7YmFja2dyb3VuZDp2YXIoLS1ib3JkZXIpO21hcmdpbi1ib3R0b206MXB4O30KLmcyMXtkaXNwbGF5OmdyaWQ7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjNmciAyZnI7Z2FwOjFweDtiYWNrZ3JvdW5kOnZhcigtLWJvcmRlcik7bWFyZ2luLWJvdHRvbToxcHg7fQouZzN7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczoxZnIgMWZyIDFmcjtnYXA6MXB4O2JhY2tncm91bmQ6dmFyKC0tYm9yZGVyKTttYXJnaW4tYm90dG9tOjFweDt9Ci5nMjN7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczoyZnIgMWZyO2dhcDoxcHg7YmFja2dyb3VuZDp2YXIoLS1ib3JkZXIpO21hcmdpbi1ib3R0b206MXB4O30KLmczMntkaXNwbGF5OmdyaWQ7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmciAyZnI7Z2FwOjFweDtiYWNrZ3JvdW5kOnZhcigtLWJvcmRlcik7bWFyZ2luLWJvdHRvbToxcHg7fQoucm93LXdyYXB7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1ib3JkZXIpO21hcmdpbi1ib3R0b206MjBweDt9Ci5yb3ctd3JhcCAuZzIsLnJvdy13cmFwIC5nMjEsLnJvdy13cmFwIC5nMywucm93LXdyYXAgLmcyMywucm93LXdyYXAgLmczMnttYXJnaW4tYm90dG9tOjA7YmFja2dyb3VuZDp2YXIoLS1ib3JkZXIpO30KLnJvdy13cmFwIC5nMisuZzIsLnJvdy13cmFwIC5nMysuZzN7Ym9yZGVyLXRvcDoxcHggc29saWQgdmFyKC0tYm9yZGVyKTt9CgovKiBQQU5FTCAqLwoucGFuZWx7YmFja2dyb3VuZDp2YXIoLS1zMSk7cGFkZGluZzoyNHB4O29wYWNpdHk6MDt0cmFuc2Zvcm06dHJhbnNsYXRlWSg4cHgpO3RyYW5zaXRpb246b3BhY2l0eSAwLjVzLHRyYW5zZm9ybSAwLjVzO30KLnBhbmVsLmlue29wYWNpdHk6MTt0cmFuc2Zvcm06bm9uZTt9Ci5wYW5lbDpob3ZlcntiYWNrZ3JvdW5kOnZhcigtLXMyKTt9Ci5waHtkaXNwbGF5OmZsZXg7anVzdGlmeS1jb250ZW50OnNwYWNlLWJldHdlZW47YWxpZ24taXRlbXM6ZmxleC1zdGFydDttYXJnaW4tYm90dG9tOjIwcHg7fQoucHR7Zm9udC1zaXplOjE0cHg7Zm9udC13ZWlnaHQ6NzAwO2NvbG9yOnZhcigtLXdoaXRlKTtsaW5lLWhlaWdodDoxLjM7fQoucHQgZW17Zm9udC1zdHlsZTpub3JtYWw7Y29sb3I6dmFyKC0tYmx1ZSk7fQoucGR7Zm9udC1zaXplOjExcHg7Y29sb3I6dmFyKC0tbXV0ZWQpO21hcmdpbi10b3A6M3B4O30KLnBie2ZvbnQtc2l6ZTo5cHg7cGFkZGluZzozcHggOXB4O2JvcmRlcjoxcHggc29saWQgdmFyKC0tYm9yZGVyKTtjb2xvcjp2YXIoLS1tdXRlZCk7bGV0dGVyLXNwYWNpbmc6MS41cHg7dGV4dC10cmFuc2Zvcm06dXBwZXJjYXNlO2JvcmRlci1yYWRpdXM6MnB4O3doaXRlLXNwYWNlOm5vd3JhcDt9CgovKiBMSU5FIENIQVJUICovCi5jYXtwb3NpdGlvbjpyZWxhdGl2ZTtoZWlnaHQ6MjEwcHg7fQojbGluZUN7d2lkdGg6MTAwJTtoZWlnaHQ6MTAwJTt9CgovKiBTVEFUVVMgRE9OVVQgKi8KLmR3e2Rpc3BsYXk6ZmxleDthbGlnbi1pdGVtczpjZW50ZXI7Z2FwOjI0cHg7fQojZG9udXRDe2ZsZXgtc2hyaW5rOjA7fQouZGx7ZmxleDoxO2Rpc3BsYXk6ZmxleDtmbGV4LWRpcmVjdGlvbjpjb2x1bW47Z2FwOjEwcHg7fQouZGxpe2Rpc3BsYXk6ZmxleDthbGlnbi1pdGVtczpjZW50ZXI7Z2FwOjhweDt9Ci5kbGN7d2lkdGg6NnB4O2hlaWdodDo2cHg7ZmxleC1zaHJpbms6MDtib3JkZXItcmFkaXVzOjFweDt9Ci5kbHZ7Zm9udC1mYW1pbHk6dmFyKC0tZm0pO2ZvbnQtc2l6ZToxNnB4O2ZvbnQtd2VpZ2h0OjYwMDtsaW5lLWhlaWdodDoxO30KLmRsbntmb250LXNpemU6MTFweDtjb2xvcjp2YXIoLS1tdXRlZCk7fQouZGxwe2ZvbnQtc2l6ZToxMHB4O2NvbG9yOnZhcigtLWRpbSk7fQoKLyogSE9VUkxZIEJBUlMgKi8KLmhiYXJze2Rpc3BsYXk6ZmxleDtnYXA6M3B4O2FsaWduLWl0ZW1zOmZsZXgtZW5kO2hlaWdodDoxMjBweDt9Ci5oYi13cmFwe2ZsZXg6MTtkaXNwbGF5OmZsZXg7ZmxleC1kaXJlY3Rpb246Y29sdW1uO2FsaWduLWl0ZW1zOmNlbnRlcjtnYXA6NHB4O2hlaWdodDoxMDAlO30KLmhiLWlubmVye3dpZHRoOjEwMCU7YmFja2dyb3VuZDp2YXIoLS1zMyk7ZmxleDoxO2Rpc3BsYXk6ZmxleDthbGlnbi1pdGVtczpmbGV4LWVuZDtwb3NpdGlvbjpyZWxhdGl2ZTt9Ci5oYnt3aWR0aDoxMDAlO3RyYW5zZm9ybTpzY2FsZVkoMCk7dHJhbnNmb3JtLW9yaWdpbjpib3R0b207dHJhbnNpdGlvbjp0cmFuc2Zvcm0gMC43cyBjdWJpYy1iZXppZXIoLjE2LDEsLjMsMSk7fQouaGIucGVha3tiYWNrZ3JvdW5kOnZhcigtLXJlZCk7fQouaGIubm9ybXtiYWNrZ3JvdW5kOnZhcigtLWJsdWUpO29wYWNpdHk6MC42O30KLmhiOmhvdmVye29wYWNpdHk6MSFpbXBvcnRhbnQ7fQouaC1sYmx7Zm9udC1zaXplOjhweDtjb2xvcjp2YXIoLS1kaW0pO30KCi8qIFBBWU1FTlQgQkFSUyAqLwoucGJhcnN7ZGlzcGxheTpmbGV4O2ZsZXgtZGlyZWN0aW9uOmNvbHVtbjtnYXA6MTJweDt9Ci5wcm93e2Rpc3BsYXk6ZmxleDtmbGV4LWRpcmVjdGlvbjpjb2x1bW47Z2FwOjVweDt9Ci5wcmh7ZGlzcGxheTpmbGV4O2p1c3RpZnktY29udGVudDpzcGFjZS1iZXR3ZWVuO2FsaWduLWl0ZW1zOmJhc2VsaW5lO30KLnBybmFtZXtmb250LXNpemU6MTJweDtjb2xvcjp2YXIoLS1tdXRlZCk7fQoucHJ2YWx7Zm9udC1mYW1pbHk6dmFyKC0tZm0pO2ZvbnQtc2l6ZToxM3B4O2NvbG9yOnZhcigtLXdoaXRlKTt9Ci5wcnBjdHtmb250LXNpemU6MTBweDtjb2xvcjp2YXIoLS1tdXRlZCk7fQoucHJ0cmFja3toZWlnaHQ6NHB4O2JhY2tncm91bmQ6dmFyKC0tczQpO30KLnByZmlsbHtoZWlnaHQ6MTAwJTt0cmFuc2Zvcm06c2NhbGVYKDApO3RyYW5zZm9ybS1vcmlnaW46bGVmdDt0cmFuc2l0aW9uOnRyYW5zZm9ybSAxLjNzIGN1YmljLWJlemllciguMTYsMSwuMywxKTt9CgovKiBDQU5DRUwgUkVBU09OUyAqLwouY3JsaXN0e2Rpc3BsYXk6ZmxleDtmbGV4LWRpcmVjdGlvbjpjb2x1bW47Z2FwOjhweDt9Ci5jcml0ZW17ZGlzcGxheTpmbGV4O2ZsZXgtZGlyZWN0aW9uOmNvbHVtbjtnYXA6NHB4O30KLmNyaHtkaXNwbGF5OmZsZXg7anVzdGlmeS1jb250ZW50OnNwYWNlLWJldHdlZW47YWxpZ24taXRlbXM6YmFzZWxpbmU7fQouY3JuYW1le2ZvbnQtc2l6ZToxMXB4O2NvbG9yOnZhcigtLW11dGVkKTttYXgtd2lkdGg6MjAwcHg7bGluZS1oZWlnaHQ6MS40O30KLmNyY291bnR7Zm9udC1mYW1pbHk6dmFyKC0tZm0pO2ZvbnQtc2l6ZToxMnB4O2NvbG9yOnZhcigtLXdoaXRlKTtmbGV4LXNocmluazowO30KLmNydHJhY2t7aGVpZ2h0OjNweDtiYWNrZ3JvdW5kOnZhcigtLXM0KTt9Ci5jcmZpbGx7aGVpZ2h0OjEwMCU7dHJhbnNmb3JtOnNjYWxlWCgwKTt0cmFuc2Zvcm0tb3JpZ2luOmxlZnQ7dHJhbnNpdGlvbjp0cmFuc2Zvcm0gMS4ycyBjdWJpYy1iZXppZXIoLjE2LDEsLjMsMSk7fQoKLyogVkVISUNMRSBUQUJMRSAqLwoudnRhYmxle3dpZHRoOjEwMCU7Ym9yZGVyLWNvbGxhcHNlOmNvbGxhcHNlO30KLnZ0YWJsZSB0aHtmb250LXNpemU6OXB4O2xldHRlci1zcGFjaW5nOjJweDt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2U7Y29sb3I6dmFyKC0tZGltKTt0ZXh0LWFsaWduOmxlZnQ7cGFkZGluZzo3cHggMTBweDtib3JkZXItYm90dG9tOjFweCBzb2xpZCB2YXIoLS1ib3JkZXIpO30KLnZ0YWJsZSB0ZHtmb250LXNpemU6MTJweDtwYWRkaW5nOjEwcHggMTBweDtib3JkZXItYm90dG9tOjFweCBzb2xpZCByZ2JhKDI1NSwyNTUsMjU1LDAuMDIpO2NvbG9yOnZhcigtLW11dGVkKTtmb250LWZhbWlseTp2YXIoLS1mbSk7fQoudnRhYmxlIHRyOmhvdmVyIHRke2NvbG9yOnZhcigtLXdoaXRlKTtiYWNrZ3JvdW5kOnJnYmEoMjU1LDI1NSwyNTUsMC4wMik7fQoudnRhYmxlIHRkOmZpcnN0LWNoaWxke2NvbG9yOnZhcigtLXdoaXRlKTtmb250LWZhbWlseTp2YXIoLS1mZik7Zm9udC13ZWlnaHQ6NTAwO2ZvbnQtc2l6ZToxM3B4O30KLnZ0YWJsZSAuYmFyLWNlbGx7d2lkdGg6MTIwcHg7fQoubWluaS1iYXJ7aGVpZ2h0OjRweDtiYWNrZ3JvdW5kOnZhcigtLWJsdWUpO3RyYW5zaXRpb246d2lkdGggMXMgZWFzZTt9CgovKiBSQVRJTkcgTUVURVIgKi8KLnJhdGluZy1tZXRlcnN7ZGlzcGxheTpmbGV4O2ZsZXgtZGlyZWN0aW9uOmNvbHVtbjtnYXA6MTZweDt9Ci5ybWV0ZXJ7ZGlzcGxheTpmbGV4O2ZsZXgtZGlyZWN0aW9uOmNvbHVtbjtnYXA6NnB4O30KLnJtLWhlYWR7ZGlzcGxheTpmbGV4O2p1c3RpZnktY29udGVudDpzcGFjZS1iZXR3ZWVuO30KLnJtLWxhYmVse2ZvbnQtc2l6ZToxMnB4O2NvbG9yOnZhcigtLW11dGVkKTt9Ci5ybS12YWx7Zm9udC1mYW1pbHk6dmFyKC0tZm0pO2ZvbnQtc2l6ZToyMHB4O2ZvbnQtd2VpZ2h0OjYwMDt9Ci5ybS10cmFja3toZWlnaHQ6NnB4O2JhY2tncm91bmQ6dmFyKC0tczQpO3Bvc2l0aW9uOnJlbGF0aXZlO30KLnJtLWZpbGx7aGVpZ2h0OjEwMCU7dHJhbnNmb3JtOnNjYWxlWCgwKTt0cmFuc2Zvcm0tb3JpZ2luOmxlZnQ7dHJhbnNpdGlvbjp0cmFuc2Zvcm0gMS41cyBjdWJpYy1iZXppZXIoLjE2LDEsLjMsMSk7fQoucm0tc3Vie2ZvbnQtc2l6ZToxMHB4O2NvbG9yOnZhcigtLWRpbSk7fQouc3RhcnN7ZGlzcGxheTpmbGV4O2dhcDoycHg7bWFyZ2luLXRvcDo0cHg7fQouc3Rhcntmb250LXNpemU6MTJweDtjb2xvcjp2YXIoLS1kaW0pO30KLnN0YXIubGl0e2NvbG9yOnZhcigtLWdvbGQpO30KCi8qIElOU0lHSFQgQ0FSRFMgKi8KLmlucy1yb3d7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczpyZXBlYXQoMywxZnIpO2dhcDoxcHg7YmFja2dyb3VuZDp2YXIoLS1ib3JkZXIpO2JvcmRlcjoxcHggc29saWQgdmFyKC0tYm9yZGVyKTttYXJnaW4tYm90dG9tOjA7fQouaW5ze2JhY2tncm91bmQ6dmFyKC0tczEpO3BhZGRpbmc6MThweCAyMHB4O29wYWNpdHk6MDt0cmFuc2Zvcm06dHJhbnNsYXRlWSg2cHgpO3RyYW5zaXRpb246b3BhY2l0eSAwLjRzLHRyYW5zZm9ybSAwLjRzO30KLmlucy5pbntvcGFjaXR5OjE7dHJhbnNmb3JtOm5vbmU7fQouaW5zOmhvdmVye2JhY2tncm91bmQ6dmFyKC0tczIpO30KLmlucy1ue2ZvbnQtc2l6ZTo5cHg7Zm9udC13ZWlnaHQ6NzAwO2xldHRlci1zcGFjaW5nOjNweDt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2U7Y29sb3I6dmFyKC0tYmx1ZSk7bWFyZ2luLWJvdHRvbTo4cHg7fQouaW5zLXR7Zm9udC1zaXplOjEycHg7Y29sb3I6dmFyKC0tbXV0ZWQpO2xpbmUtaGVpZ2h0OjEuNzt9Ci5pbnMtdCBie2NvbG9yOnZhcigtLXdoaXRlKTtmb250LXdlaWdodDo2MDA7fQoKLyogRk9PVEVSICovCmZvb3Rlcnt0ZXh0LWFsaWduOmNlbnRlcjtwYWRkaW5nOjI0cHg7Ym9yZGVyLXRvcDoxcHggc29saWQgdmFyKC0tYm9yZGVyKTtmb250LXNpemU6MTBweDtmb250LXdlaWdodDo2MDA7Y29sb3I6dmFyKC0tZGltKTtsZXR0ZXItc3BhY2luZzozcHg7dGV4dC10cmFuc2Zvcm06dXBwZXJjYXNlO30KCi8qIFRPT0xUSVAgKi8KLnR0e3Bvc2l0aW9uOmZpeGVkO2JhY2tncm91bmQ6dmFyKC0tczMpO2JvcmRlcjoxcHggc29saWQgdmFyKC0tYm9yZGVyMik7cGFkZGluZzo4cHggMTNweDtmb250LXNpemU6MTJweDtjb2xvcjp2YXIoLS13aGl0ZSk7cG9pbnRlci1ldmVudHM6bm9uZTt6LWluZGV4Ojk5OTk7ZGlzcGxheTpub25lO2JvcmRlci1yYWRpdXM6MnB4O2ZvbnQtZmFtaWx5OnZhcigtLWZtKTt9CgovKiBQVUxTRSAqLwpAa2V5ZnJhbWVzIHB1bHNlezAlLDEwMCV7b3BhY2l0eToxfTUwJXtvcGFjaXR5Oi4zfX0KLmRvdHtkaXNwbGF5OmlubGluZS1ibG9jazt3aWR0aDo2cHg7aGVpZ2h0OjZweDtiYWNrZ3JvdW5kOnZhcigtLWdyZWVuKTtib3JkZXItcmFkaXVzOjUwJTthbmltYXRpb246cHVsc2UgMnMgaW5maW5pdGU7bWFyZ2luLXJpZ2h0OjVweDt2ZXJ0aWNhbC1hbGlnbjptaWRkbGU7fQo8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5Pgo8ZGl2IGNsYXNzPSJ0dCIgaWQ9InR0Ij48L2Rpdj4KCjxoZWFkZXI+CiAgPGRpdiBjbGFzcz0iaGkiPgogICAgPGRpdiBjbGFzcz0idS1sb2dvIj4KICAgICAgPGRpdiBjbGFzcz0idS1pY29uIj4KICAgICAgICA8c3ZnIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bS0xIDE0SDlWOGgydjh6bTQgMGgtMlY4aDJ2OHoiIGZpbGw9IiMwMDAiLz48L3N2Zz4KICAgICAgPC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9InUtd29yZG1hcmsiPlViZXI8L2Rpdj4KICAgIDwvZGl2PgogICAgPGRpdiBjbGFzcz0iaC1kaXYiPjwvZGl2PgogICAgPGRpdiBjbGFzcz0iaC10YWciPlJJREUgT1BFUkFUSU9OUyAmYW1wOyBQUk9GSVRBQklMSVRZIEFOQUxZU0lTICZuYnNwO8K3Jm5ic3A7IE5DUiAyMDI0PC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJoLXBpbGxzIj4KICAgICAgPGRpdiBjbGFzcz0icGlsbCBsaXZlIj48c3BhbiBjbGFzcz0iZG90Ij48L3NwYW4+TGl2ZTwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJwaWxsIj4xNDhLKyBSaWRlczwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJwaWxsIj5QeXRob24gwrcgU1FMPC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9InBpbGwiPkphbuKAk0ZlYiAyMDI1PC9kaXY+CiAgICA8L2Rpdj4KICA8L2Rpdj4KPC9oZWFkZXI+Cgo8bWFpbj4KCiAgPCEtLSBLUEkgU1RSSVAgLS0+CiAgPGRpdiBjbGFzcz0ia3BpLXN0cmlwIiBpZD0ia3BpU3RyaXAiPgogICAgPGRpdiBjbGFzcz0ia3BpIiBzdHlsZT0iLS1rYTp2YXIoLS1ibHVlKSI+CiAgICAgIDxkaXYgY2xhc3M9ImtsIj5Ub3RhbCBSaWRlczwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJrdiI+MSw1MCwwMDA8L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0ia20iPk5DUiBKYW7igJNEZWMgPGI+MjAyNDwvYj48L2Rpdj4KICAgIDwvZGl2PgogICAgPGRpdiBjbGFzcz0ia3BpIiBzdHlsZT0iLS1rYTp2YXIoLS1ncmVlbikiPgogICAgICA8ZGl2IGNsYXNzPSJrbCI+VG90YWwgUmV2ZW51ZTwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJrdiI+4oK5NS4xODxzcGFuIGNsYXNzPSJrcyI+IENyPC9zcGFuPjwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJrbSI+4oK5NTA4IDxiPmF2Zy9yaWRlPC9iPjwvZGl2PgogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJrcGkiIHN0eWxlPSItLWthOnZhcigtLXJlZCkiPgogICAgICA8ZGl2IGNsYXNzPSJrbCI+Q2FuY2VsbGF0aW9uIFJhdGU8L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0ia3YiPjI1LjA8c3BhbiBjbGFzcz0ia3MiPiU8L3NwYW4+PC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9ImttIj48Yj4zNyw1MDA8L2I+IGNhbmNlbGxlZCByaWRlczwvZGl2PgogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJrcGkiIHN0eWxlPSItLWthOnZhcigtLWdyZWVuKSI+CiAgICAgIDxkaXYgY2xhc3M9ImtsIj5Db21wbGV0aW9uIFJhdGU8L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0ia3YiPjYyLjA8c3BhbiBjbGFzcz0ia3MiPiU8L3NwYW4+PC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9ImttIj48Yj45MywwMDA8L2I+IGNvbXBsZXRlZDwvZGl2PgogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJrcGkiIHN0eWxlPSItLWthOnZhcigtLWdvbGQpIj4KICAgICAgPGRpdiBjbGFzcz0ia2wiPkRyaXZlciBSYXRpbmc8L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0ia3YiPjQuMjM8c3BhbiBjbGFzcz0ia3MiPi81PC9zcGFuPjwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJrbSI+QXZnIGFjcm9zcyA8Yj45M0s8L2I+IHJpZGVzPC9kaXY+CiAgICA8L2Rpdj4KICAgIDxkaXYgY2xhc3M9ImtwaSIgc3R5bGU9Ii0ta2E6dmFyKC0tYmx1ZSkiPgogICAgICA8ZGl2IGNsYXNzPSJrbCI+QXZnIFJpZGUgRGlzdGFuY2U8L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0ia3YiPjI0LjY8c3BhbiBjbGFzcz0ia3MiPiBrbTwvc3Bhbj48L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0ia20iPkNUQVQgYXZnIDxiPjI5LjEgbWluPC9iPjwvZGl2PgogICAgPC9kaXY+CiAgPC9kaXY+CgogIDwhLS0gUk9XIDE6IFJldmVudWUgVHJlbmQgKyBTdGF0dXMgRG9udXQgKyBSYXRpbmdzIC0tPgogIDxkaXYgY2xhc3M9InJvdy13cmFwIj4KICAgIDxkaXYgY2xhc3M9ImczIj4KICAgICAgPGRpdiBjbGFzcz0icGFuZWwiPgogICAgICAgIDxkaXYgY2xhc3M9InBoIj48ZGl2PjxkaXYgY2xhc3M9InB0Ij5Nb250aGx5IDxlbT5SZXZlbnVlPC9lbT4gVHJlbmQ8L2Rpdj48ZGl2IGNsYXNzPSJwZCI+4oK5IHJldmVudWUgYWNyb3NzIDEyIG1vbnRocyDCtyAyMDI0PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0icGIiPkxpbmUgwrcgQXJlYTwvZGl2PjwvZGl2PgogICAgICAgIDxkaXYgY2xhc3M9ImNhIj48Y2FudmFzIGlkPSJsaW5lQyI+PC9jYW52YXM+PC9kaXY+CiAgICAgIDwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJwYW5lbCI+CiAgICAgICAgPGRpdiBjbGFzcz0icGgiPjxkaXY+PGRpdiBjbGFzcz0icHQiPkJvb2tpbmcgPGVtPlN0YXR1czwvZW0+IE1peDwvZGl2PjxkaXYgY2xhc3M9InBkIj4xNTAsMDAwIHJpZGVzIGJyZWFrZG93bjwvZGl2PjwvZGl2PjwvZGl2PgogICAgICAgIDxkaXYgY2xhc3M9ImR3Ij4KICAgICAgICAgIDxjYW52YXMgaWQ9ImRvbnV0QyIgd2lkdGg9IjEzMCIgaGVpZ2h0PSIxMzAiPjwvY2FudmFzPgogICAgICAgICAgPGRpdiBjbGFzcz0iZGwiPgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJkbGkiPjxkaXYgY2xhc3M9ImRsYyIgc3R5bGU9ImJhY2tncm91bmQ6IzA1QTM1NyI+PC9kaXY+PGRpdj48ZGl2IGNsYXNzPSJkbHYiIHN0eWxlPSJjb2xvcjojMDVBMzU3Ij45MywwMDA8L2Rpdj48ZGl2IGNsYXNzPSJkbG4iPkNvbXBsZXRlZDwvZGl2PjxkaXYgY2xhc3M9ImRscCI+NjIuMCU8L2Rpdj48L2Rpdj48L2Rpdj4KICAgICAgICAgICAgPGRpdiBjbGFzcz0iZGxpIj48ZGl2IGNsYXNzPSJkbGMiIHN0eWxlPSJiYWNrZ3JvdW5kOiNFMTE5MDAiPjwvZGl2PjxkaXY+PGRpdiBjbGFzcz0iZGx2IiBzdHlsZT0iY29sb3I6I0UxMTkwMCI+MjcsMDAwPC9kaXY+PGRpdiBjbGFzcz0iZGxuIj5Ecml2ZXIgQ2FuY2VsbGVkPC9kaXY+PGRpdiBjbGFzcz0iZGxwIj4xOC4wJTwvZGl2PjwvZGl2PjwvZGl2PgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJkbGkiPjxkaXYgY2xhc3M9ImRsYyIgc3R5bGU9ImJhY2tncm91bmQ6I0YwQjQyOSI+PC9kaXY+PGRpdj48ZGl2IGNsYXNzPSJkbHYiIHN0eWxlPSJjb2xvcjojRjBCNDI5Ij4xMCw1MDA8L2Rpdj48ZGl2IGNsYXNzPSJkbG4iPkN1c3RvbWVyIENhbmNlbGxlZDwvZGl2PjxkaXYgY2xhc3M9ImRscCI+Ny4wJTwvZGl2PjwvZGl2PjwvZGl2PgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJkbGkiPjxkaXYgY2xhc3M9ImRsYyIgc3R5bGU9ImJhY2tncm91bmQ6IzI3NkVGMSI+PC9kaXY+PGRpdj48ZGl2IGNsYXNzPSJkbHYiIHN0eWxlPSJjb2xvcjojMjc2RUYxIj4xMCw1MDA8L2Rpdj48ZGl2IGNsYXNzPSJkbG4iPk5vIERyaXZlciBGb3VuZDwvZGl2PjxkaXYgY2xhc3M9ImRscCI+Ny4wJTwvZGl2PjwvZGl2PjwvZGl2PgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJkbGkiPjxkaXYgY2xhc3M9ImRsYyIgc3R5bGU9ImJhY2tncm91bmQ6IzU1NSI+PC9kaXY+PGRpdj48ZGl2IGNsYXNzPSJkbHYiIHN0eWxlPSJjb2xvcjojYWFhIj45LDAwMDwvZGl2PjxkaXYgY2xhc3M9ImRsbiI+SW5jb21wbGV0ZTwvZGl2PjxkaXYgY2xhc3M9ImRscCI+Ni4wJTwvZGl2PjwvZGl2PjwvZGl2PgogICAgICAgICAgPC9kaXY+CiAgICAgICAgPC9kaXY+CiAgICAgIDwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJwYW5lbCI+CiAgICAgICAgPGRpdiBjbGFzcz0icGgiPjxkaXY+PGRpdiBjbGFzcz0icHQiPlNhdGlzZmFjdGlvbiA8ZW0+UmF0aW5nczwvZW0+PC9kaXY+PGRpdiBjbGFzcz0icGQiPkRyaXZlciAmIGN1c3RvbWVyIGF2ZyBzY29yZXM8L2Rpdj48L2Rpdj48L2Rpdj4KICAgICAgICA8ZGl2IGNsYXNzPSJyYXRpbmctbWV0ZXJzIj4KICAgICAgICAgIDxkaXYgY2xhc3M9InJtZXRlciI+CiAgICAgICAgICAgIDxkaXYgY2xhc3M9InJtLWhlYWQiPjxzcGFuIGNsYXNzPSJybS1sYWJlbCI+RHJpdmVyIFJhdGluZzwvc3Bhbj48c3BhbiBjbGFzcz0icm0tdmFsIiBzdHlsZT0iY29sb3I6dmFyKC0tZ29sZCkiPjQuMjM8L3NwYW4+PC9kaXY+CiAgICAgICAgICAgIDxkaXYgY2xhc3M9InJtLXRyYWNrIj48ZGl2IGNsYXNzPSJybS1maWxsIiBzdHlsZT0id2lkdGg6ODQuNiU7YmFja2dyb3VuZDp2YXIoLS1nb2xkKSI+PC9kaXY+PC9kaXY+CiAgICAgICAgICAgIDxkaXYgY2xhc3M9InN0YXJzIj48c3BhbiBjbGFzcz0ic3RhciBsaXQiPuKYhTwvc3Bhbj48c3BhbiBjbGFzcz0ic3RhciBsaXQiPuKYhTwvc3Bhbj48c3BhbiBjbGFzcz0ic3RhciBsaXQiPuKYhTwvc3Bhbj48c3BhbiBjbGFzcz0ic3RhciBsaXQiPuKYhTwvc3Bhbj48c3BhbiBjbGFzcz0ic3RhciI+4piFPC9zcGFuPjwvZGl2PgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJybS1zdWIiPk1lYW4gYWNyb3NzIDkzLDAwMCBjb21wbGV0ZWQgcmlkZXM8L2Rpdj4KICAgICAgICAgIDwvZGl2PgogICAgICAgICAgPGRpdiBjbGFzcz0icm1ldGVyIj4KICAgICAgICAgICAgPGRpdiBjbGFzcz0icm0taGVhZCI+PHNwYW4gY2xhc3M9InJtLWxhYmVsIj5DdXN0b21lciBSYXRpbmc8L3NwYW4+PHNwYW4gY2xhc3M9InJtLXZhbCIgc3R5bGU9ImNvbG9yOnZhcigtLWdyZWVuKSI+NC40MDwvc3Bhbj48L2Rpdj4KICAgICAgICAgICAgPGRpdiBjbGFzcz0icm0tdHJhY2siPjxkaXYgY2xhc3M9InJtLWZpbGwiIHN0eWxlPSJ3aWR0aDo4OCU7YmFja2dyb3VuZDp2YXIoLS1ncmVlbikiPjwvZGl2PjwvZGl2PgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJzdGFycyI+PHNwYW4gY2xhc3M9InN0YXIgbGl0Ij7imIU8L3NwYW4+PHNwYW4gY2xhc3M9InN0YXIgbGl0Ij7imIU8L3NwYW4+PHNwYW4gY2xhc3M9InN0YXIgbGl0Ij7imIU8L3NwYW4+PHNwYW4gY2xhc3M9InN0YXIgbGl0Ij7imIU8L3NwYW4+PHNwYW4gY2xhc3M9InN0YXIiPuKYhTwvc3Bhbj48L2Rpdj4KICAgICAgICAgICAgPGRpdiBjbGFzcz0icm0tc3ViIj5NZWFuIGFjcm9zcyA5MywwMDAgY29tcGxldGVkIHJpZGVzPC9kaXY+CiAgICAgICAgICA8L2Rpdj4KICAgICAgICAgIDxkaXYgY2xhc3M9InJtZXRlciIgc3R5bGU9Im1hcmdpbi10b3A6OHB4OyI+CiAgICAgICAgICAgIDxkaXYgY2xhc3M9InJtLWhlYWQiPjxzcGFuIGNsYXNzPSJybS1sYWJlbCI+QXZnIERyaXZlciBBcnJpdmFsIChWVEFUKTwvc3Bhbj48c3BhbiBjbGFzcz0icm0tdmFsIiBzdHlsZT0iY29sb3I6dmFyKC0tYmx1ZSk7Zm9udC1zaXplOjE2cHgiPjguNSBtaW48L3NwYW4+PC9kaXY+CiAgICAgICAgICAgIDxkaXYgY2xhc3M9InJtLXN1YiIgc3R5bGU9Im1hcmdpbi10b3A6NHB4OyI+QXZnIGN1c3RvbWVyIHRyYXZlbCB0aW1lOiA8YiBzdHlsZT0iY29sb3I6dmFyKC0td2hpdGUpIj4yOS4xIG1pbjwvYj48L2Rpdj4KICAgICAgICAgIDwvZGl2PgogICAgICAgIDwvZGl2PgogICAgICA8L2Rpdj4KICAgIDwvZGl2PgogIDwvZGl2PgoKICA8IS0tIFJPVyAyOiBIb3VybHkgRGVtYW5kICsgUGF5bWVudCBNaXggLS0+CiAgPGRpdiBjbGFzcz0icm93LXdyYXAiPgogICAgPGRpdiBjbGFzcz0iZzIzIj4KICAgICAgPGRpdiBjbGFzcz0icGFuZWwiPgogICAgICAgIDxkaXYgY2xhc3M9InBoIj48ZGl2PjxkaXYgY2xhc3M9InB0Ij5Ib3VybHkgPGVtPkRlbWFuZDwvZW0+IEhlYXRtYXA8L2Rpdj48ZGl2IGNsYXNzPSJwZCI+UmlkZXMgcGVyIGhvdXIgwrcgcGVhayBob3VycyBpbiByZWQ8L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJwYiI+QmFyIENoYXJ0PC9kaXY+PC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0iaGJhcnMiIGlkPSJob3VyQmFycyI+PC9kaXY+CiAgICAgIDwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJwYW5lbCI+CiAgICAgICAgPGRpdiBjbGFzcz0icGgiPjxkaXY+PGRpdiBjbGFzcz0icHQiPlBheW1lbnQgPGVtPlJldmVudWU8L2VtPiBNaXg8L2Rpdj48ZGl2IGNsYXNzPSJwZCI+VVBJIGxlYWRzIGF0IDQwJSBvZiB0b3RhbCByZXZlbnVlPC9kaXY+PC9kaXY+PC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0icGJhcnMiIGlkPSJwYXlCYXJzIj48L2Rpdj4KICAgICAgPC9kaXY+CiAgICA8L2Rpdj4KICA8L2Rpdj4KCiAgPCEtLSBST1cgMzogQ2FuY2VsbGF0aW9uIFJlYXNvbnMgKyBWZWhpY2xlIFRhYmxlIC0tPgogIDxkaXYgY2xhc3M9InJvdy13cmFwIj4KICAgIDxkaXYgY2xhc3M9ImcyIj4KICAgICAgPGRpdiBjbGFzcz0icGFuZWwiPgogICAgICAgIDxkaXYgY2xhc3M9InBoIj48ZGl2PjxkaXYgY2xhc3M9InB0Ij48ZW0+Q2FuY2VsbGF0aW9uPC9lbT4gUm9vdCBDYXVzZXM8L2Rpdj48ZGl2IGNsYXNzPSJwZCI+RHJpdmVyIHZzIEN1c3RvbWVyIHJlYXNvbnMg4oCUIDM3LDUwMCBjYW5jZWxsZWQgcmlkZXM8L2Rpdj48L2Rpdj48L2Rpdj4KICAgICAgICA8ZGl2IHN0eWxlPSJkaXNwbGF5OmdyaWQ7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmciAxZnI7Z2FwOjI0cHg7Ij4KICAgICAgICAgIDxkaXY+CiAgICAgICAgICAgIDxkaXYgc3R5bGU9ImZvbnQtc2l6ZTo5cHg7bGV0dGVyLXNwYWNpbmc6MnB4O3RleHQtdHJhbnNmb3JtOnVwcGVyY2FzZTtjb2xvcjp2YXIoLS1yZWQpO21hcmdpbi1ib3R0b206MTJweDtmb250LXdlaWdodDo3MDA7Ij5Ecml2ZXIgQ2FuY2VsbGF0aW9ucyAoMjdLKTwvZGl2PgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJjcmxpc3QiIGlkPSJkcml2ZXJSZWFzb25zIj48L2Rpdj4KICAgICAgICAgIDwvZGl2PgogICAgICAgICAgPGRpdj4KICAgICAgICAgICAgPGRpdiBzdHlsZT0iZm9udC1zaXplOjlweDtsZXR0ZXItc3BhY2luZzoycHg7dGV4dC10cmFuc2Zvcm06dXBwZXJjYXNlO2NvbG9yOnZhcigtLWdvbGQpO21hcmdpbi1ib3R0b206MTJweDtmb250LXdlaWdodDo3MDA7Ij5DdXN0b21lciBDYW5jZWxsYXRpb25zICgxMC41Syk8L2Rpdj4KICAgICAgICAgICAgPGRpdiBjbGFzcz0iY3JsaXN0IiBpZD0iY3VzdFJlYXNvbnMiPjwvZGl2PgogICAgICAgICAgPC9kaXY+CiAgICAgICAgPC9kaXY+CiAgICAgIDwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJwYW5lbCI+CiAgICAgICAgPGRpdiBjbGFzcz0icGgiPjxkaXY+PGRpdiBjbGFzcz0icHQiPlJldmVudWUgYnkgPGVtPlZlaGljbGUgVHlwZTwvZW0+PC9kaXY+PGRpdiBjbGFzcz0icGQiPkNvbXBsZXRlZCByaWRlcyBvbmx5IMK3IHdpdGggc2hhcmUgYmFyczwvZGl2PjwvZGl2PjwvZGl2PgogICAgICAgIDx0YWJsZSBjbGFzcz0idnRhYmxlIiBpZD0idmVoVGFibGUiPgogICAgICAgICAgPHRoZWFkPjx0cj48dGg+VmVoaWNsZTwvdGg+PHRoPlJldmVudWU8L3RoPjx0aD5SaWRlczwvdGg+PHRoPkF2ZyDigrk8L3RoPjx0aCBzdHlsZT0id2lkdGg6MTAwcHgiPlNoYXJlPC90aD48L3RyPjwvdGhlYWQ+CiAgICAgICAgICA8dGJvZHk+PC90Ym9keT4KICAgICAgICA8L3RhYmxlPgogICAgICA8L2Rpdj4KICAgIDwvZGl2PgogIDwvZGl2PgoKICA8IS0tIElOU0lHSFRTIC0tPgogIDxkaXYgY2xhc3M9Imlucy1yb3ciIGlkPSJpbnNSb3ciPgogICAgPGRpdiBjbGFzcz0iaW5zIj48ZGl2IGNsYXNzPSJpbnMtbiI+MDEg4oCUIENhbmNlbGxhdGlvbjwvZGl2PjxkaXYgY2xhc3M9Imlucy10Ij48Yj4yNSUgY2FuY2VsbGF0aW9uIHJhdGU8L2I+IGFjcm9zcyAxNTBLIHJpZGVzLiBEcml2ZXIgY2FuY2VsbGF0aW9ucyAoMTglKSBvdXRudW1iZXIgY3VzdG9tZXIgb25lcyAoNyUpLiBQcmltYXJ5IGRyaXZlciBjYXVzZXM6IGN1c3RvbWVyLXJlbGF0ZWQgaXNzdWVzICZhbXA7IGhlYWx0aCBjb25jZXJucyDigJQgb3BlcmF0aW9uYWwgaW50ZXJ2ZW50aW9ucyBjYW4gcmVkdWNlIHRoaXMgYnkgPGI+NeKAkzclPC9iPi48L2Rpdj48L2Rpdj4KICAgIDxkaXYgY2xhc3M9ImlucyI+PGRpdiBjbGFzcz0iaW5zLW4iPjAyIOKAlCBSZXZlbnVlICZhbXA7IFVQSTwvZGl2PjxkaXYgY2xhc3M9Imlucy10Ij5VUEkgZG9taW5hdGVzIGF0IDxiPjQwJSBvZiB0b3RhbCByZXZlbnVlICjigrkyLjA3Q3IpPC9iPi4gQ2FzaCBpcyAybmQgYXQgMjUuMCUuIFRhcmdldGVkIFVQSSBjYXNoYmFjayBwcm9tb3Rpb25zIGNhbiBkcml2ZSBoaWdoZXIgZGlnaXRhbCBhZG9wdGlvbiBhbmQgcHJvamVjdCBhIDxiPn40JSByZXZlbnVlIHVwbGlmdDwvYj4gdGhyb3VnaCBpbmNyZWFzZWQgcmlkZSBjb21wbGV0aW9uIHJhdGVzLjwvZGl2PjwvZGl2PgogICAgPGRpdiBjbGFzcz0iaW5zIj48ZGl2IGNsYXNzPSJpbnMtbiI+MDMg4oCUIFBlYWsgSG91cnM8L2Rpdj48ZGl2IGNsYXNzPSJpbnMtdCI+RXZlbmluZyBydXNoICg2UE0pIHBlYWtzIGF0IDxiPjEyLDM5NyByaWRlcy9ob3VyPC9iPiDigJQgOcOXIHRoZSBsYXRlLW5pZ2h0IGJhc2VsaW5lLiBNb3JuaW5nIHJ1c2ggaGl0cyA44oCTMTBBTS4gRHJpdmVyIGFsbG9jYXRpb24gc2hvdWxkIGJlIGZyb250LWxvYWRlZCB0byB0aGVzZSB3aW5kb3dzIHRvIHJlZHVjZSA8Yj5ObyBEcml2ZXIgRm91bmQgKDclKTwvYj4gZmFpbHVyZXMuPC9kaXY+PC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJpbnMiPjxkaXYgY2xhc3M9Imlucy1uIj4wNCDigJQgV3JvbmcgQWRkcmVzczwvZGl2PjxkaXYgY2xhc3M9Imlucy10Ij48Yj5Xcm9uZyBBZGRyZXNzPC9iPiBpcyB0aGUgIzEgY3VzdG9tZXIgY2FuY2VsbGF0aW9uIHJlYXNvbiAoMiwzNjIgY2FzZXMpLiBBZGRyZXNzIHZhbGlkYXRpb24gY2hlY2tzIGF0IGJvb2tpbmcg4oCUIGEgbG93LWVuZ2luZWVyaW5nLWVmZm9ydCBmaXgg4oCUIGNhbiBlbGltaW5hdGUgYSBzaWduaWZpY2FudCBzaGFyZSBvZiBwcmV2ZW50YWJsZSBjdXN0b21lciBjYW5jZWxsYXRpb25zLjwvZGl2PjwvZGl2PgogICAgPGRpdiBjbGFzcz0iaW5zIj48ZGl2IGNsYXNzPSJpbnMtbiI+MDUg4oCUIEF1dG8gRG9taW5hdGVzPC9kaXY+PGRpdiBjbGFzcz0iaW5zLXQiPkF1dG8gY29udHJpYnV0ZXMgdGhlIG1vc3QgcmV2ZW51ZSBhdCA8Yj7igrkxLjI5Q3I8L2I+IGR1ZSB0byBzaGVlciByaWRlIHZvbHVtZSAoMjUsNDE1IHJpZGVzKS4gUHJlbWllciBTZWRhbiBoYXMgdGhlIGhpZ2hlc3QgYXZnIHJldmVudWUgcGVyIHJpZGUuIFNob3J0IEF1dG8gcmlkZXMgZHVyaW5nIG9mZi1wZWFrIGhhdmUgdGhlIGxvd2VzdCBST0kgYW5kIDxiPmhpZ2hlc3QgY2FuY2VsbGF0aW9uIHJpc2s8L2I+LjwvZGl2PjwvZGl2PgogICAgPGRpdiBjbGFzcz0iaW5zIj48ZGl2IGNsYXNzPSJpbnMtbiI+MDYg4oCUIEF1dG9tYXRpb24gSW1wYWN0PC9kaXY+PGRpdiBjbGFzcz0iaW5zLXQiPlRhYmxlYXUgZGFzaGJvYXJkIGF1dG9tYXRlZCBhbGwgNiBLUElzIHJlcGxhY2luZyBtYW51YWwgRXhjZWwgZXhwb3J0cy4gRXN0aW1hdGVkIDxiPjEwKyBob3Vycy9tb250aDwvYj4gc2F2ZWQgZm9yIG9wZXJhdGlvbnMgdGVhbXMsIHdpdGggbGl2ZSBkcmlsbC1kb3duIGZpbHRlcmluZyBieSB2ZWhpY2xlIHR5cGUsIHRpbWUsIHpvbmUsIGFuZCBwYXltZW50IG1vZGUuPC9kaXY+PC9kaXY+CiAgPC9kaXY+Cgo8L21haW4+Cjxmb290ZXI+VWJlciBSaWRlIEFuYWx5dGljcyDCtyAxNTAsMDAwIE5DUiBSZWNvcmRzIMK3IFB5dGhvbiDCtyBTUUwgwrcgVGFibGVhdSDCtyBQb3J0Zm9saW8gUHJvamVjdCAyMDI1PC9mb290ZXI+Cgo8c2NyaXB0Pgpjb25zdCBEPXsKICBtb250aGx5OlsKICAgIHttOidKYW4nLHM6NDQxMTA2OSxvOjEyODYxfSx7bTonRmViJyxzOjQwODU3OTAsbzoxMTkyN30se206J01hcicsczo0NTY4MTg4LG86MTI3MTl9LAogICAge206J0Fwcicsczo0MjUzNzg5LG86MTIxOTl9LHttOidNYXknLHM6NDMyMDY3OSxvOjEyNzc4fSx7bTonSnVuJyxzOjQzMjU2NjAsbzoxMjQ0MH0sCiAgICB7bTonSnVsJyxzOjQzNjU5MjMsbzoxMjg5N30se206J0F1Zycsczo0MjQzNTA5LG86MTI2MzZ9LHttOidTZXAnLHM6NDE5MTM5MyxvOjEyMjQ4fSwKICAgIHttOidPY3QnLHM6NDQxNzE3MCxvOjEyNjUxfSx7bTonTm92JyxzOjQzNDMzOTUsbzoxMjM5NH0se206J0RlYycsczo0MzE5NjE4LG86MTIyNTB9CiAgXSwKICBzdGF0dXM6W3tsOidDb21wbGV0ZWQnLG46OTMwMDAsYzonIzA1QTM1Nyd9LHtsOidEcml2ZXIgQ2FuY2VsbGVkJyxuOjI3MDAwLGM6JyNFMTE5MDAnfSx7bDonTm8gRHJpdmVyIEZvdW5kJyxuOjEwNTAwLGM6JyMyNzZFRjEnfSx7bDonQ3VzdG9tZXIgQ2FuY2VsbGVkJyxuOjEwNTAwLGM6JyNGMEI0MjknfSx7bDonSW5jb21wbGV0ZScsbjo5MDAwLGM6JyM0NDQnfV0sCiAgaG91cmx5OnswOjEzNzMsMToxMzYwLDI6MTMzOSwzOjEzODMsNDoxMzIxLDU6Mjc4Niw2OjQxNjAsNzo1NDUwLDg6Njg2MSw5OjgyMzQsMTA6OTU3NywxMTo4MzkwLDEyOjcwMDYsMTM6NTQ3MCwxNDo3MDMxLDE1OjgyMDIsMTY6OTYzMywxNzoxMTA0NCwxODoxMjM5NywxOToxMTA0NywyMDo5NjMwLDIxOjgxMDMsMjI6NTQ0MSwyMzoyNzYyfSwKICBwYXltZW50Olt7bTonVVBJJyxyZXY6MjA3Mzg0NzMscGN0OjQwLjAsYzonIzI3NkVGMSd9LHttOidDYXNoJyxyZXY6MTI5NjE1NDYscGN0OjI1LjAsYzonI0YwQjQyOSd9LHttOidVYmVyIFdhbGxldCcscmV2OjkzMzIzMTMscGN0OjE4LjAsYzonIzA1QTM1Nyd9LHttOidDcmVkaXQgQ2FyZCcscmV2OjUxODQ2MTgscGN0OjEwLjAsYzonI0E3OEJGQSd9LHttOidEZWJpdCBDYXJkJyxyZXY6MzYyOTIzMyxwY3Q6Ny4wLGM6JyM2NjYnfV0sCiAgZHJpdmVyUmVhc29uczpbWydDdXN0b21lciByZWxhdGVkIGlzc3VlJyw2ODM3XSxbJ0N1c3RvbWVyIHdhcyBjb3VnaGluZy9zaWNrJyw2NzUxXSxbJ1BlcnNvbmFsICYgQ2FyIGlzc3VlcycsNjcyNl0sWydUb28gbWFueSBwYXNzZW5nZXJzJyw2Njg2XV0sCiAgY3VzdFJlYXNvbnM6W1snV3JvbmcgQWRkcmVzcycsMjM2Ml0sWydDaGFuZ2Ugb2YgcGxhbnMnLDIzNTNdLFsnRHJpdmVyIG5vdCBtb3ZpbmcnLDIzMzVdLFsnRHJpdmVyIGFza2VkIHRvIGNhbmNlbCcsMjI5NV0sWydBQyBub3Qgd29ya2luZycsMTE1NV1dLAogIHZlaGljbGVzOlsKICAgIHt2OidBdXRvJyxyZXY6MTI4Nzg0MjIscmlkZXM6MjU0MTUsYXZnOjUwNi43M30se3Y6J0dvIE1pbmknLHJldjoxMDMzODQ5NixyaWRlczoyMDM2NCxhdmc6NTA3LjY4fSwKICAgIHt2OidHbyBTZWRhbicscmV2OjkzNjk3MTkscmlkZXM6MTgzMTgsYXZnOjUxMS41MH0se3Y6J0Jpa2UnLHJldjo3ODM3Njk3LHJpZGVzOjE1MzYyLGF2Zzo1MTAuMjB9LAogICAge3Y6J1ByZW1pZXIgU2VkYW4nLHJldjo2Mjc1MzMyLHJpZGVzOjEyMzE1LGF2Zzo1MDkuNTd9LHt2OidlQmlrZScscmV2OjM2MTg0ODUscmlkZXM6NzE4MSxhdmc6NTAzLjkwfSwKICAgIHt2OidVYmVyIFhMJyxyZXY6MTUyODAzMixyaWRlczozMDQ1LGF2Zzo1MDEuODJ9CiAgXQp9OwoKY29uc3QgdHQ9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3R0Jyk7CmZ1bmN0aW9uIHN0KGUsaCl7dHQuaW5uZXJIVE1MPWg7dHQuc3R5bGUuZGlzcGxheT0nYmxvY2snO3R0LnN0eWxlLmxlZnQ9KGUuY2xpZW50WCsxNCkrJ3B4Jzt0dC5zdHlsZS50b3A9KGUuY2xpZW50WS04KSsncHgnO30KZnVuY3Rpb24gaHQoKXt0dC5zdHlsZS5kaXNwbGF5PSdub25lJzt9CmRvY3VtZW50LmFkZEV2ZW50TGlzdGVuZXIoJ21vdXNlbW92ZScsZT0+e2lmKHR0LnN0eWxlLmRpc3BsYXkhPT0nbm9uZScpe3R0LnN0eWxlLmxlZnQ9KGUuY2xpZW50WCsxNCkrJ3B4Jzt0dC5zdHlsZS50b3A9KGUuY2xpZW50WS04KSsncHgnO319KTsKCi8vIExJTkUgQ0hBUlQKZnVuY3Rpb24gZHJhd0xpbmUoKXsKICBjb25zdCBjdnM9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2xpbmVDJyk7CiAgY29uc3QgZHByPXdpbmRvdy5kZXZpY2VQaXhlbFJhdGlvfHwxOwogIGNvbnN0IHJlY3Q9Y3ZzLnBhcmVudEVsZW1lbnQuZ2V0Qm91bmRpbmdDbGllbnRSZWN0KCk7CiAgY3ZzLndpZHRoPXJlY3Qud2lkdGgqZHByO2N2cy5oZWlnaHQ9cmVjdC5oZWlnaHQqZHByOwogIGN2cy5zdHlsZS53aWR0aD1yZWN0LndpZHRoKydweCc7Y3ZzLnN0eWxlLmhlaWdodD1yZWN0LmhlaWdodCsncHgnOwogIGNvbnN0IGN0eD1jdnMuZ2V0Q29udGV4dCgnMmQnKTtjdHguc2NhbGUoZHByLGRwcik7CiAgY29uc3QgVz1yZWN0LndpZHRoLEg9cmVjdC5oZWlnaHQscD17dDoxNixyOjE2LGI6MzYsbDo1Nn07CiAgY29uc3QgaVc9Vy1wLmwtcC5yLGlIPUgtcC50LXAuYjsKICBjb25zdCB2YWxzPUQubW9udGhseS5tYXAoZD0+ZC5zKTsKICBjb25zdCBtYXg9TWF0aC5tYXgoLi4udmFscykqMS4wODsKICBjb25zdCBuPXZhbHMubGVuZ3RoOwogIGZ1bmN0aW9uIHhwKGkpe3JldHVybiBwLmwrKGkvKG4tMSkpKmlXO30KICBmdW5jdGlvbiB5cCh2KXtyZXR1cm4gcC50K2lILSh2L21heCkqaUg7fQogIC8vIEdyaWQKICBmb3IobGV0IGk9MDtpPD00O2krKyl7CiAgICBjb25zdCB5PXAudCsoaS80KSppSDsKICAgIGN0eC5zdHJva2VTdHlsZT0ncmdiYSgyNTUsMjU1LDI1NSwwLjA0KSc7Y3R4LmxpbmVXaWR0aD0xOwogICAgY3R4LmJlZ2luUGF0aCgpO2N0eC5tb3ZlVG8ocC5sLHkpO2N0eC5saW5lVG8ocC5sK2lXLHkpO2N0eC5zdHJva2UoKTsKICAgIGN0eC5maWxsU3R5bGU9J3JnYmEoMjU1LDI1NSwyNTUsMC4yKSc7Y3R4LmZvbnQ9IjEwcHggJ0lCTSBQbGV4IE1vbm8nLG1vbm9zcGFjZSI7Y3R4LnRleHRBbGlnbj0ncmlnaHQnOwogICAgY29uc3Qgdj1tYXgtKGkvNCkqbWF4O2lmKHY+MCljdHguZmlsbFRleHQoJ+KCuScrKHYvMWU2KS50b0ZpeGVkKDEpKydNJyxwLmwtOCx5KzMpOwogIH0KICAvLyBYIGxhYmVscwogIGN0eC5maWxsU3R5bGU9J3JnYmEoMjU1LDI1NSwyNTUsMC4yNSknO2N0eC5mb250PSIxMHB4IE1hbnJvcGUsc2Fucy1zZXJpZiI7Y3R4LnRleHRBbGlnbj0nY2VudGVyJzsKICBELm1vbnRobHkuZm9yRWFjaCgoZCxpKT0+Y3R4LmZpbGxUZXh0KGQubSx4cChpKSxILTgpKTsKICAvLyBBcmVhCiAgY29uc3QgZz1jdHguY3JlYXRlTGluZWFyR3JhZGllbnQoMCxwLnQsMCxwLnQraUgpOwogIGcuYWRkQ29sb3JTdG9wKDAsJ3JnYmEoMzksMTEwLDI0MSwwLjMpJyk7Zy5hZGRDb2xvclN0b3AoMSwncmdiYSgzOSwxMTAsMjQxLDAuMDEpJyk7CiAgY3R4LmJlZ2luUGF0aCgpO2N0eC5tb3ZlVG8oeHAoMCkseXAodmFsc1swXSkpOwogIGZvcihsZXQgaT0xO2k8bjtpKyspe2NvbnN0IGN4PSh4cChpLTEpK3hwKGkpKS8yO2N0eC5iZXppZXJDdXJ2ZVRvKGN4LHlwKHZhbHNbaS0xXSksY3gseXAodmFsc1tpXSkseHAoaSkseXAodmFsc1tpXSkpO30KICBjdHgubGluZVRvKHhwKG4tMSkscC50K2lIKTtjdHgubGluZVRvKHhwKDApLHAudCtpSCk7Y3R4LmNsb3NlUGF0aCgpOwogIGN0eC5maWxsU3R5bGU9ZztjdHguZmlsbCgpOwogIC8vIExpbmUKICBjdHguYmVnaW5QYXRoKCk7Y3R4Lm1vdmVUbyh4cCgwKSx5cCh2YWxzWzBdKSk7CiAgZm9yKGxldCBpPTE7aTxuO2krKyl7Y29uc3QgY3g9KHhwKGktMSkreHAoaSkpLzI7Y3R4LmJlemllckN1cnZlVG8oY3gseXAodmFsc1tpLTFdKSxjeCx5cCh2YWxzW2ldKSx4cChpKSx5cCh2YWxzW2ldKSk7fQogIGN0eC5zdHJva2VTdHlsZT0nIzI3NkVGMSc7Y3R4LmxpbmVXaWR0aD0yLjU7Y3R4LnN0cm9rZSgpOwogIC8vIERvdHMKICB2YWxzLmZvckVhY2goKHYsaSk9PntjdHguYmVnaW5QYXRoKCk7Y3R4LmFyYyh4cChpKSx5cCh2KSwzLjUsMCxNYXRoLlBJKjIpO2N0eC5maWxsU3R5bGU9JyMyNzZFRjEnO2N0eC5maWxsKCk7Y3R4LnN0cm9rZVN0eWxlPScjMDAwJztjdHgubGluZVdpZHRoPTEuNTtjdHguc3Ryb2tlKCk7fSk7CiAgLy8gSG92ZXIKICBjdnMub25tb3VzZW1vdmU9ZT0+e2NvbnN0IGJyPWN2cy5nZXRCb3VuZGluZ0NsaWVudFJlY3QoKTtjb25zdCBteD1lLmNsaWVudFgtYnIubGVmdDtsZXQgY2w9MCxtbj05OTk7CiAgICBELm1vbnRobHkuZm9yRWFjaCgoXyxpKT0+e2NvbnN0IGQ9TWF0aC5hYnMoeHAoaSktbXgpO2lmKGQ8bW4pe21uPWQ7Y2w9aTt9fSk7CiAgICBpZihtbjwyMil7Y29uc3QgZD1ELm1vbnRobHlbY2xdO3N0KGUsYCR7ZC5tfSAyMDI0IMK3IOKCuSR7KGQucy8xZTYpLnRvRml4ZWQoMil9TSDCtyAke2Quby50b0xvY2FsZVN0cmluZygpfSByaWRlc2ApO31lbHNlIGh0KCk7fTsKICBjdnMub25tb3VzZWxlYXZlPWh0Owp9CgovLyBET05VVApmdW5jdGlvbiBkcmF3RG9udXQoKXsKICBjb25zdCBjdnM9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2RvbnV0QycpLGN0eD1jdnMuZ2V0Q29udGV4dCgnMmQnKTsKICBjb25zdCBjeD02NSxjeT02NSxyPTU2LGlubj0zNix0b3RhbD0xNTAwMDA7CiAgY29uc3Qgc2Vncz1bXTtsZXQgcz0tTWF0aC5QSS8yOwogIEQuc3RhdHVzLmZvckVhY2goZD0+e2NvbnN0IGE9KGQubi90b3RhbCkqTWF0aC5QSSoyO3NlZ3MucHVzaCh7Li4uZCxzLGU6cythfSk7cys9YTt9KTsKICBsZXQgcD0wOwogIGZ1bmN0aW9uIGFuaSgpewogICAgY3R4LmNsZWFyUmVjdCgwLDAsMTMwLDEzMCk7Y29uc3QgZXA9TWF0aC5taW4ocCwxKTtjb25zdCBlYXNlPWVwPC41PzIqZXAqZXA6LTErKDQtMiplcCkqZXA7CiAgICBzZWdzLmZvckVhY2goc2c9Pntjb25zdCBlbmQ9c2cucysoc2cuZS1zZy5zKSplYXNlO2lmKGVuZDw9c2cucylyZXR1cm47CiAgICAgIGN0eC5iZWdpblBhdGgoKTtjdHgubW92ZVRvKGN4K01hdGguY29zKHNnLnMpKnIsY3krTWF0aC5zaW4oc2cucykqcik7CiAgICAgIGN0eC5hcmMoY3gsY3kscixzZy5zLGVuZCk7Y3R4LmFyYyhjeCxjeSxpbm4sZW5kLHNnLnMsdHJ1ZSk7Y3R4LmNsb3NlUGF0aCgpOwogICAgICBjdHguZmlsbFN0eWxlPXNnLmM7Y3R4LmZpbGwoKTt9KTsKICAgIGN0eC5maWxsU3R5bGU9J3JnYmEoMjU1LDI1NSwyNTUsMC41KSc7Y3R4LmZvbnQ9ImJvbGQgOXB4IE1hbnJvcGUiO2N0eC50ZXh0QWxpZ249J2NlbnRlcic7Y3R4LmZpbGxUZXh0KCdTVEFUVVMnLGN4LGN5LTQpOwogICAgY3R4LmZpbGxTdHlsZT0ncmdiYSgyNTUsMjU1LDI1NSwwLjIpJztjdHguZm9udD0iOHB4IE1hbnJvcGUiO2N0eC5maWxsVGV4dCgnMTUwSyByaWRlcycsY3gsY3krNyk7CiAgICBpZihwPDEpe3ArPTAuMDI1O3JlcXVlc3RBbmltYXRpb25GcmFtZShhbmkpO30KICB9YW5pKCk7Cn0KCi8vIEhPVVJMWSBCQVJTCmZ1bmN0aW9uIGJ1aWxkSG91cnMoKXsKICBjb25zdCBjPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdob3VyQmFycycpOwogIGNvbnN0IHZhbHM9T2JqZWN0LnZhbHVlcyhELmhvdXJseSk7Y29uc3QgbWF4PU1hdGgubWF4KC4uLnZhbHMpOwogIGNvbnN0IHBlYWs9WzcsOCw5LDEwLDE3LDE4LDE5XTsKICBPYmplY3QuZW50cmllcyhELmhvdXJseSkuZm9yRWFjaCgoW2gsdl0pPT57CiAgICBjb25zdCBwY3Q9di9tYXg7Y29uc3QgaXNQZWFrPXBlYWsuaW5jbHVkZXMocGFyc2VJbnQoaCkpOwogICAgY29uc3Qgd3JhcD1kb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTt3cmFwLmNsYXNzTmFtZT0naGItd3JhcCc7CiAgICB3cmFwLmlubmVySFRNTD1gPGRpdiBjbGFzcz0iaGItaW5uZXIiPjxkaXYgY2xhc3M9ImhiICR7aXNQZWFrPydwZWFrJzonbm9ybSd9IiBzdHlsZT0iaGVpZ2h0OiR7cGN0KjEwMH0lIj48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJoLWxibCI+JHtofTwvZGl2PmA7CiAgICB3cmFwLmFkZEV2ZW50TGlzdGVuZXIoJ21vdXNlbW92ZScsZT0+c3QoZSxgJHtofTowMCDCtyAke3YudG9Mb2NhbGVTdHJpbmcoKX0gcmlkZXMke2lzUGVhaz8nIMK3IPCflLQgUEVBSyc6Jyd9YCkpOwogICAgd3JhcC5hZGRFdmVudExpc3RlbmVyKCdtb3VzZWxlYXZlJyxodCk7CiAgICBjLmFwcGVuZENoaWxkKHdyYXApOwogIH0pOwp9CgovLyBQQVlNRU5UIEJBUlMKZnVuY3Rpb24gYnVpbGRQYXkoKXsKICBjb25zdCBjPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdwYXlCYXJzJyk7Y29uc3QgdG90PTUxODQ2MTgzOwogIEQucGF5bWVudC5mb3JFYWNoKCh7bSxyZXYscGN0LGM6Y29sfSk9PnsKICAgIGNvbnN0IHJvdz1kb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTtyb3cuY2xhc3NOYW1lPSdwcm93JzsKICAgIHJvdy5pbm5lckhUTUw9YDxkaXYgY2xhc3M9InByaCI+PGRpdiBjbGFzcz0icHJuYW1lIj4ke219PC9kaXY+PGRpdj48c3BhbiBjbGFzcz0icHJ2YWwiPuKCuSR7KHJldi8xZTYpLnRvRml4ZWQoMil9TTwvc3Bhbj4gPHNwYW4gY2xhc3M9InBycGN0Ij4ke3BjdH0lPC9zcGFuPjwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9InBydHJhY2siPjxkaXYgY2xhc3M9InByZmlsbCIgc3R5bGU9IndpZHRoOiR7cGN0LzQ1KjEwMH0lO2JhY2tncm91bmQ6JHtjb2x9Ij48L2Rpdj48L2Rpdj5gOwogICAgcm93LmFkZEV2ZW50TGlzdGVuZXIoJ21vdXNlbW92ZScsZT0+c3QoZSxgJHttfSDCtyDigrkke3Jldi50b0xvY2FsZVN0cmluZygpfSDCtyAke3BjdH0lIG9mIHJldmVudWVgKSk7CiAgICByb3cuYWRkRXZlbnRMaXN0ZW5lcignbW91c2VsZWF2ZScsaHQpOwogICAgYy5hcHBlbmRDaGlsZChyb3cpOwogIH0pOwp9CgovLyBDQU5DRUwgUkVBU09OUwpmdW5jdGlvbiBidWlsZFJlYXNvbnMoKXsKICBjb25zdCBkYz1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnZHJpdmVyUmVhc29ucycpLGNjPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdjdXN0UmVhc29ucycpOwogIGNvbnN0IGRteD1ELmRyaXZlclJlYXNvbnNbMF1bMV0sY214PUQuY3VzdFJlYXNvbnNbMF1bMV07CiAgRC5kcml2ZXJSZWFzb25zLmZvckVhY2goKFtuYW1lLG5dKT0+ewogICAgY29uc3QgZWw9ZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7ZWwuY2xhc3NOYW1lPSdjcml0ZW0nOwogICAgZWwuaW5uZXJIVE1MPWA8ZGl2IGNsYXNzPSJjcmgiPjxkaXYgY2xhc3M9ImNybmFtZSI+JHtuYW1lfTwvZGl2PjxkaXYgY2xhc3M9ImNyY291bnQiPiR7bi50b0xvY2FsZVN0cmluZygpfTwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9ImNydHJhY2siPjxkaXYgY2xhc3M9ImNyZmlsbCIgc3R5bGU9IndpZHRoOiR7bi9kbXgqMTAwfSU7YmFja2dyb3VuZDojRTExOTAwIj48L2Rpdj48L2Rpdj5gOwogICAgZWwuYWRkRXZlbnRMaXN0ZW5lcignbW91c2Vtb3ZlJyxlPT5zdChlLGAke25hbWV9OiAke24udG9Mb2NhbGVTdHJpbmcoKX1gKSk7ZWwuYWRkRXZlbnRMaXN0ZW5lcignbW91c2VsZWF2ZScsaHQpOwogICAgZGMuYXBwZW5kQ2hpbGQoZWwpOwogIH0pOwogIEQuY3VzdFJlYXNvbnMuZm9yRWFjaCgoW25hbWUsbl0pPT57CiAgICBjb25zdCBlbD1kb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTtlbC5jbGFzc05hbWU9J2NyaXRlbSc7CiAgICBlbC5pbm5lckhUTUw9YDxkaXYgY2xhc3M9ImNyaCI+PGRpdiBjbGFzcz0iY3JuYW1lIj4ke25hbWV9PC9kaXY+PGRpdiBjbGFzcz0iY3Jjb3VudCI+JHtuLnRvTG9jYWxlU3RyaW5nKCl9PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0iY3J0cmFjayI+PGRpdiBjbGFzcz0iY3JmaWxsIiBzdHlsZT0id2lkdGg6JHtuL2NteCoxMDB9JTtiYWNrZ3JvdW5kOiNGMEI0MjkiPjwvZGl2PjwvZGl2PmA7CiAgICBlbC5hZGRFdmVudExpc3RlbmVyKCdtb3VzZW1vdmUnLGU9PnN0KGUsYCR7bmFtZX06ICR7bi50b0xvY2FsZVN0cmluZygpfWApKTtlbC5hZGRFdmVudExpc3RlbmVyKCdtb3VzZWxlYXZlJyxodCk7CiAgICBjYy5hcHBlbmRDaGlsZChlbCk7CiAgfSk7Cn0KCi8vIFZFSElDTEUgVEFCTEUKZnVuY3Rpb24gYnVpbGRWZWgoKXsKICBjb25zdCB0Ym9keT1kb2N1bWVudC5xdWVyeVNlbGVjdG9yKCcjdmVoVGFibGUgdGJvZHknKTsKICBjb25zdCBtYXhSZXY9RC52ZWhpY2xlc1swXS5yZXY7CiAgRC52ZWhpY2xlcy5mb3JFYWNoKCh7dixyZXYscmlkZXMsYXZnfSk9PnsKICAgIGNvbnN0IHBjdD1yZXYvbWF4UmV2KjEwMDsKICAgIGNvbnN0IHRyPWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ3RyJyk7CiAgICB0ci5pbm5lckhUTUw9YDx0ZD4ke3Z9PC90ZD48dGQ+4oK5JHsocmV2LzFlNikudG9GaXhlZCgyKX1NPC90ZD48dGQ+JHtyaWRlcy50b0xvY2FsZVN0cmluZygpfTwvdGQ+PHRkPuKCuSR7YXZnLnRvRml4ZWQoMCl9PC90ZD48dGQgY2xhc3M9ImJhci1jZWxsIj48ZGl2IGNsYXNzPSJtaW5pLWJhciIgc3R5bGU9IndpZHRoOjAlO3RyYW5zaXRpb246d2lkdGggMS4ycyBlYXNlIiBkYXRhLXc9IiR7cGN0fSI+PC9kaXY+PC90ZD5gOwogICAgdGJvZHkuYXBwZW5kQ2hpbGQodHIpOwogIH0pOwp9CgovLyBBTklNQVRFCmZ1bmN0aW9uIGFuaW1GaWxscyhlbCl7CiAgZWwucXVlcnlTZWxlY3RvckFsbCgnLnByZmlsbCwuY3JmaWxsLC5ybS1maWxsJykuZm9yRWFjaCgoZSxpKT0+c2V0VGltZW91dCgoKT0+ZS5zdHlsZS50cmFuc2Zvcm09J3NjYWxlWCgxKScsaSo4MCkpOwogIGVsLnF1ZXJ5U2VsZWN0b3JBbGwoJy5oYicpLmZvckVhY2goKGUsaSk9PnNldFRpbWVvdXQoKCk9PmUuc3R5bGUudHJhbnNmb3JtPSdzY2FsZVkoMSknLGkqMjUpKTsKICBlbC5xdWVyeVNlbGVjdG9yQWxsKCcubWluaS1iYXJbZGF0YS13XScpLmZvckVhY2goKGUsaSk9PnNldFRpbWVvdXQoKCk9PmUuc3R5bGUud2lkdGg9ZS5kYXRhc2V0LncrJyUnLGkqODArMjAwKSk7Cn0KCmNvbnN0IG9icz1uZXcgSW50ZXJzZWN0aW9uT2JzZXJ2ZXIoZW50cmllcz0+ewogIGVudHJpZXMuZm9yRWFjaChlbj0+ewogICAgaWYoZW4uaXNJbnRlcnNlY3RpbmcpewogICAgICBjb25zdCBlbD1lbi50YXJnZXQ7CiAgICAgIHNldFRpbWVvdXQoKCk9PmVsLmNsYXNzTGlzdC5hZGQoJ2luJykscGFyc2VJbnQoZWwuZGF0YXNldC5kfHwwKSk7CiAgICAgIGFuaW1GaWxscyhlbCk7b2JzLnVub2JzZXJ2ZShlbCk7CiAgICB9CiAgfSk7Cn0se3RocmVzaG9sZDowLjA2fSk7Cgpkb2N1bWVudC5hZGRFdmVudExpc3RlbmVyKCdET01Db250ZW50TG9hZGVkJywoKT0+ewogIGJ1aWxkSG91cnMoKTtidWlsZFBheSgpO2J1aWxkUmVhc29ucygpO2J1aWxkVmVoKCk7ZHJhd0RvbnV0KCk7CiAgZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgnLmtwaScpLmZvckVhY2goKGVsLGkpPT57ZWwuZGF0YXNldC5kPWkqNzA7b2JzLm9ic2VydmUoZWwpO30pOwogIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJy5wYW5lbCwuaW5zJykuZm9yRWFjaCgoZWwsaSk9PntlbC5kYXRhc2V0LmQ9aSo1MDtvYnMub2JzZXJ2ZShlbCk7fSk7CiAgc2V0VGltZW91dChkcmF3TGluZSwxNTApOwogIHdpbmRvdy5hZGRFdmVudExpc3RlbmVyKCdyZXNpemUnLGRyYXdMaW5lKTsKfSk7Cjwvc2NyaXB0Pgo8L2JvZHk+CjwvaHRtbD4K";
+
+function openModal(t) {
+  document.getElementById('codeModal').classList.add('open');
+  switchTab(t);
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('codeModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function switchTab(t) {
+  document.querySelectorAll('.cblock').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#codeModal .mtab').forEach(b => b.classList.remove('on'));
+  const block = document.getElementById('cb-' + t);
+  if (block) block.classList.add('on');
+  document.querySelectorAll('#codeModal .mtab').forEach(b => {
+    if (b.textContent.toLowerCase().includes(t.slice(0,5))) b.classList.add('on');
+  });
+  const pr = document.getElementById('pr-' + t);
+  if (pr && !pr.textContent.trim()) pr.textContent = C[t] || '';
+}
+function openDashboard() {
+  var frame = document.getElementById('dashFrame');
+  var doc = frame.contentDocument || frame.contentWindow.document;
+  var decoded = '';
+  try {
+    var b = atob(DASH_B64);
+    var bytes = new Uint8Array(b.length);
+    for (var i = 0; i < b.length; i++) bytes[i] = b.charCodeAt(i);
+    decoded = new TextDecoder('utf-8').decode(bytes);
+  } catch(e) { decoded = atob(DASH_B64); }
+  doc.open(); doc.write(decoded); doc.close();
+  document.getElementById('dashModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDashboard() {
+  document.getElementById('dashModal').classList.remove('open');
+  document.getElementById('dashFrame').src = 'about:blank';
+  document.body.style.overflow = '';
+}
+document.getElementById('dashModal').addEventListener('click', e => { if(e.target===document.getElementById('dashModal')) closeDashboard(); });
+document.getElementById('codeModal').addEventListener('click', e => { if(e.target===document.getElementById('codeModal')) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape'){closeModal();closeDashboard();} });
+document.addEventListener('DOMContentLoaded', () => {
+  Object.keys(C).forEach(k => {
+    const el = document.getElementById('pr-' + k);
+    if (el) el.textContent = C[k];
+  });
+});
+function goto(id) { document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' }); }
+
+// Animate bars on scroll
+const animCards = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.dataset.anim;
+      if (id === 'cancel') {
+        setTimeout(() => {
+          const d = document.getElementById('bar-driver'); if(d) d.style.width='72%';
+          const c = document.getElementById('bar-cust');   if(c) c.style.width='28%';
+        }, 300);
+      }
+      if (id === 'upi') {
+        setTimeout(() => {
+          const u  = document.getElementById('bar-upi');    if(u)  u.style.width='40%';
+          const ca = document.getElementById('bar-cash');   if(ca) ca.style.width='27%';
+          const w  = document.getElementById('bar-wallet'); if(w)  w.style.width='14%';
+        }, 300);
+      }
+      animCards.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.4 });
+const cancelCard = document.querySelector('.cancel-card');
+if (cancelCard) { cancelCard.dataset.anim = 'cancel'; animCards.observe(cancelCard); }
+const upiCard = document.querySelector('.upi-card');
+if (upiCard) { upiCard.dataset.anim = 'upi'; animCards.observe(upiCard); }
+
+// Scroll reveal
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('v');
+      e.target.querySelectorAll('.prob-card,.pipe-step,.kpi-tile,.rmet,.ins,.stk,.qcard')
+        .forEach((el, i) => { el.style.transitionDelay = (i * 0.07) + 's'; });
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.07 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

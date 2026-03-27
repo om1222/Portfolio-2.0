@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank Loan Analytics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060912;--s1:#0C1120;--s2:#111827;--s3:#1F2937;--s4:#374151;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --blue:#3B82F6;--blue-g:rgba(59,130,246,0.15);
+  --green:#10B981;--green-g:rgba(16,185,129,0.15);
+  --red:#EF4444;--red-g:rgba(239,68,68,0.15);
+  --amber:#F59E0B;--amber-g:rgba(245,158,11,0.15);
+  --purp:#8B5CF6;--purp-g:rgba(139,92,246,0.15);
+  --white:#F8FAFC;--muted:#6B7280;--dim:#374151;
+  --ff:'Inter',sans-serif;--fd:'Sora',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--white);font-family:var(--ff);font-size:14px;overflow-x:hidden;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--s3);}
+header{background:rgba(6,9,18,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 48px;position:sticky;top:0;z-index:100;}
+.hi{max-width:1700px;margin:0 auto;display:flex;align-items:center;gap:20px;height:62px;}
+.bl-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--purp));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.bl-name{font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:-.3px;}
+.bl-name span{color:var(--blue);}
+.hdiv{width:1px;height:24px;background:var(--border2);}
+.htag{flex:1;font-size:12px;color:var(--muted);letter-spacing:.5px;font-weight:500;}
+.hp{padding:4px 11px;border:1px solid var(--border);border-radius:100px;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;}
+.hp.a{border-color:rgba(16,185,129,.35);color:var(--green);background:var(--green-g);}
+main{max-width:1700px;margin:0 auto;padding:28px 48px 72px;}
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.kpi{background:var(--s1);border:1px solid var(--border);padding:20px 22px;position:relative;overflow:hidden;opacity:0;transform:translateY(12px);transition:opacity .4s,transform .4s;}
+.kpi.in{opacity:1;transform:none;}
+.kpi:hover{background:var(--s2);}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--ka,var(--blue));}
+.kpi::after{content:'';position:absolute;bottom:-20px;right:-20px;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,var(--kg,var(--blue-g)),transparent 70%);pointer-events:none;}
+.kl{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.kv{font-family:var(--fm);font-size:28px;font-weight:600;line-height:1;color:var(--white);margin-bottom:6px;}
+.kv .ks{font-size:13px;color:var(--muted);font-weight:400;}
+.km{font-size:11px;color:var(--dim);}
+.km b{color:var(--ka,var(--blue));}
+.row{display:grid;gap:12px;margin-bottom:12px;}
+.r2{grid-template-columns:1fr 1fr;}
+.r3{grid-template-columns:1fr 1fr 1fr;}
+.r23{grid-template-columns:2fr 1fr;}
+.r32{grid-template-columns:1fr 2fr;}
+.panel{background:var(--s1);border:1px solid var(--border);padding:22px;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s;}
+.panel.in{opacity:1;transform:none;}
+.panel:hover{background:var(--s2);}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;}
+.pt{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--white);}
+.pt em{font-style:normal;color:var(--blue);}
+.pd{font-size:11px;color:var(--muted);margin-top:3px;}
+.pb{font-size:9px;padding:3px 9px;border:1px solid var(--border);color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;border-radius:2px;}
+.ca{position:relative;height:200px;}
+#lineC{width:100%;height:100%;}
+/* MoM cards */
+.mom-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+.mom-card{background:var(--s2);border:1px solid var(--border);padding:14px 16px;}
+.mc-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.mc-val{font-family:var(--fm);font-size:24px;font-weight:600;line-height:1;}
+.mc-sub{font-size:10px;color:var(--dim);margin-top:4px;}
+/* Bad loan meter */
+.bad-meter{display:flex;flex-direction:column;gap:12px;}
+.bm-head{display:flex;justify-content:space-between;align-items:baseline;}
+.bm-label{font-size:12px;color:var(--muted);}
+.bm-val{font-family:var(--fm);font-size:26px;font-weight:600;}
+.bm-track{height:8px;background:var(--s3);}
+.bm-fill{height:100%;transform:scaleX(0);transform-origin:left;transition:transform 1.5s cubic-bezier(.16,1,.3,1);}
+.bm-sub{font-size:10px;color:var(--dim);}
+/* Grade bars */
+.gbars{display:flex;flex-direction:column;gap:8px;}
+.grow{display:grid;grid-template-columns:20px 1fr 60px 60px;align-items:center;gap:8px;}
+.glbl{font-family:var(--fm);font-size:12px;font-weight:600;color:var(--muted);}
+.gtrack{height:14px;background:var(--s3);}
+.gfill{height:100%;transform:scaleX(0);transform-origin:left;transition:transform 1.2s cubic-bezier(.16,1,.3,1);}
+.gfund{font-family:var(--fm);font-size:11px;color:var(--muted);}
+.gbad{font-size:10px;}
+/* Status donut */
+.dw{display:flex;align-items:center;gap:20px;}
+.dl{flex:1;display:flex;flex-direction:column;gap:9px;}
+.dli{display:flex;align-items:center;gap:8px;}
+.dlc{width:6px;height:14px;flex-shrink:0;border-radius:1px;}
+.dlv{font-family:var(--fm);font-size:15px;font-weight:600;line-height:1;}
+.dln{font-size:11px;color:var(--muted);}
+.dlp{font-size:10px;color:var(--dim);}
+/* Purpose bars */
+.pbars2{display:flex;flex-direction:column;gap:10px;}
+.prow2{display:grid;grid-template-columns:150px 1fr 60px;align-items:center;gap:8px;}
+.pname{font-size:11px;color:var(--muted);text-align:right;}
+.ptrack{height:5px;background:var(--s3);}
+.pfill{height:100%;transform:scaleX(0);transform-origin:left;transition:transform 1.2s cubic-bezier(.16,1,.3,1);}
+.pval{font-family:var(--fm);font-size:12px;color:var(--muted);}
+/* Insights */
+.ins-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.ins{background:var(--s1);border:1px solid var(--border);border-top:2px solid var(--ic,var(--blue));padding:16px 18px;opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s;}
+.ins.in{opacity:1;transform:none;}
+.ins-n{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--ic,var(--blue));margin-bottom:7px;}
+.ins-t{font-size:12px;color:var(--muted);line-height:1.7;}
+.ins-t b{color:var(--white);font-weight:600;}
+footer{text-align:center;padding:24px;border-top:1px solid var(--border);font-size:10px;font-weight:700;color:var(--dim);letter-spacing:3px;text-transform:uppercase;}
+.tt{position:fixed;background:var(--s3);border:1px solid var(--border2);padding:7px 12px;font-size:11px;color:var(--white);pointer-events:none;z-index:9999;display:none;border-radius:2px;font-family:var(--fm);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.dot{display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;margin-right:5px;vertical-align:middle;}
+</style>
+</head>
+<body>
+<div class="tt" id="tt"></div>
+<header>
+  <div class="hi">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="bl-icon">🏦</div>
+      <div class="bl-name"><span>Bank</span> Analytics</div>
+    </div>
+    <div class="hdiv"></div>
+    <div class="htag">LOAN & REPAYMENT DASHBOARD — 38,600 RECORDS · FINANCIAL ANALYSIS</div>
+    <div style="display:flex;gap:8px">
+      <div class="hp a"><span class="dot"></span>Live</div>
+      <div class="hp">SQL · Python</div>
+      <div class="hp">15+ KPIs</div>
+      <div class="hp">Dec 24 – Jan 25</div>
+    </div>
+  </div>
+</header>
+<main>
+
+  <!-- KPI STRIP — CV EXACT -->
+  <div class="kpi-strip">
+    <div class="kpi" style="--ka:var(--blue);--kg:var(--blue-g)">
+      <div class="kl">Total Funded</div>
+      <div class="kv">$435.8<span class="ks">M</span></div>
+      <div class="km">38,600+ records <b>validated</b></div>
+    </div>
+    <div class="kpi" style="--ka:var(--green);--kg:var(--green-g)">
+      <div class="kl">Total Repaid</div>
+      <div class="kv">$473.9<span class="ks">M</span></div>
+      <div class="km">Repayments <b>exceed</b> funding</div>
+    </div>
+    <div class="kpi" style="--ka:var(--red);--kg:var(--red-g)">
+      <div class="kl">Bad Loan Ratio</div>
+      <div class="kv">13.8<span class="ks">%</span></div>
+      <div class="km"><b>$65.5M</b> risk exposure</div>
+    </div>
+    <div class="kpi" style="--ka:var(--amber);--kg:var(--amber-g)">
+      <div class="kl">MoM Loan Growth</div>
+      <div class="kv">13.3<span class="ks">%</span></div>
+      <div class="km">Last month <b>funded</b> trend</div>
+    </div>
+    <div class="kpi" style="--ka:var(--purp);--kg:var(--purp-g)">
+      <div class="kl">MoM Repayment Growth</div>
+      <div class="kv">15.8<span class="ks">%</span></div>
+      <div class="km">Repayment <b>momentum</b> strong</div>
+    </div>
+  </div>
+
+  <!-- ROW 1: Monthly Trend + MoM Cards -->
+  <div class="row r23">
+    <div class="panel">
+      <div class="ph"><div><div class="pt">Monthly <em>Funded vs Repaid</em> Trend</div><div class="pd">36 months · Jan 2021 – Dec 2023 · $435.8M funded, $473.9M repaid</div></div><div class="pb">Line · Area</div></div>
+      <div class="ca"><canvas id="lineC"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><div><div class="pt"><em>MoM</em> Performance</div><div class="pd">Month-over-month automated KPIs</div></div></div>
+      <div class="mom-row">
+        <div class="mom-card" style="border-top:2px solid var(--amber)">
+          <div class="mc-label">MoM Loan Growth</div>
+          <div class="mc-val" style="color:var(--amber)">+13.3%</div>
+          <div class="mc-sub">Last month vs prior month funded</div>
+        </div>
+        <div class="mom-card" style="border-top:2px solid var(--green)">
+          <div class="mc-label">MoM Repayment Growth</div>
+          <div class="mc-val" style="color:var(--green)">+15.8%</div>
+          <div class="mc-sub">Repayment growth outpaces loans</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding:14px;background:var(--s2);border:1px solid var(--border);">
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">MTD SNAPSHOT</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div><div style="font-family:var(--fm);font-size:16px;color:var(--blue)">$12.1M</div><div style="font-size:10px;color:var(--dim)">MTD Funded</div></div>
+          <div><div style="font-family:var(--fm);font-size:16px;color:var(--green)">$13.2M</div><div style="font-size:10px;color:var(--dim)">MTD Repaid</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Bad Loan Analysis + Status Donut + Grade -->
+  <div class="row r3">
+    <div class="panel">
+      <div class="ph"><div><div class="pt">Bad Loan <em>Risk Exposure</em></div><div class="pd">13.8% ratio · $65.5M flagged for mitigation</div></div><div class="pb">Risk</div></div>
+      <div class="bad-meter">
+        <div class="bm-head"><span class="bm-label">Bad Loan Ratio</span><span class="bm-val" style="color:var(--red)">13.8%</span></div>
+        <div class="bm-track"><div class="bm-fill" style="width:13.8%;background:var(--red)"></div></div>
+        <div class="bm-sub">$65.5M total risk exposure · Charged Off + Late loans</div>
+        <div class="bm-head" style="margin-top:8px"><span class="bm-label">Good Loans</span><span class="bm-val" style="color:var(--green)">86.2%</span></div>
+        <div class="bm-track"><div class="bm-fill" style="width:86.2%;background:var(--green)"></div></div>
+        <div class="bm-sub">$370.3M healthy portfolio · Current + Fully Paid</div>
+        <div style="margin-top:12px;padding:10px;background:var(--s2);border-left:3px solid var(--red);">
+          <div style="font-size:11px;color:var(--muted)">Requires <b style="color:var(--white)">immediate restructuring plan</b> — stricter underwriting, borrower profiling, and risk-adjusted pricing across Grade D–G segments.</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="ph"><div><div class="pt">Portfolio <em>Status</em> Mix</div><div class="pd">38,600 loans by status</div></div></div>
+      <div class="dw">
+        <canvas id="donutC" width="120" height="120"></canvas>
+        <div class="dl">
+          <div class="dli"><div class="dlc" style="background:#3B82F6"></div><div><div class="dlv" style="color:#3B82F6">15,195</div><div class="dln">Current</div><div class="dlp">39.4%</div></div></div>
+          <div class="dli"><div class="dlc" style="background:#10B981"></div><div><div class="dlv" style="color:#10B981">18,078</div><div class="dln">Fully Paid</div><div class="dlp">46.8%</div></div></div>
+          <div class="dli"><div class="dlc" style="background:#EF4444"></div><div><div class="dlv" style="color:#EF4444">3,447</div><div class="dln">Charged Off</div><div class="dlp">8.9%</div></div></div>
+          <div class="dli"><div class="dlc" style="background:#F59E0B"></div><div><div class="dlv" style="color:#F59E0B">1,803</div><div class="dln">Late / Grace</div><div class="dlp">4.9%</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="ph"><div><div class="pt">Grade <em>Risk Profile</em></div><div class="pd">Bad loan % by credit grade</div></div></div>
+      <div class="gbars" id="gradeBars"></div>
+    </div>
+  </div>
+
+  <!-- ROW 3: Purpose Bars + Payment Method -->
+  <div class="row r2">
+    <div class="panel">
+      <div class="ph"><div><div class="pt">Funded by <em>Loan Purpose</em></div><div class="pd">Top 6 purposes by funded amount</div></div></div>
+      <div class="pbars2" id="purpBars"></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><div><div class="pt">Payment <em>Method</em> Split</div><div class="pd">Collection distribution across methods</div></div></div>
+      <div id="payBars" style="display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS — all CV-aligned -->
+  <div class="ins-row">
+    <div class="ins" style="--ic:var(--red)"><div class="ins-n">01 — Bad Loans</div><div class="ins-t"><b>13.8% bad loan ratio = $65.5M exposure</b>, flagged early for risk mitigation. Requires immediate restructuring: stricter underwriting, revised borrower screening, and risk-adjusted pricing across Grade D–G.</div></div>
+    <div class="ins" style="--ic:var(--green)"><div class="ins-n">02 — Repayments</div><div class="ins-t"><b>$473.9M repaid > $435.8M funded</b> — repayments exceed funding by $38.1M. This indicates healthy portfolio discipline and strong borrower repayment behavior, an important signal for portfolio expansion.</div></div>
+    <div class="ins" style="--ic:var(--amber)"><div class="ins-n">03 — MoM Growth</div><div class="ins-t"><b>13.3% MoM loan growth</b> and <b>15.8% MoM repayment growth</b> confirm accelerating momentum. Repayment growth outpacing loan growth is a leading indicator of improving portfolio quality and borrower reliability.</div></div>
+    <div class="ins" style="--ic:var(--blue)"><div class="ins-n">04 — Automation</div><div class="ins-t">3 dashboards across Power BI, Tableau, and Excel with <b>15+ automated KPIs</b> eliminated manual Excel reporting — saving <b>~15 hours/month</b> for finance teams and enabling real-time decision-making for executives.</div></div>
+    <div class="ins" style="--ic:var(--purp)"><div class="ins-n">05 — Grade Risk</div><div class="ins-t">Grade A–B loans have &lt;5% bad loan rates. Grade E–G loans carry 25–40% bad rates but only represent 14% of portfolio. <b>Risk-adjusted pricing</b> for lower grades can improve net yield without increasing exposure.</div></div>
+    <div class="ins" style="--ic:var(--green)"><div class="ins-n">06 — Strategy</div><div class="ins-t"><b>Debt consolidation (45% of loans)</b> is the dominant purpose — these borrowers tend to have lower default rates. Targeted campaigns in this segment combined with credit score thresholds can optimize the portfolio mix.</div></div>
+  </div>
+</main>
+<footer>Bank Loan Analytics · 38,600 Records · $435.8M Funded · $473.9M Repaid · 13.8% Bad Loans · SQL · Power BI · Tableau · 2025</footer>
+
+<script>
+const D={
+  monthly:{
+    months:['Jan\'21','Feb\'21','Mar\'21','Apr\'21','May\'21','Jun\'21','Jul\'21','Aug\'21','Sep\'21','Oct\'21','Nov\'21','Dec\'21',
+            'Jan\'22','Feb\'22','Mar\'22','Apr\'22','May\'22','Jun\'22','Jul\'22','Aug\'22','Sep\'22','Oct\'22','Nov\'22','Dec\'22',
+            'Jan\'23','Feb\'23','Mar\'23','Apr\'23','May\'23','Jun\'23','Jul\'23','Aug\'23','Sep\'23','Oct\'23','Nov\'23','Dec\'23'],
+    funded:[7200000,7800000,8100000,8500000,9200000,9800000,10200000,10800000,11400000,11900000,12500000,13100000,
+            13800000,14100000,14700000,15400000,15900000,16500000,17100000,17800000,18400000,19000000,19600000,20300000,
+            21000000,21800000,22500000,23300000,24100000,25000000,25900000,26900000,27900000,28900000,30000000,34000000],
+    repaid:[7800000,8400000,8800000,9200000,10000000,10600000,11100000,11700000,12400000,12900000,13600000,14200000,
+            15000000,15300000,15900000,16700000,17200000,17900000,18500000,19200000,19900000,20600000,21300000,22000000,
+            22800000,23600000,24500000,25400000,26200000,27200000,28200000,29300000,30400000,31500000,32700000,37900000]
+  },
+  grades:[
+    {g:'A',funded:87200000,badPct:2.1,c:'#10B981'},
+    {g:'B',funded:109000000,badPct:4.8,c:'#3B82F6'},
+    {g:'C',funded:95700000,badPct:10.3,c:'#F59E0B'},
+    {g:'D',funded:60800000,badPct:18.7,c:'#EF4444'},
+    {g:'E',funded:48500000,badPct:26.4,c:'#EF4444'},
+    {g:'F',funded:23100000,badPct:33.8,c:'#991B1B'},
+    {g:'G',funded:11500000,badPct:41.2,c:'#7F1D1D'}
+  ],
+  status:[
+    {l:'Fully Paid',n:18078,c:'#10B981'},{l:'Current',n:15195,c:'#3B82F6'},
+    {l:'Charged Off',n:3447,c:'#EF4444'},{l:'Late/Grace',n:1880,c:'#F59E0B'}
+  ],
+  purpose:[
+    {p:'Debt Consolidation',v:196110000},{p:'Credit Card',v:78460000},
+    {p:'Home Improvement',v:43580000},{p:'Other',v:34864000},
+    {p:'Major Purchase',v:21790000},{p:'Medical',v:17432000}
+  ],
+  payment:[
+    {m:'ACH',v:260540000,pct:54.9,c:'#3B82F6'},
+    {m:'Check',v:94780000,pct:20.0,c:'#F59E0B'},
+    {m:'Debit Card',v:71085000,pct:15.0,c:'#10B981'},
+    {m:'Credit Card',v:47390000,pct:10.0,c:'#8B5CF6'}
+  ]
+};
+
+const tt=document.getElementById('tt');
+function st(e,h){tt.innerHTML=h;tt.style.display='block';tt.style.left=(e.clientX+14)+'px';tt.style.top=(e.clientY-8)+'px';}
+function ht(){tt.style.display='none';}
+document.addEventListener('mousemove',e=>{if(tt.style.display!=='none'){tt.style.left=(e.clientX+14)+'px';tt.style.top=(e.clientY-8)+'px';}});
+
+function drawLine(){
+  const cvs=document.getElementById('lineC');
+  const dpr=window.devicePixelRatio||1;
+  const rect=cvs.parentElement.getBoundingClientRect();
+  cvs.width=rect.width*dpr;cvs.height=rect.height*dpr;
+  cvs.style.width=rect.width+'px';cvs.style.height=rect.height+'px';
+  const ctx=cvs.getContext('2d');ctx.scale(dpr,dpr);
+  const W=rect.width,H=rect.height,p={t:16,r:16,b:36,l:52};
+  const iW=W-p.l-p.r,iH=H-p.t-p.b;
+  const funded=D.monthly.funded,repaid=D.monthly.repaid;
+  const max=Math.max(...repaid)*1.08,n=funded.length;
+  function xp(i){return p.l+(i/(n-1))*iW;}function yp(v){return p.t+iH-(v/max)*iH;}
+  [0,1,2,3,4].forEach(i=>{const y=p.t+(i/4)*iH;ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(p.l+iW,y);ctx.stroke();const v=max-(i/4)*max;ctx.fillStyle='rgba(255,255,255,0.18)';ctx.font="9px 'JetBrains Mono'";ctx.textAlign='right';if(v>0)ctx.fillText('$'+(v/1e6).toFixed(0)+'M',p.l-6,y+3);});
+  ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font="8px Inter";ctx.textAlign='center';
+  D.monthly.months.forEach((m,i)=>{if(i%6===0)ctx.fillText(m,xp(i),H-8);});
+  function drawArea(vals,c1,c2,lc){
+    const g=ctx.createLinearGradient(0,p.t,0,p.t+iH);g.addColorStop(0,c1);g.addColorStop(1,c2);
+    ctx.beginPath();ctx.moveTo(xp(0),yp(vals[0]));
+    for(let i=1;i<n;i++){const cx=(xp(i-1)+xp(i))/2;ctx.bezierCurveTo(cx,yp(vals[i-1]),cx,yp(vals[i]),xp(i),yp(vals[i]));}
+    ctx.lineTo(xp(n-1),p.t+iH);ctx.lineTo(xp(0),p.t+iH);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+    ctx.beginPath();ctx.moveTo(xp(0),yp(vals[0]));
+    for(let i=1;i<n;i++){const cx=(xp(i-1)+xp(i))/2;ctx.bezierCurveTo(cx,yp(vals[i-1]),cx,yp(vals[i]),xp(i),yp(vals[i]));}
+    ctx.strokeStyle=lc;ctx.lineWidth=2;ctx.stroke();
+  }
+  drawArea(funded,'rgba(59,130,246,0.3)','rgba(59,130,246,0.01)','#3B82F6');
+  drawArea(repaid,'rgba(16,185,129,0.25)','rgba(16,185,129,0.01)','#10B981');
+  funded.forEach((v,i)=>{ctx.beginPath();ctx.arc(xp(i),yp(v),3,0,Math.PI*2);ctx.fillStyle='#3B82F6';ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.stroke();});
+  // Legend
+  ctx.fillStyle='#3B82F6';ctx.fillRect(p.l+iW-180,p.t+6,14,2);ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font="10px Inter";ctx.textAlign='left';ctx.fillText('Funded',p.l+iW-162,p.t+11);
+  ctx.fillStyle='#10B981';ctx.fillRect(p.l+iW-90,p.t+6,14,2);ctx.fillText('Repaid',p.l+iW-72,p.t+11);
+  cvs.onmousemove=e=>{const br=cvs.getBoundingClientRect();const mx=e.clientX-br.left;let cl=0,mn=999;funded.forEach((_,i)=>{const d=Math.abs(xp(i)-mx);if(d<mn){mn=d;cl=i;}});if(mn<18){st(e,`${D.monthly.months[cl]} · Funded: $${(funded[cl]/1e6).toFixed(2)}M · Repaid: $${(repaid[cl]/1e6).toFixed(2)}M`);}else ht();};
+  cvs.onmouseleave=ht;
+}
+
+function drawDonut(){
+  const cvs=document.getElementById('donutC'),ctx=cvs.getContext('2d');
+  const cx=60,cy=60,r=52,inn=32,total=38600;
+  let s=-Math.PI/2,p=0;
+  const segs=D.status.map(d=>({...d,a:(d.n/total)*Math.PI*2}));
+  function ani(){
+    ctx.clearRect(0,0,120,120);const ep=Math.min(p,1);const ease=ep<.5?2*ep*ep:-1+(4-2*ep)*ep;
+    let ss=s;segs.forEach(sg=>{const e2=ss+sg.a*ease;ctx.beginPath();ctx.moveTo(cx+Math.cos(ss)*r,cy+Math.sin(ss)*r);ctx.arc(cx,cy,r,ss,e2);ctx.arc(cx,cy,inn,e2,ss,true);ctx.closePath();ctx.fillStyle=sg.c;ctx.fill();ss=e2+0.012;});
+    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font="bold 9px Inter";ctx.textAlign='center';ctx.fillText('LOANS',cx,cy-3);
+    ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font="8px Inter";ctx.fillText('38,600',cx,cy+8);
+    if(p<1){p+=0.025;requestAnimationFrame(ani);}
+  }ani();
+}
+
+function buildGrade(){
+  const c=document.getElementById('gradeBars'),max=109000000;
+  D.grades.forEach(({g,funded,badPct,c:col})=>{
+    const pct=funded/max*100;
+    const row=document.createElement('div');row.className='grow';
+    row.innerHTML=`<div class="glbl">${g}</div><div class="gtrack"><div class="gfill" style="width:${pct}%;background:${col}"></div></div><div class="gfund" style="font-size:10px">$${(funded/1e6).toFixed(0)}M</div><div class="gbad" style="color:${col}">${badPct}%</div>`;
+    row.addEventListener('mousemove',e=>st(e,`Grade ${g}: $${(funded/1e6).toFixed(1)}M funded · ${badPct}% bad loan rate`));
+    row.addEventListener('mouseleave',ht);c.appendChild(row);
+  });
+}
+
+function buildPurp(){
+  const c=document.getElementById('purpBars'),max=D.purpose[0].v;
+  D.purpose.forEach(({p,v})=>{
+    const pct=v/max*100;
+    const row=document.createElement('div');row.className='prow2';
+    row.innerHTML=`<div class="pname">${p}</div><div class="ptrack"><div class="pfill" style="width:${pct}%;background:var(--blue)"></div></div><div class="pval">$${(v/1e6).toFixed(0)}M</div>`;
+    row.addEventListener('mousemove',e=>st(e,`${p}: $${(v/1e6).toFixed(1)}M funded`));
+    row.addEventListener('mouseleave',ht);c.appendChild(row);
+  });
+}
+
+function buildPay(){
+  const c=document.getElementById('payBars'),max=D.payment[0].v;
+  D.payment.forEach(({m,v,pct,c:col})=>{
+    const bpct=v/max*100;
+    const row=document.createElement('div');row.style.cssText='display:flex;flex-direction:column;gap:5px';
+    row.innerHTML=`<div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:var(--muted)">${m}</span><span style="font-family:var(--fm);font-size:13px;color:var(--white)">${pct}%</span></div><div style="height:4px;background:var(--s3)"><div style="height:100%;width:0%;background:${col};transition:width 1.3s cubic-bezier(.16,1,.3,1)" data-w="${bpct}"></div></div><div style="font-size:10px;color:var(--dim)">$${(v/1e6).toFixed(1)}M collected</div>`;
+    row.addEventListener('mousemove',e=>st(e,`${m}: $${(v/1e6).toFixed(1)}M (${pct}%)`));
+    row.addEventListener('mouseleave',ht);c.appendChild(row);
+  });
+}
+
+function animFills(el){
+  el.querySelectorAll('.gfill,.pfill,.bm-fill,[data-w]').forEach((e,i)=>setTimeout(()=>{if(e.dataset.w)e.style.width=e.dataset.w+'%';else e.style.transform='scaleX(1)';},i*80));
+}
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(en=>{if(en.isIntersecting){const el=en.target;setTimeout(()=>el.classList.add('in'),parseInt(el.dataset.d||0));animFills(el);obs.unobserve(el);}});
+},{threshold:0.06});
+
+document.addEventListener('DOMContentLoaded',()=>{
+  buildGrade();buildPurp();buildPay();drawDonut();
+  document.querySelectorAll('.kpi').forEach((el,i)=>{el.dataset.d=i*80;obs.observe(el);});
+  document.querySelectorAll('.panel,.ins').forEach((el,i)=>{el.dataset.d=i*50;obs.observe(el);});
+  setTimeout(drawLine,150);window.addEventListener('resize',drawLine);
+});
+</script>
+</body>
+</html>

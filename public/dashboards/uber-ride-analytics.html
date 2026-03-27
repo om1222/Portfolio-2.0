@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uber Ride Analytics Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=UberMove:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000;--s1:#0A0A0A;--s2:#111;--s3:#1A1A1A;--s4:#222;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --blue:#276EF1;--blue-g:rgba(39,110,241,0.15);
+  --gold:#F0B429;--gold-g:rgba(240,180,41,0.15);
+  --green:#05A357;--green-g:rgba(5,163,87,0.15);
+  --red:#E11900;--red-g:rgba(225,25,0,0.15);
+  --white:#fff;--muted:#666;--dim:#333;
+  --ff:'Manrope',sans-serif;--fm:'IBM Plex Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:var(--ff);font-size:14px;overflow-x:hidden;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:#222;}
+
+/* HEADER */
+header{background:var(--bg);border-bottom:1px solid var(--border);padding:0 48px;position:sticky;top:0;z-index:100;}
+.hi{max-width:1680px;margin:0 auto;display:flex;align-items:center;gap:28px;height:60px;}
+.u-logo{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.u-icon{width:38px;height:38px;background:var(--white);border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.u-icon svg{width:22px;height:22px;}
+.u-wordmark{font-family:var(--ff);font-weight:800;font-size:22px;letter-spacing:-0.5px;color:var(--white);}
+.h-div{width:1px;height:28px;background:var(--border2);}
+.h-tag{font-size:12px;color:var(--muted);letter-spacing:0.5px;flex:1;}
+.h-pills{display:flex;gap:8px;}
+.pill{padding:5px 12px;border:1px solid var(--border);border-radius:100px;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:0.3px;}
+.pill.live{border-color:rgba(5,163,87,0.4);color:var(--green);background:var(--green-g);}
+
+/* MAIN */
+main{max-width:1680px;margin:0 auto;padding:28px 48px 72px;}
+
+/* KPI STRIP */
+.kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:20px;}
+.kpi{background:var(--s1);padding:20px 22px;position:relative;overflow:hidden;opacity:0;transform:translateY(10px);transition:opacity 0.4s,transform 0.4s;}
+.kpi.in{opacity:1;transform:none;}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--ka,var(--blue));}
+.kpi:hover{background:var(--s2);}
+.kl{font-size:9px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.kv{font-family:var(--fm);font-size:26px;font-weight:600;line-height:1;margin-bottom:6px;color:var(--white);}
+.kv .ks{font-size:13px;color:var(--muted);font-weight:400;}
+.km{font-size:11px;color:var(--dim);}
+.km b{color:var(--ka,var(--blue));}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1px;}
+.g21{display:grid;grid-template-columns:3fr 2fr;gap:1px;background:var(--border);margin-bottom:1px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);margin-bottom:1px;}
+.g23{display:grid;grid-template-columns:2fr 1fr;gap:1px;background:var(--border);margin-bottom:1px;}
+.g32{display:grid;grid-template-columns:1fr 2fr;gap:1px;background:var(--border);margin-bottom:1px;}
+.row-wrap{border:1px solid var(--border);margin-bottom:20px;}
+.row-wrap .g2,.row-wrap .g21,.row-wrap .g3,.row-wrap .g23,.row-wrap .g32{margin-bottom:0;background:var(--border);}
+.row-wrap .g2+.g2,.row-wrap .g3+.g3{border-top:1px solid var(--border);}
+
+/* PANEL */
+.panel{background:var(--s1);padding:24px;opacity:0;transform:translateY(8px);transition:opacity 0.5s,transform 0.5s;}
+.panel.in{opacity:1;transform:none;}
+.panel:hover{background:var(--s2);}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
+.pt{font-size:14px;font-weight:700;color:var(--white);line-height:1.3;}
+.pt em{font-style:normal;color:var(--blue);}
+.pd{font-size:11px;color:var(--muted);margin-top:3px;}
+.pb{font-size:9px;padding:3px 9px;border:1px solid var(--border);color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;border-radius:2px;white-space:nowrap;}
+
+/* LINE CHART */
+.ca{position:relative;height:210px;}
+#lineC{width:100%;height:100%;}
+
+/* STATUS DONUT */
+.dw{display:flex;align-items:center;gap:24px;}
+#donutC{flex-shrink:0;}
+.dl{flex:1;display:flex;flex-direction:column;gap:10px;}
+.dli{display:flex;align-items:center;gap:8px;}
+.dlc{width:6px;height:6px;flex-shrink:0;border-radius:1px;}
+.dlv{font-family:var(--fm);font-size:16px;font-weight:600;line-height:1;}
+.dln{font-size:11px;color:var(--muted);}
+.dlp{font-size:10px;color:var(--dim);}
+
+/* HOURLY BARS */
+.hbars{display:flex;gap:3px;align-items:flex-end;height:120px;}
+.hb-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;}
+.hb-inner{width:100%;background:var(--s3);flex:1;display:flex;align-items:flex-end;position:relative;}
+.hb{width:100%;transform:scaleY(0);transform-origin:bottom;transition:transform 0.7s cubic-bezier(.16,1,.3,1);}
+.hb.peak{background:var(--red);}
+.hb.norm{background:var(--blue);opacity:0.6;}
+.hb:hover{opacity:1!important;}
+.h-lbl{font-size:8px;color:var(--dim);}
+
+/* PAYMENT BARS */
+.pbars{display:flex;flex-direction:column;gap:12px;}
+.prow{display:flex;flex-direction:column;gap:5px;}
+.prh{display:flex;justify-content:space-between;align-items:baseline;}
+.prname{font-size:12px;color:var(--muted);}
+.prval{font-family:var(--fm);font-size:13px;color:var(--white);}
+.prpct{font-size:10px;color:var(--muted);}
+.prtrack{height:4px;background:var(--s4);}
+.prfill{height:100%;transform:scaleX(0);transform-origin:left;transition:transform 1.3s cubic-bezier(.16,1,.3,1);}
+
+/* CANCEL REASONS */
+.crlist{display:flex;flex-direction:column;gap:8px;}
+.critem{display:flex;flex-direction:column;gap:4px;}
+.crh{display:flex;justify-content:space-between;align-items:baseline;}
+.crname{font-size:11px;color:var(--muted);max-width:200px;line-height:1.4;}
+.crcount{font-family:var(--fm);font-size:12px;color:var(--white);flex-shrink:0;}
+.crtrack{height:3px;background:var(--s4);}
+.crfill{height:100%;transform:scaleX(0);transform-origin:left;transition:transform 1.2s cubic-bezier(.16,1,.3,1);}
+
+/* VEHICLE TABLE */
+.vtable{width:100%;border-collapse:collapse;}
+.vtable th{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);}
+.vtable td{font-size:12px;padding:10px 10px;border-bottom:1px solid rgba(255,255,255,0.02);color:var(--muted);font-family:var(--fm);}
+.vtable tr:hover td{color:var(--white);background:rgba(255,255,255,0.02);}
+.vtable td:first-child{color:var(--white);font-family:var(--ff);font-weight:500;font-size:13px;}
+.vtable .bar-cell{width:120px;}
+.mini-bar{height:4px;background:var(--blue);transition:width 1s ease;}
+
+/* RATING METER */
+.rating-meters{display:flex;flex-direction:column;gap:16px;}
+.rmeter{display:flex;flex-direction:column;gap:6px;}
+.rm-head{display:flex;justify-content:space-between;}
+.rm-label{font-size:12px;color:var(--muted);}
+.rm-val{font-family:var(--fm);font-size:20px;font-weight:600;}
+.rm-track{height:6px;background:var(--s4);position:relative;}
+.rm-fill{height:100%;transform:scaleX(0);transform-origin:left;transition:transform 1.5s cubic-bezier(.16,1,.3,1);}
+.rm-sub{font-size:10px;color:var(--dim);}
+.stars{display:flex;gap:2px;margin-top:4px;}
+.star{font-size:12px;color:var(--dim);}
+.star.lit{color:var(--gold);}
+
+/* INSIGHT CARDS */
+.ins-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:0;}
+.ins{background:var(--s1);padding:18px 20px;opacity:0;transform:translateY(6px);transition:opacity 0.4s,transform 0.4s;}
+.ins.in{opacity:1;transform:none;}
+.ins:hover{background:var(--s2);}
+.ins-n{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
+.ins-t{font-size:12px;color:var(--muted);line-height:1.7;}
+.ins-t b{color:var(--white);font-weight:600;}
+
+/* FOOTER */
+footer{text-align:center;padding:24px;border-top:1px solid var(--border);font-size:10px;font-weight:600;color:var(--dim);letter-spacing:3px;text-transform:uppercase;}
+
+/* TOOLTIP */
+.tt{position:fixed;background:var(--s3);border:1px solid var(--border2);padding:8px 13px;font-size:12px;color:var(--white);pointer-events:none;z-index:9999;display:none;border-radius:2px;font-family:var(--fm);}
+
+/* PULSE */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.dot{display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;margin-right:5px;vertical-align:middle;}
+</style>
+</head>
+<body>
+<div class="tt" id="tt"></div>
+
+<header>
+  <div class="hi">
+    <div class="u-logo">
+      <div class="u-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="#000"/></svg>
+      </div>
+      <div class="u-wordmark">Uber</div>
+    </div>
+    <div class="h-div"></div>
+    <div class="h-tag">RIDE OPERATIONS &amp; PROFITABILITY ANALYSIS &nbsp;·&nbsp; NCR 2024</div>
+    <div class="h-pills">
+      <div class="pill live"><span class="dot"></span>Live</div>
+      <div class="pill">148K+ Rides</div>
+      <div class="pill">Python · SQL</div>
+      <div class="pill">Jan–Feb 2025</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- KPI STRIP -->
+  <div class="kpi-strip" id="kpiStrip">
+    <div class="kpi" style="--ka:var(--blue)">
+      <div class="kl">Total Rides</div>
+      <div class="kv">1,50,000</div>
+      <div class="km">NCR Jan–Dec <b>2024</b></div>
+    </div>
+    <div class="kpi" style="--ka:var(--green)">
+      <div class="kl">Total Revenue</div>
+      <div class="kv">₹5.18<span class="ks"> Cr</span></div>
+      <div class="km">₹508 <b>avg/ride</b></div>
+    </div>
+    <div class="kpi" style="--ka:var(--red)">
+      <div class="kl">Cancellation Rate</div>
+      <div class="kv">25.0<span class="ks">%</span></div>
+      <div class="km"><b>37,500</b> cancelled rides</div>
+    </div>
+    <div class="kpi" style="--ka:var(--green)">
+      <div class="kl">Completion Rate</div>
+      <div class="kv">62.0<span class="ks">%</span></div>
+      <div class="km"><b>93,000</b> completed</div>
+    </div>
+    <div class="kpi" style="--ka:var(--gold)">
+      <div class="kl">Driver Rating</div>
+      <div class="kv">4.23<span class="ks">/5</span></div>
+      <div class="km">Avg across <b>93K</b> rides</div>
+    </div>
+    <div class="kpi" style="--ka:var(--blue)">
+      <div class="kl">Avg Ride Distance</div>
+      <div class="kv">24.6<span class="ks"> km</span></div>
+      <div class="km">CTAT avg <b>29.1 min</b></div>
+    </div>
+  </div>
+
+  <!-- ROW 1: Revenue Trend + Status Donut + Ratings -->
+  <div class="row-wrap">
+    <div class="g3">
+      <div class="panel">
+        <div class="ph"><div><div class="pt">Monthly <em>Revenue</em> Trend</div><div class="pd">₹ revenue across 12 months · 2024</div></div><div class="pb">Line · Area</div></div>
+        <div class="ca"><canvas id="lineC"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><div><div class="pt">Booking <em>Status</em> Mix</div><div class="pd">150,000 rides breakdown</div></div></div>
+        <div class="dw">
+          <canvas id="donutC" width="130" height="130"></canvas>
+          <div class="dl">
+            <div class="dli"><div class="dlc" style="background:#05A357"></div><div><div class="dlv" style="color:#05A357">93,000</div><div class="dln">Completed</div><div class="dlp">62.0%</div></div></div>
+            <div class="dli"><div class="dlc" style="background:#E11900"></div><div><div class="dlv" style="color:#E11900">27,000</div><div class="dln">Driver Cancelled</div><div class="dlp">18.0%</div></div></div>
+            <div class="dli"><div class="dlc" style="background:#F0B429"></div><div><div class="dlv" style="color:#F0B429">10,500</div><div class="dln">Customer Cancelled</div><div class="dlp">7.0%</div></div></div>
+            <div class="dli"><div class="dlc" style="background:#276EF1"></div><div><div class="dlv" style="color:#276EF1">10,500</div><div class="dln">No Driver Found</div><div class="dlp">7.0%</div></div></div>
+            <div class="dli"><div class="dlc" style="background:#555"></div><div><div class="dlv" style="color:#aaa">9,000</div><div class="dln">Incomplete</div><div class="dlp">6.0%</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><div><div class="pt">Satisfaction <em>Ratings</em></div><div class="pd">Driver & customer avg scores</div></div></div>
+        <div class="rating-meters">
+          <div class="rmeter">
+            <div class="rm-head"><span class="rm-label">Driver Rating</span><span class="rm-val" style="color:var(--gold)">4.23</span></div>
+            <div class="rm-track"><div class="rm-fill" style="width:84.6%;background:var(--gold)"></div></div>
+            <div class="stars"><span class="star lit">★</span><span class="star lit">★</span><span class="star lit">★</span><span class="star lit">★</span><span class="star">★</span></div>
+            <div class="rm-sub">Mean across 93,000 completed rides</div>
+          </div>
+          <div class="rmeter">
+            <div class="rm-head"><span class="rm-label">Customer Rating</span><span class="rm-val" style="color:var(--green)">4.40</span></div>
+            <div class="rm-track"><div class="rm-fill" style="width:88%;background:var(--green)"></div></div>
+            <div class="stars"><span class="star lit">★</span><span class="star lit">★</span><span class="star lit">★</span><span class="star lit">★</span><span class="star">★</span></div>
+            <div class="rm-sub">Mean across 93,000 completed rides</div>
+          </div>
+          <div class="rmeter" style="margin-top:8px;">
+            <div class="rm-head"><span class="rm-label">Avg Driver Arrival (VTAT)</span><span class="rm-val" style="color:var(--blue);font-size:16px">8.5 min</span></div>
+            <div class="rm-sub" style="margin-top:4px;">Avg customer travel time: <b style="color:var(--white)">29.1 min</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Hourly Demand + Payment Mix -->
+  <div class="row-wrap">
+    <div class="g23">
+      <div class="panel">
+        <div class="ph"><div><div class="pt">Hourly <em>Demand</em> Heatmap</div><div class="pd">Rides per hour · peak hours in red</div></div><div class="pb">Bar Chart</div></div>
+        <div class="hbars" id="hourBars"></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><div><div class="pt">Payment <em>Revenue</em> Mix</div><div class="pd">UPI leads at 40% of total revenue</div></div></div>
+        <div class="pbars" id="payBars"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 3: Cancellation Reasons + Vehicle Table -->
+  <div class="row-wrap">
+    <div class="g2">
+      <div class="panel">
+        <div class="ph"><div><div class="pt"><em>Cancellation</em> Root Causes</div><div class="pd">Driver vs Customer reasons — 37,500 cancelled rides</div></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+          <div>
+            <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:12px;font-weight:700;">Driver Cancellations (27K)</div>
+            <div class="crlist" id="driverReasons"></div>
+          </div>
+          <div>
+            <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;font-weight:700;">Customer Cancellations (10.5K)</div>
+            <div class="crlist" id="custReasons"></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><div><div class="pt">Revenue by <em>Vehicle Type</em></div><div class="pd">Completed rides only · with share bars</div></div></div>
+        <table class="vtable" id="vehTable">
+          <thead><tr><th>Vehicle</th><th>Revenue</th><th>Rides</th><th>Avg ₹</th><th style="width:100px">Share</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="ins-row" id="insRow">
+    <div class="ins"><div class="ins-n">01 — Cancellation</div><div class="ins-t"><b>25% cancellation rate</b> across 150K rides. Driver cancellations (18%) outnumber customer ones (7%). Primary driver causes: customer-related issues &amp; health concerns — operational interventions can reduce this by <b>5–7%</b>.</div></div>
+    <div class="ins"><div class="ins-n">02 — Revenue &amp; UPI</div><div class="ins-t">UPI dominates at <b>40% of total revenue (₹2.07Cr)</b>. Cash is 2nd at 25.0%. Targeted UPI cashback promotions can drive higher digital adoption and project a <b>~4% revenue uplift</b> through increased ride completion rates.</div></div>
+    <div class="ins"><div class="ins-n">03 — Peak Hours</div><div class="ins-t">Evening rush (6PM) peaks at <b>12,397 rides/hour</b> — 9× the late-night baseline. Morning rush hits 8–10AM. Driver allocation should be front-loaded to these windows to reduce <b>No Driver Found (7%)</b> failures.</div></div>
+    <div class="ins"><div class="ins-n">04 — Wrong Address</div><div class="ins-t"><b>Wrong Address</b> is the #1 customer cancellation reason (2,362 cases). Address validation checks at booking — a low-engineering-effort fix — can eliminate a significant share of preventable customer cancellations.</div></div>
+    <div class="ins"><div class="ins-n">05 — Auto Dominates</div><div class="ins-t">Auto contributes the most revenue at <b>₹1.29Cr</b> due to sheer ride volume (25,415 rides). Premier Sedan has the highest avg revenue per ride. Short Auto rides during off-peak have the lowest ROI and <b>highest cancellation risk</b>.</div></div>
+    <div class="ins"><div class="ins-n">06 — Automation Impact</div><div class="ins-t">Tableau dashboard automated all 6 KPIs replacing manual Excel exports. Estimated <b>10+ hours/month</b> saved for operations teams, with live drill-down filtering by vehicle type, time, zone, and payment mode.</div></div>
+  </div>
+
+</main>
+<footer>Uber Ride Analytics · 150,000 NCR Records · Python · SQL · Tableau · Portfolio Project 2025</footer>
+
+<script>
+const D={
+  monthly:[
+    {m:'Jan',s:4411069,o:12861},{m:'Feb',s:4085790,o:11927},{m:'Mar',s:4568188,o:12719},
+    {m:'Apr',s:4253789,o:12199},{m:'May',s:4320679,o:12778},{m:'Jun',s:4325660,o:12440},
+    {m:'Jul',s:4365923,o:12897},{m:'Aug',s:4243509,o:12636},{m:'Sep',s:4191393,o:12248},
+    {m:'Oct',s:4417170,o:12651},{m:'Nov',s:4343395,o:12394},{m:'Dec',s:4319618,o:12250}
+  ],
+  status:[{l:'Completed',n:93000,c:'#05A357'},{l:'Driver Cancelled',n:27000,c:'#E11900'},{l:'No Driver Found',n:10500,c:'#276EF1'},{l:'Customer Cancelled',n:10500,c:'#F0B429'},{l:'Incomplete',n:9000,c:'#444'}],
+  hourly:{0:1373,1:1360,2:1339,3:1383,4:1321,5:2786,6:4160,7:5450,8:6861,9:8234,10:9577,11:8390,12:7006,13:5470,14:7031,15:8202,16:9633,17:11044,18:12397,19:11047,20:9630,21:8103,22:5441,23:2762},
+  payment:[{m:'UPI',rev:20738473,pct:40.0,c:'#276EF1'},{m:'Cash',rev:12961546,pct:25.0,c:'#F0B429'},{m:'Uber Wallet',rev:9332313,pct:18.0,c:'#05A357'},{m:'Credit Card',rev:5184618,pct:10.0,c:'#A78BFA'},{m:'Debit Card',rev:3629233,pct:7.0,c:'#666'}],
+  driverReasons:[['Customer related issue',6837],['Customer was coughing/sick',6751],['Personal & Car issues',6726],['Too many passengers',6686]],
+  custReasons:[['Wrong Address',2362],['Change of plans',2353],['Driver not moving',2335],['Driver asked to cancel',2295],['AC not working',1155]],
+  vehicles:[
+    {v:'Auto',rev:12878422,rides:25415,avg:506.73},{v:'Go Mini',rev:10338496,rides:20364,avg:507.68},
+    {v:'Go Sedan',rev:9369719,rides:18318,avg:511.50},{v:'Bike',rev:7837697,rides:15362,avg:510.20},
+    {v:'Premier Sedan',rev:6275332,rides:12315,avg:509.57},{v:'eBike',rev:3618485,rides:7181,avg:503.90},
+    {v:'Uber XL',rev:1528032,rides:3045,avg:501.82}
+  ]
+};
+
+const tt=document.getElementById('tt');
+function st(e,h){tt.innerHTML=h;tt.style.display='block';tt.style.left=(e.clientX+14)+'px';tt.style.top=(e.clientY-8)+'px';}
+function ht(){tt.style.display='none';}
+document.addEventListener('mousemove',e=>{if(tt.style.display!=='none'){tt.style.left=(e.clientX+14)+'px';tt.style.top=(e.clientY-8)+'px';}});
+
+// LINE CHART
+function drawLine(){
+  const cvs=document.getElementById('lineC');
+  const dpr=window.devicePixelRatio||1;
+  const rect=cvs.parentElement.getBoundingClientRect();
+  cvs.width=rect.width*dpr;cvs.height=rect.height*dpr;
+  cvs.style.width=rect.width+'px';cvs.style.height=rect.height+'px';
+  const ctx=cvs.getContext('2d');ctx.scale(dpr,dpr);
+  const W=rect.width,H=rect.height,p={t:16,r:16,b:36,l:56};
+  const iW=W-p.l-p.r,iH=H-p.t-p.b;
+  const vals=D.monthly.map(d=>d.s);
+  const max=Math.max(...vals)*1.08;
+  const n=vals.length;
+  function xp(i){return p.l+(i/(n-1))*iW;}
+  function yp(v){return p.t+iH-(v/max)*iH;}
+  // Grid
+  for(let i=0;i<=4;i++){
+    const y=p.t+(i/4)*iH;
+    ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(p.l+iW,y);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font="10px 'IBM Plex Mono',monospace";ctx.textAlign='right';
+    const v=max-(i/4)*max;if(v>0)ctx.fillText('₹'+(v/1e6).toFixed(1)+'M',p.l-8,y+3);
+  }
+  // X labels
+  ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font="10px Manrope,sans-serif";ctx.textAlign='center';
+  D.monthly.forEach((d,i)=>ctx.fillText(d.m,xp(i),H-8));
+  // Area
+  const g=ctx.createLinearGradient(0,p.t,0,p.t+iH);
+  g.addColorStop(0,'rgba(39,110,241,0.3)');g.addColorStop(1,'rgba(39,110,241,0.01)');
+  ctx.beginPath();ctx.moveTo(xp(0),yp(vals[0]));
+  for(let i=1;i<n;i++){const cx=(xp(i-1)+xp(i))/2;ctx.bezierCurveTo(cx,yp(vals[i-1]),cx,yp(vals[i]),xp(i),yp(vals[i]));}
+  ctx.lineTo(xp(n-1),p.t+iH);ctx.lineTo(xp(0),p.t+iH);ctx.closePath();
+  ctx.fillStyle=g;ctx.fill();
+  // Line
+  ctx.beginPath();ctx.moveTo(xp(0),yp(vals[0]));
+  for(let i=1;i<n;i++){const cx=(xp(i-1)+xp(i))/2;ctx.bezierCurveTo(cx,yp(vals[i-1]),cx,yp(vals[i]),xp(i),yp(vals[i]));}
+  ctx.strokeStyle='#276EF1';ctx.lineWidth=2.5;ctx.stroke();
+  // Dots
+  vals.forEach((v,i)=>{ctx.beginPath();ctx.arc(xp(i),yp(v),3.5,0,Math.PI*2);ctx.fillStyle='#276EF1';ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.stroke();});
+  // Hover
+  cvs.onmousemove=e=>{const br=cvs.getBoundingClientRect();const mx=e.clientX-br.left;let cl=0,mn=999;
+    D.monthly.forEach((_,i)=>{const d=Math.abs(xp(i)-mx);if(d<mn){mn=d;cl=i;}});
+    if(mn<22){const d=D.monthly[cl];st(e,`${d.m} 2024 · ₹${(d.s/1e6).toFixed(2)}M · ${d.o.toLocaleString()} rides`);}else ht();};
+  cvs.onmouseleave=ht;
+}
+
+// DONUT
+function drawDonut(){
+  const cvs=document.getElementById('donutC'),ctx=cvs.getContext('2d');
+  const cx=65,cy=65,r=56,inn=36,total=150000;
+  const segs=[];let s=-Math.PI/2;
+  D.status.forEach(d=>{const a=(d.n/total)*Math.PI*2;segs.push({...d,s,e:s+a});s+=a;});
+  let p=0;
+  function ani(){
+    ctx.clearRect(0,0,130,130);const ep=Math.min(p,1);const ease=ep<.5?2*ep*ep:-1+(4-2*ep)*ep;
+    segs.forEach(sg=>{const end=sg.s+(sg.e-sg.s)*ease;if(end<=sg.s)return;
+      ctx.beginPath();ctx.moveTo(cx+Math.cos(sg.s)*r,cy+Math.sin(sg.s)*r);
+      ctx.arc(cx,cy,r,sg.s,end);ctx.arc(cx,cy,inn,end,sg.s,true);ctx.closePath();
+      ctx.fillStyle=sg.c;ctx.fill();});
+    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font="bold 9px Manrope";ctx.textAlign='center';ctx.fillText('STATUS',cx,cy-4);
+    ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font="8px Manrope";ctx.fillText('150K rides',cx,cy+7);
+    if(p<1){p+=0.025;requestAnimationFrame(ani);}
+  }ani();
+}
+
+// HOURLY BARS
+function buildHours(){
+  const c=document.getElementById('hourBars');
+  const vals=Object.values(D.hourly);const max=Math.max(...vals);
+  const peak=[7,8,9,10,17,18,19];
+  Object.entries(D.hourly).forEach(([h,v])=>{
+    const pct=v/max;const isPeak=peak.includes(parseInt(h));
+    const wrap=document.createElement('div');wrap.className='hb-wrap';
+    wrap.innerHTML=`<div class="hb-inner"><div class="hb ${isPeak?'peak':'norm'}" style="height:${pct*100}%"></div></div><div class="h-lbl">${h}</div>`;
+    wrap.addEventListener('mousemove',e=>st(e,`${h}:00 · ${v.toLocaleString()} rides${isPeak?' · 🔴 PEAK':''}`));
+    wrap.addEventListener('mouseleave',ht);
+    c.appendChild(wrap);
+  });
+}
+
+// PAYMENT BARS
+function buildPay(){
+  const c=document.getElementById('payBars');const tot=51846183;
+  D.payment.forEach(({m,rev,pct,c:col})=>{
+    const row=document.createElement('div');row.className='prow';
+    row.innerHTML=`<div class="prh"><div class="prname">${m}</div><div><span class="prval">₹${(rev/1e6).toFixed(2)}M</span> <span class="prpct">${pct}%</span></div></div><div class="prtrack"><div class="prfill" style="width:${pct/45*100}%;background:${col}"></div></div>`;
+    row.addEventListener('mousemove',e=>st(e,`${m} · ₹${rev.toLocaleString()} · ${pct}% of revenue`));
+    row.addEventListener('mouseleave',ht);
+    c.appendChild(row);
+  });
+}
+
+// CANCEL REASONS
+function buildReasons(){
+  const dc=document.getElementById('driverReasons'),cc=document.getElementById('custReasons');
+  const dmx=D.driverReasons[0][1],cmx=D.custReasons[0][1];
+  D.driverReasons.forEach(([name,n])=>{
+    const el=document.createElement('div');el.className='critem';
+    el.innerHTML=`<div class="crh"><div class="crname">${name}</div><div class="crcount">${n.toLocaleString()}</div></div><div class="crtrack"><div class="crfill" style="width:${n/dmx*100}%;background:#E11900"></div></div>`;
+    el.addEventListener('mousemove',e=>st(e,`${name}: ${n.toLocaleString()}`));el.addEventListener('mouseleave',ht);
+    dc.appendChild(el);
+  });
+  D.custReasons.forEach(([name,n])=>{
+    const el=document.createElement('div');el.className='critem';
+    el.innerHTML=`<div class="crh"><div class="crname">${name}</div><div class="crcount">${n.toLocaleString()}</div></div><div class="crtrack"><div class="crfill" style="width:${n/cmx*100}%;background:#F0B429"></div></div>`;
+    el.addEventListener('mousemove',e=>st(e,`${name}: ${n.toLocaleString()}`));el.addEventListener('mouseleave',ht);
+    cc.appendChild(el);
+  });
+}
+
+// VEHICLE TABLE
+function buildVeh(){
+  const tbody=document.querySelector('#vehTable tbody');
+  const maxRev=D.vehicles[0].rev;
+  D.vehicles.forEach(({v,rev,rides,avg})=>{
+    const pct=rev/maxRev*100;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${v}</td><td>₹${(rev/1e6).toFixed(2)}M</td><td>${rides.toLocaleString()}</td><td>₹${avg.toFixed(0)}</td><td class="bar-cell"><div class="mini-bar" style="width:0%;transition:width 1.2s ease" data-w="${pct}"></div></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ANIMATE
+function animFills(el){
+  el.querySelectorAll('.prfill,.crfill,.rm-fill').forEach((e,i)=>setTimeout(()=>e.style.transform='scaleX(1)',i*80));
+  el.querySelectorAll('.hb').forEach((e,i)=>setTimeout(()=>e.style.transform='scaleY(1)',i*25));
+  el.querySelectorAll('.mini-bar[data-w]').forEach((e,i)=>setTimeout(()=>e.style.width=e.dataset.w+'%',i*80+200));
+}
+
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){
+      const el=en.target;
+      setTimeout(()=>el.classList.add('in'),parseInt(el.dataset.d||0));
+      animFills(el);obs.unobserve(el);
+    }
+  });
+},{threshold:0.06});
+
+document.addEventListener('DOMContentLoaded',()=>{
+  buildHours();buildPay();buildReasons();buildVeh();drawDonut();
+  document.querySelectorAll('.kpi').forEach((el,i)=>{el.dataset.d=i*70;obs.observe(el);});
+  document.querySelectorAll('.panel,.ins').forEach((el,i)=>{el.dataset.d=i*50;obs.observe(el);});
+  setTimeout(drawLine,150);
+  window.addEventListener('resize',drawLine);
+});
+</script>
+</body>
+</html>

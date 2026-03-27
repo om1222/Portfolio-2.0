@@ -1,0 +1,143 @@
+.project-detail-page {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 120px 20px 50px 20px;
+  color: #fff;
+  position: relative;
+  z-index: 20;
+}
+
+.project-detail-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
+
+.project-nav {
+  margin-bottom: 40px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--accentColor);
+  text-decoration: none;
+  font-weight: 500;
+  transition: transform 0.3s ease;
+}
+
+.back-link:hover {
+  transform: translateX(-5px);
+}
+
+.project-header {
+  margin-bottom: 60px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 40px;
+}
+
+.project-tags {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.project-category {
+  background-color: rgba(196, 129, 255, 0.15);
+  color: var(--accentColor);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.project-timeline {
+  color: #a0a0a0;
+  font-size: 14px;
+}
+
+.project-header h1 {
+  font-size: 40px;
+  margin: 0 0 20px 0;
+  line-height: 1.2;
+}
+
+.project-subtitle {
+  font-size: 18px;
+  color: #ccc;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.content-section {
+  margin-bottom: 50px;
+}
+
+.content-section h2 {
+  font-size: 24px;
+  color: var(--accentColor);
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.content-section p, .content-section li {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #d0d0d0;
+}
+
+.content-section ul {
+  padding-left: 20px;
+}
+
+.content-section li {
+  margin-bottom: 10px;
+}
+
+.tools-text {
+  font-family: monospace;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.proof-section {
+  background-color: rgba(196, 129, 255, 0.05);
+  padding: 30px;
+  border-radius: 12px;
+  border: 1px solid rgba(196, 129, 255, 0.2);
+}
+
+.proof-section h2 {
+  margin-top: 0;
+}
+
+.proof-box p {
+  margin: 0 0 15px 0;
+}
+
+.proof-link-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: var(--accentColor);
+  color: var(--backgroundColor);
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.proof-link-btn:hover {
+  background-color: #fb8dff;
+  transform: translateY(-2px);
+}

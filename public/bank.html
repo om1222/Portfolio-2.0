@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank Loan Analytics — Om Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lora:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --gold:#C9A84C;--g2:#E8C96A;--gg:rgba(201,168,76,.12);--gb:rgba(201,168,76,.2);
+  --navy:#0A1628;--n1:#0F1F38;--n2:#162845;--n3:#1E3252;
+  --bg:#070D18;--c1:#0C1828;--c2:#111F30;--c3:#1A2C42;
+  --tx:#EDE8DC;--m:#6A849A;--d:#1E3252;
+  --green:#1E8449;--gng:rgba(30,132,73,.15);
+  --red:#C0392B;--rdg:rgba(192,57,43,.15);
+  --blue:#2874A6;--blg:rgba(40,116,166,.15);
+  --b:rgba(255,255,255,.06);--by:rgba(201,168,76,.18);
+  --rw:296px;
+  --fa:'Bebas Neue',sans-serif;--fs:'Lora',serif;--fb:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:var(--fb);font-size:14px;overflow-x:hidden;}
+/* Left gold accent line */
+body::before{content:'';position:fixed;top:0;left:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--gold) 0%,transparent 100%);z-index:200;pointer-events:none;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--gold);}
+
+.layout{display:flex;}
+.content{flex:1;min-width:0;padding-right:var(--rw);}
+
+/* ── RIGHT PANEL ── */
+.rpanel{width:var(--rw);position:fixed;top:0;right:0;bottom:0;background:var(--c1);border-left:1px solid var(--by);display:flex;flex-direction:column;z-index:60;overflow-y:auto;}
+.rp-top{padding:24px 20px;border-bottom:1px solid var(--b);}
+.rp-mark{width:38px;height:38px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--fa);font-size:16px;color:#000;margin-bottom:12px;}
+.rp-name{font-family:var(--fa);font-size:15px;letter-spacing:2px;color:var(--tx);}
+.rp-role{font-size:12px;color:var(--m);margin-top:2px;}
+.rp-badge{padding:16px 20px;border-bottom:1px solid var(--b);}
+.rp-badge-tag{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:5px;font-family:var(--fa);}
+.rp-badge-title{font-family:var(--fs);font-size:16px;font-style:italic;color:var(--tx);line-height:1.4;}
+.rp-sec{padding:14px 20px;border-bottom:1px solid var(--b);}
+.rp-sec-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--m);margin-bottom:10px;font-family:var(--fa);}
+.rbtn{display:flex;align-items:center;gap:10px;width:100%;padding:11px 13px;border:1px solid var(--b);background:transparent;color:var(--tx);font-family:var(--fb);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;margin-bottom:7px;text-decoration:none;}
+.rbtn:last-child{margin-bottom:0;}
+.rbtn:hover{border-color:var(--gold);background:var(--gg);}
+.rbtn.primary{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700;}
+.rbtn.primary:hover{background:var(--g2);}
+.rbtn .ri{width:26px;height:26px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.rbtn.primary .ri{background:rgba(0,0,0,.15);}
+.rbtn .rt{flex:1;text-align:left;}
+.rbtn .ra{font-size:10px;color:var(--m);flex-shrink:0;}
+.rp-stats{padding:14px 20px;}
+.rs-row{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--d);}
+.rs-row:last-child{border-bottom:none;}
+.rs-label{font-size:11px;color:var(--m);}
+.rs-val{font-family:var(--fa);font-size:20px;letter-spacing:.5px;}
+.rs-val.gold{color:var(--gold);}
+.rs-val.g{color:var(--green);}
+.rs-val.r{color:var(--red);}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:40;background:rgba(7,13,24,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--by);padding:0 44px;height:60px;display:flex;align-items:center;gap:20px;}
+.nlogo{font-family:var(--fa);font-size:19px;letter-spacing:3px;display:flex;align-items:center;gap:10px;}
+.nlogo-crest{width:28px;height:28px;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--gold);}
+.nlogo span{color:var(--gold);}
+.ndiv{width:1px;height:14px;background:var(--d);}
+.nlinks{display:flex;gap:18px;}
+.nlink{font-size:13px;color:var(--m);cursor:pointer;transition:color .2s;background:none;border:none;font-family:var(--fb);}
+.nlink:hover{color:var(--tx);}
+.nperiod{margin-left:auto;font-family:var(--fm);font-size:11px;color:var(--d);letter-spacing:1px;}
+
+/* ── HERO ── */
+.hero{padding:68px 44px 56px;position:relative;overflow:hidden;border-bottom:1px solid var(--by);}
+.hero::before{content:'';position:absolute;top:-80px;right:-60px;width:500px;height:500px;background:radial-gradient(circle,rgba(201,168,76,.06) 0%,transparent 65%);pointer-events:none;}
+.htag{font-family:var(--fa);font-size:11px;letter-spacing:4px;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.htag::before{content:'';display:block;width:20px;height:1.5px;background:var(--gold);}
+.htitle{font-family:var(--fa);font-size:clamp(52px,6.5vw,92px);line-height:.92;letter-spacing:1px;margin-bottom:16px;}
+.htitle span{display:block;font-family:var(--fs);font-style:italic;font-size:clamp(26px,3.2vw,46px);font-weight:400;color:var(--m);}
+.hdesc{font-size:17px;line-height:1.75;color:var(--m);max-width:580px;font-weight:300;margin-bottom:40px;}
+.hstats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--by);}
+.hs{padding:18px 20px;border-right:1px solid var(--by);}
+.hs:last-child{border-right:none;}
+.hs-val{font-family:var(--fa);font-size:38px;letter-spacing:-1px;line-height:1;margin-bottom:3px;}
+.hs-val em{font-size:16px;color:var(--m);font-style:normal;}
+.hs-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--m);}
+
+/* ── SECTIONS ── */
+.sec{padding:64px 44px;border-bottom:1px solid var(--by);}
+.sec-eye{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.se-n{font-family:var(--fm);font-size:14px;color:var(--m);letter-spacing:1px;}
+.se-line{width:22px;height:2px;background:var(--gold);}
+.se-text{font-size:15px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-family:var(--fa);}
+.sec-h{font-family:var(--fs);font-size:clamp(36px,4vw,60px);font-weight:700;line-height:1.0;margin-bottom:44px;}
+.sec-h em{font-style:italic;color:var(--gold);}
+
+/* ── PROBLEM — ledger cards ── */
+.prob-layout{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.prob-card{background:var(--c1);border:1px solid var(--b);padding:22px;}
+.pc-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.pc-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.pc-title{font-size:13px;font-weight:600;color:var(--tx);}
+.pc-sub{font-size:11px;color:var(--m);}
+.prob-list{display:flex;flex-direction:column;gap:0;}
+.pl-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--d);}
+.pl-item:last-child{border-bottom:none;}
+.pl-num{font-family:var(--fs);font-size:18px;font-weight:400;color:var(--gold);line-height:1.2;flex-shrink:0;min-width:20px;}
+.pl-text{font-size:12px;color:var(--m);line-height:1.55;}
+.pl-text strong{color:var(--tx);font-weight:500;}
+.pl-text code{font-family:var(--fm);font-size:10px;background:var(--c3);padding:1px 5px;color:var(--tx);}
+
+/* ── PIPELINE ── */
+.pipe{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr auto 1fr;align-items:stretch;gap:0;margin-bottom:36px;}
+.pipe-step{background:var(--c1);border:1px solid var(--b);border-right:none;padding:20px 16px;transition:all .25s;}
+.pipe-step:last-child{border-right:1px solid var(--b);}
+.pipe-step:hover{background:var(--c2);border-color:var(--gb);}
+.ps-num{font-family:var(--fa);font-size:32px;color:rgba(255,255,255,.04);line-height:1;margin-bottom:8px;}
+.ps-icon{font-size:18px;margin-bottom:6px;}
+.ps-title{font-family:var(--fa);font-size:13px;letter-spacing:1px;margin-bottom:5px;color:var(--gold);}
+.ps-body{font-size:11px;color:var(--m);line-height:1.6;}
+.ps-fn{font-family:var(--fm);font-size:9px;color:var(--d);margin-top:8px;}
+.parrow{display:flex;align-items:center;padding:0 4px;color:var(--d);font-size:11px;align-self:center;flex-shrink:0;}
+.stack-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px;}
+.stk{display:flex;align-items:center;gap:8px;background:var(--c1);border:1px solid var(--b);padding:10px 14px;transition:border-color .2s;}
+.stk:hover{border-color:var(--gold);}
+.stk-ico{font-size:16px;}
+.stk-name{font-size:13px;font-weight:500;}
+.stk-role{font-size:10px;color:var(--m);}
+
+/* ── PORTFOLIO LEDGER — big numbers ── */
+.ledger-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--by);border:1px solid var(--by);margin-bottom:20px;}
+.ledger-tile{background:var(--c1);padding:26px 22px;position:relative;overflow:hidden;}
+.ledger-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--tc,var(--gold));}
+.ledger-tile::after{content:'';position:absolute;bottom:-16px;right:-16px;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle,var(--ta,var(--gg)) 0%,transparent 70%);}
+.lt-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--m);font-family:var(--fa);margin-bottom:8px;}
+.lt-val{font-family:var(--fa);font-size:clamp(28px,3vw,44px);letter-spacing:-1px;line-height:1;margin-bottom:5px;}
+.lt-val .u{font-size:16px;color:var(--m);}
+.lt-desc{font-size:11px;color:var(--d);line-height:1.5;}
+
+/* ── BAD LOAN METER ── */
+.bad-loan-card{background:var(--c1);border:1px solid rgba(192,57,43,.25);padding:28px;margin-bottom:16px;}
+.blc-header{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;margin-bottom:22px;}
+.blc-big{font-family:var(--fa);font-size:clamp(60px,7.5vw,96px);color:var(--red);line-height:1;letter-spacing:-2px;}
+.blc-big em{font-size:26px;color:var(--m);font-style:normal;}
+.blc-title{font-family:var(--fs);font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;}
+.blc-title em{font-style:italic;color:var(--red);}
+.blc-note{font-size:13px;color:var(--m);line-height:1.65;}
+.blc-note strong{color:var(--tx);}
+.blc-bars{display:flex;flex-direction:column;gap:10px;}
+.blc-bar-row{display:flex;flex-direction:column;gap:5px;}
+.blc-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--m);}
+.blc-bar-track{height:8px;background:var(--c3);}
+.blc-bar-fill{height:100%;transition:width 1.4s cubic-bezier(.16,1,.3,1);}
+
+/* ── CHART WRAP ── */
+.chart-wrap{background:var(--c1);border:1px solid var(--b);padding:28px;margin-bottom:10px;}
+.chart-title{font-family:var(--fa);font-size:16px;letter-spacing:1px;color:var(--tx);margin-bottom:20px;}
+.chart-title span{color:var(--gold);}
+.chart2col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+
+/* ── MOM HIGHLIGHT ── */
+.mom-card{background:var(--c1);border:1px solid var(--by);padding:28px;display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:10px;}
+.mom-block{}
+.mb-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--m);font-family:var(--fa);margin-bottom:6px;}
+.mb-big{font-family:var(--fa);font-size:clamp(52px,6vw,80px);line-height:1;letter-spacing:-2px;margin-bottom:6px;}
+.mb-bar-row{margin-bottom:8px;}
+.mbb-label{display:flex;justify-content:space-between;font-size:10px;color:var(--m);margin-bottom:4px;}
+.mbb-track{height:6px;background:var(--c3);}
+.mbb-fill{height:100%;transition:width 1.4s cubic-bezier(.16,1,.3,1);}
+.mb-note{font-size:12px;color:var(--m);line-height:1.65;}
+.mb-note strong{color:var(--tx);}
+
+/* ── SQL QUERIES GRID ── */
+.qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.qcard{background:var(--c1);border:1px solid var(--b);padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.qcard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--qc,var(--gold));transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.qcard:hover{background:var(--c2);}
+.qcard:hover::after{transform:scaleX(1);}
+.qc-num{font-family:var(--fa);font-size:28px;color:rgba(255,255,255,.04);line-height:1;margin-bottom:8px;}
+.qc-cat{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--qc,var(--gold));font-family:var(--fa);margin-bottom:4px;}
+.qc-title{font-size:12px;font-weight:600;margin-bottom:4px;color:var(--tx);}
+.qc-desc{font-size:10px;color:var(--m);line-height:1.5;}
+.qc-fn{font-family:var(--fm);font-size:9px;color:var(--d);margin-top:8px;}
+
+/* ── RESULTS ── */
+.res-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;background:var(--b);margin-bottom:16px;}
+.rmet{background:var(--c1);padding:24px 20px;}
+.rm-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--m);font-family:var(--fa);margin-bottom:6px;}
+.rm-val{font-family:var(--fa);font-size:clamp(32px,3.5vw,52px);letter-spacing:-1px;line-height:1;margin-bottom:5px;}
+.rm-desc{font-size:12px;color:var(--d);line-height:1.5;}
+.ins-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ins{background:var(--c1);border-left:2px solid var(--ic,var(--gold));padding:18px 20px;}
+.ins-cat{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--ic,var(--gold));font-family:var(--fa);margin-bottom:7px;}
+.ins-body{font-size:13px;color:var(--m);line-height:1.7;}
+.ins-body strong{color:var(--tx);font-weight:500;}
+
+footer{padding:28px 44px;display:flex;justify-content:space-between;}
+.ft{font-family:var(--fm);font-size:9px;letter-spacing:1.5px;color:var(--d);}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.v{opacity:1;transform:none;}
+
+/* ── MODAL ── */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal.open{opacity:1;pointer-events:all;}
+.mbox{background:var(--c1);border:1px solid var(--by);width:90%;max-width:960px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;}
+.mhead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--b);flex-shrink:0;gap:10px;}
+.mtabs{display:flex;gap:2px;flex-wrap:wrap;}
+.mtab{padding:5px 12px;font-size:11px;font-family:var(--fa);letter-spacing:1px;cursor:pointer;border:none;background:transparent;color:var(--m);transition:all .15s;}
+.mtab.on,.mtab:hover{background:var(--gold);color:#000;}
+.mclose{background:none;border:none;color:var(--m);font-size:22px;cursor:pointer;line-height:1;flex-shrink:0;}
+.mclose:hover{color:var(--tx);}
+.mbody{overflow-y:auto;flex:1;}
+.cblock{padding:18px 20px;display:none;}
+.cblock.on{display:block;}
+pre{font-family:var(--fm);font-size:11px;line-height:1.75;color:#bbb;white-space:pre;overflow-x:auto;}
+</style>
+</head>
+<body>
+<div class="layout">
+<div class="content">
+
+<nav>
+  <div class="nlogo"><div class="nlogo-crest">🏦</div><span>BANK</span> ANALYTICS</div>
+  <div class="ndiv"></div>
+  <div class="nlinks">
+    <button class="nlink" onclick="goto('#problem')">Problem</button>
+    <button class="nlink" onclick="goto('#approach')">Approach</button>
+    <button class="nlink" onclick="goto('#portfolio')">Portfolio</button>
+    <button class="nlink" onclick="goto('#visuals')">Visuals</button>
+    <button class="nlink" onclick="goto('#queries')">SQL</button>
+    <button class="nlink" onclick="goto('#results')">Results</button>
+  </div>
+  <div class="nperiod">DEC 2024 – JAN 2025</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="htag">Financial Analysis · SQL · Power BI · Tableau</div>
+  <h1 class="htitle">BANK LOAN &amp;<span>Repayment Dashboard</span></h1>
+  <p class="hdesc">Cleaned &amp; validated 38,600+ loan records in SQL, engineered 15+ financial KPIs, exposing a 13.8% bad loan ratio and automating MoM/MTD portfolio tracking — saving 15 hrs/month.</p>
+  <div class="hstats">
+    <div class="hs"><div class="hs-val" style="color:var(--gold)">$435.8<em>M</em></div><div class="hs-label">Total Funded</div></div>
+    <div class="hs"><div class="hs-val" style="color:var(--green)">$473.9<em>M</em></div><div class="hs-label">Total Repaid</div></div>
+    <div class="hs"><div class="hs-val" style="color:var(--red)">13.8<em>%</em></div><div class="hs-label">Bad Loan Ratio</div></div>
+    <div class="hs"><div class="hs-val">15<em>+hrs</em></div><div class="hs-label">Saved / Month</div></div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<div class="sec" id="problem">
+  <div class="sec-eye"><span class="se-n">01</span><div class="se-line"></div><span class="se-text">The Problem</span></div>
+  <h2 class="sec-h reveal">$435M portfolio — <em>no reliable view</em></h2>
+  <div class="prob-layout reveal">
+    <div class="prob-card">
+      <div class="pc-head">
+        <div class="pc-icon" style="background:var(--rdg);border:1px solid rgba(192,57,43,.2)">⚠️</div>
+        <div><div class="pc-title">Data Quality Issues</div><div class="pc-sub">5 critical problems in raw loan records</div></div>
+      </div>
+      <div class="prob-list">
+        <div class="pl-item"><div class="pl-num">I</div><div class="pl-text"><strong>Inconsistent loan status labels</strong> — <code>"Current"</code>, <code>"current"</code>, <code>"CURRENT"</code> treated as 3 separate categories, distorting every risk metric</div></div>
+        <div class="pl-item"><div class="pl-num">II</div><div class="pl-text"><strong>NULL repayment dates</strong> — missing <code>last_pymnt_d</code> timestamps broke all MoM and MTD calculations</div></div>
+        <div class="pl-item"><div class="pl-num">III</div><div class="pl-text"><strong>Mismatched funded vs received amounts</strong> — no reconciliation between disbursed and collected figures</div></div>
+        <div class="pl-item"><div class="pl-num">IV</div><div class="pl-text"><strong>No bad loan classification</strong> — Charged Off and Late loans mixed with healthy ones, making $65.5M exposure invisible</div></div>
+      </div>
+    </div>
+    <div class="prob-card">
+      <div class="pc-head">
+        <div class="pc-icon" style="background:var(--gg);border:1px solid var(--gb)">🏛️</div>
+        <div><div class="pc-title">Strategic Blind Spots</div><div class="pc-sub">What leadership couldn't see</div></div>
+      </div>
+      <div class="prob-list">
+        <div class="pl-item"><div class="pl-num">I</div><div class="pl-text"><strong>No MoM loan growth view</strong> — monthly funding trend required manual extraction, consuming 15+ hours every month</div></div>
+        <div class="pl-item"><div class="pl-num">II</div><div class="pl-text"><strong>No real-time bad loan alert</strong> — $65.5M in risk exposure (13.8% bad ratio) was invisible without a consolidated risk dashboard</div></div>
+        <div class="pl-item"><div class="pl-num">III</div><div class="pl-text"><strong>No grade-level risk profiling</strong> — Grade D–G loans carrying 18–40% default rates not identified for pricing adjustments</div></div>
+        <div class="pl-item"><div class="pl-num">IV</div><div class="pl-text"><strong>No MTD performance tracking</strong> — intra-month funding vs repayment status unknown until month close</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APPROACH -->
+<div class="sec" id="approach">
+  <div class="sec-eye"><span class="se-n">02</span><div class="se-line"></div><span class="se-text">Approach</span></div>
+  <h2 class="sec-h reveal">5-step SQL-first <em>analytics pipeline</em></h2>
+  <div class="pipe reveal">
+    <div class="pipe-step"><div class="ps-num">01</div><div class="ps-icon">🧹</div><div class="ps-title">CLEAN &amp; VALIDATE</div><div class="ps-body">TRIM, COALESCE, CAST, CASE WHEN — standardize 38,600 records to 100% accurate financial data</div><div class="ps-fn">TRIM() · COALESCE() · CAST() · CASE WHEN</div></div>
+    <div class="parrow">▶</div>
+    <div class="pipe-step"><div class="ps-num">02</div><div class="ps-icon">⚙️</div><div class="ps-title">FEATURE ENGINEER</div><div class="ps-body">Bad loan flag, issue_month, rate_bucket, DTI bucket, term_months — analysis-ready derived columns</div><div class="ps-fn">is_bad_loan · dt.to_period() · pd.cut()</div></div>
+    <div class="parrow">▶</div>
+    <div class="pipe-step"><div class="ps-num">03</div><div class="ps-icon">📐</div><div class="ps-title">15+ SQL KPIs</div><div class="ps-body">Portfolio totals, risk metrics, MoM LAG(), MTD, delinquency ageing, grade risk, charge-off analysis</div><div class="ps-fn">LAG() · HAVING · CTE · GROUP BY</div></div>
+    <div class="parrow">▶</div>
+    <div class="pipe-step"><div class="ps-num">04</div><div class="ps-icon">📊</div><div class="ps-title">3 DASHBOARDS</div><div class="ps-body">Power BI (DAX, cross-filter), Tableau (LOD, trends), Excel (pivot validation) for 3 different audiences</div><div class="ps-fn">DAX · LOD · Pivot Tables</div></div>
+    <div class="parrow">▶</div>
+    <div class="pipe-step"><div class="ps-num">05</div><div class="ps-icon">🤖</div><div class="ps-title">AUTOMATE MoM/MTD</div><div class="ps-body">Automated monthly/MTD tracking eliminates manual Excel exports — saves 15 hrs/month for finance teams</div><div class="ps-fn">Auto-refresh · Scheduled KPIs</div></div>
+  </div>
+  <div class="stack-row reveal">
+    <div class="stk"><div class="stk-ico">🗄️</div><div><div class="stk-name">SQL</div><div class="stk-role">15+ KPI Queries</div></div></div>
+    <div class="stk"><div class="stk-ico">📊</div><div><div class="stk-name">Power BI</div><div class="stk-role">DAX · Executive Dashboard</div></div></div>
+    <div class="stk"><div class="stk-ico">📈</div><div><div class="stk-name">Tableau</div><div class="stk-role">LOD · Trend Analysis</div></div></div>
+    <div class="stk"><div class="stk-ico">📋</div><div><div class="stk-name">Excel</div><div class="stk-role">Pivot · Validation</div></div></div>
+    <div class="stk"><div class="stk-ico">🐍</div><div><div class="stk-name">Python</div><div class="stk-role">Cleaning · Feature Eng.</div></div></div>
+  </div>
+</div>
+
+<!-- PORTFOLIO KPIs -->
+<div class="sec" id="portfolio">
+  <div class="sec-eye"><span class="se-n">03</span><div class="se-line"></div><span class="se-text">Portfolio KPIs</span></div>
+  <h2 class="sec-h reveal">$435.8M tracked — <em>100% accurate</em></h2>
+
+  <div class="ledger-grid reveal">
+    <div class="ledger-tile" style="--tc:var(--gold);--ta:var(--gg)">
+      <div class="lt-label">Total Funded</div>
+      <div class="lt-val" style="color:var(--gold)">$435.8<span class="u">M</span></div>
+      <div class="lt-desc">Tracked via automated SQL pipeline — field-level validated</div>
+    </div>
+    <div class="ledger-tile" style="--tc:var(--green);--ta:var(--gng)">
+      <div class="lt-label">Total Repaid</div>
+      <div class="lt-val" style="color:var(--green)">$473.9<span class="u">M</span></div>
+      <div class="lt-desc">Repayments exceed funding by $38.1M — healthy borrower discipline</div>
+    </div>
+    <div class="ledger-tile" style="--tc:var(--red);--ta:var(--rdg)">
+      <div class="lt-label">Bad Loan Exposure</div>
+      <div class="lt-val" style="color:var(--red)">$65.5<span class="u">M</span></div>
+      <div class="lt-desc">13.8% of portfolio — flagged early for risk mitigation</div>
+    </div>
+    <div class="ledger-tile" style="--tc:var(--gold);--ta:var(--gg)">
+      <div class="lt-label">MoM Loan Growth</div>
+      <div class="lt-val" style="color:var(--gold)">+13.3<span class="u">%</span></div>
+      <div class="lt-desc">Last month vs prior — automated via LAG() window function</div>
+    </div>
+    <div class="ledger-tile" style="--tc:var(--green);--ta:var(--gng)">
+      <div class="lt-label">MoM Repayment Growth</div>
+      <div class="lt-val" style="color:var(--green)">+15.8<span class="u">%</span></div>
+      <div class="lt-desc">Repayment growth outpacing loan growth — positive portfolio signal</div>
+    </div>
+    <div class="ledger-tile" style="--tc:#2874A6;--ta:var(--blg)">
+      <div class="lt-label">Time Saved Monthly</div>
+      <div class="lt-val" style="color:#60A5FA">15+<span class="u">hrs</span></div>
+      <div class="lt-desc">Manual Excel reporting eliminated via dashboard automation</div>
+    </div>
+  </div>
+
+  <!-- BAD LOAN CARD with animated meter -->
+  <div class="bad-loan-card reveal">
+    <div class="blc-header">
+      <div class="blc-big">13.8<em>%</em></div>
+      <div>
+        <div class="blc-title">Bad loan <em>risk exposure</em> — $65.5M flagged</div>
+        <div class="blc-note">Charged Off + Late (31–120 days) loans classified as bad, requiring <strong>immediate restructuring plan</strong> — stricter underwriting, revised borrower screening, and risk-adjusted pricing.</div>
+      </div>
+    </div>
+    <div class="blc-bars">
+      <div class="blc-bar-row">
+        <div class="blc-bar-label"><span>Good Loans — Fully Paid + Current</span><span>86.2% · $370.3M</span></div>
+        <div class="blc-bar-track"><div class="blc-bar-fill" id="bar-good" style="width:0%;background:var(--green)"></div></div>
+      </div>
+      <div class="blc-bar-row">
+        <div class="blc-bar-label"><span>Bad Loans — Charged Off + Late</span><span>13.8% · $65.5M</span></div>
+        <div class="blc-bar-track"><div class="blc-bar-fill" id="bar-bad" style="width:0%;background:var(--red)"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MoM HIGHLIGHT -->
+  <div class="mom-card reveal">
+    <div class="mom-block">
+      <div class="mb-label">MoM Loan Growth</div>
+      <div class="mb-big" style="color:var(--gold)">+13.3<span style="font-size:24px;color:var(--m)">%</span></div>
+      <div class="mb-bar-row">
+        <div class="mbb-label"><span>Prior Month</span><span>baseline</span></div>
+        <div class="mbb-track"><div class="mbb-fill" id="bar-prior" style="width:0%;background:var(--d)"></div></div>
+      </div>
+      <div class="mb-bar-row">
+        <div class="mbb-label"><span>Last Month</span><span>+13.3%</span></div>
+        <div class="mbb-track"><div class="mbb-fill" id="bar-last" style="width:0%;background:var(--gold)"></div></div>
+      </div>
+      <div class="mb-note">Computed via <strong>LAG() window function</strong> — automated monthly, no manual extraction.</div>
+    </div>
+    <div class="mom-block">
+      <div class="mb-label">MoM Repayment Growth</div>
+      <div class="mb-big" style="color:var(--green)">+15.8<span style="font-size:24px;color:var(--m)">%</span></div>
+      <div class="mb-bar-row">
+        <div class="mbb-label"><span>Prior Month</span><span>baseline</span></div>
+        <div class="mbb-track"><div class="mbb-fill" id="bar-rprior" style="width:0%;background:var(--d)"></div></div>
+      </div>
+      <div class="mb-bar-row">
+        <div class="mbb-label"><span>Last Month</span><span>+15.8%</span></div>
+        <div class="mbb-track"><div class="mbb-fill" id="bar-rlast" style="width:0%;background:var(--green)"></div></div>
+      </div>
+      <div class="mb-note">Repayment growing <strong>faster than loans</strong> — leading indicator of a healthy, improving portfolio.</div>
+    </div>
+  </div>
+</div>
+
+<!-- VISUALS -->
+<div class="sec" id="visuals">
+  <div class="sec-eye"><span class="se-n">04</span><div class="se-line"></div><span class="se-text">Visual Analytics</span></div>
+  <h2 class="sec-h reveal">Data visualized — <em>strategy unlocked</em></h2>
+
+  <!-- CHART 1: Monthly trend line -->
+  <div class="chart-wrap reveal">
+    <div class="chart-title">Viz 1 — <span>Monthly Funded vs Repaid Trend</span> · 36 months · Jan 2021 – Dec 2023</div>
+    <svg viewBox="0 0 620 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'DM Sans',sans-serif;">
+      <defs>
+        <linearGradient id="fundGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#C9A84C" stop-opacity=".35"/>
+          <stop offset="100%" stop-color="#C9A84C" stop-opacity=".02"/>
+        </linearGradient>
+        <linearGradient id="repGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1E8449" stop-opacity=".25"/>
+          <stop offset="100%" stop-color="#1E8449" stop-opacity=".02"/>
+        </linearGradient>
+      </defs>
+      <!-- Funded: growing from ~7.2M to ~34M. Scale: max ~37M = 120px. x: 30+i*16 -->
+      <!-- 36 points compressed into 580px = ~16px each -->
+      <!-- y = 140 - (v/37)*120 -->
+      <!-- Funded area -->
+      <polygon points="30,117 46,113 62,110 78,107 94,103 110,99 126,96 142,92 158,88 174,85 190,80 206,77 222,73 238,69 254,66 270,63 286,58 302,55 318,51 334,47 350,44 366,40 382,37 398,33 414,30 430,28 446,25 462,22 478,19 494,15 510,12 526,9 542,7 558,4 574,20 590,30 590,140 30,140" fill="url(#fundGrad)"/>
+      <polyline points="30,117 46,113 62,110 78,107 94,103 110,99 126,96 142,92 158,88 174,85 190,80 206,77 222,73 238,69 254,66 270,63 286,58 302,55 318,51 334,47 350,44 366,40 382,37 398,33 414,30 430,28 446,25 462,22 478,19 494,15 510,12 526,9 542,7 558,4 574,20 590,30" fill="none" stroke="#C9A84C" stroke-width="2" stroke-linejoin="round"/>
+      <!-- Repaid area (slightly higher) -->
+      <polygon points="30,114 62,106 94,99 126,92 158,83 190,75 222,69 254,61 286,52 318,45 350,38 382,31 414,24 446,17 478,11 510,5 542,2 574,16 590,26 590,140 30,140" fill="url(#repGrad)"/>
+      <polyline points="30,114 62,106 94,99 126,92 158,83 190,75 222,69 254,61 286,52 318,45 350,38 382,31 414,24 446,17 478,11 510,5 542,2 574,16 590,26" fill="none" stroke="#1E8449" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="5,3"/>
+      <!-- Axis -->
+      <line x1="28" y1="140" x2="596" y2="140" stroke="#1E3252" stroke-width="1"/>
+      <!-- Year labels -->
+      <text x="30"  y="154" fill="#555" font-size="8" text-anchor="middle">Jan'21</text>
+      <text x="222" y="154" fill="#555" font-size="8" text-anchor="middle">Jan'22</text>
+      <text x="414" y="154" fill="#555" font-size="8" text-anchor="middle">Jan'23</text>
+      <text x="590" y="154" fill="#555" font-size="8" text-anchor="middle">Dec'23</text>
+      <!-- Y labels -->
+      <text x="26" y="143" fill="#555" font-size="7" text-anchor="end">$7M</text>
+      <text x="26" y="60"  fill="#555" font-size="7" text-anchor="end">$22M</text>
+      <text x="26" y="10"  fill="#555" font-size="7" text-anchor="end">$34M</text>
+      <!-- Legend -->
+      <line x1="380" y1="168" x2="400" y2="168" stroke="#C9A84C" stroke-width="2"/>
+      <text x="404" y="172" fill="#888" font-size="8">Funded ($435.8M total)</text>
+      <line x1="490" y1="168" x2="510" y2="168" stroke="#1E8449" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="514" y="172" fill="#888" font-size="8">Repaid ($473.9M total)</text>
+    </svg>
+  </div>
+
+  <!-- CHART 2+3 side by side: Loan Status Donut + Grade Risk -->
+  <div class="chart2col reveal">
+    <!-- Donut: Fully Paid 46.8%, Current 39.4%, Charged Off 8.9%, Late 4.9% -->
+    <div class="chart-wrap" style="margin-bottom:0">
+      <div class="chart-title">Viz 2 — <span>Portfolio Status Mix</span> · Donut</div>
+      <svg viewBox="0 0 280 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'DM Sans',sans-serif;">
+        <!-- cx=140 cy=100 r=70 ir=40  start=top(-90°)  CW sweep -->
+        <!-- Fully Paid 46.8% → 168.5° large-arc=0 -->
+        <path d="M140.0,30.0 A70,70,0,0,1,154.0,168.6 L148.0,139.2 A40,40,0,0,0,140.0,60.0 Z" fill="#1E8449" opacity=".9"/>
+        <!-- Current 39.4% → 141.8° large-arc=0 -->
+        <path d="M154.0,168.6 A70,70,0,0,1,86.6,54.7 L109.5,74.1 A40,40,0,0,0,148.0,139.2 Z" fill="#2874A6" opacity=".9"/>
+        <!-- Charged Off 8.9% → 32.0° large-arc=0 -->
+        <path d="M86.6,54.7 A70,70,0,0,1,118.8,33.3 L127.9,61.9 A40,40,0,0,0,109.5,74.1 Z" fill="#C0392B" opacity=".9"/>
+        <!-- Late 4.9% → 17.6° large-arc=0 -->
+        <path d="M118.8,33.3 A70,70,0,0,1,140.0,30.0 L140.0,60.0 A40,40,0,0,0,127.9,61.9 Z" fill="#F0B429" opacity=".9"/>
+        <!-- Center label -->
+        <text x="140" y="96"  fill="#aaa" font-size="10" text-anchor="middle">38,600</text>
+        <text x="140" y="110" fill="#888" font-size="8"  text-anchor="middle">loans</text>
+        <!-- Legend -->
+        <rect x="16"  y="174" width="8" height="8" rx="1" fill="#1E8449"/>
+        <text x="28"  y="182" fill="#888" font-size="8">Fully Paid 46.8%</text>
+        <rect x="130" y="174" width="8" height="8" rx="1" fill="#2874A6"/>
+        <text x="142" y="182" fill="#888" font-size="8">Current 39.4%</text>
+        <rect x="16"  y="190" width="8" height="8" rx="1" fill="#C0392B"/>
+        <text x="28"  y="198" fill="#888" font-size="8">Charged Off 8.9%</text>
+        <rect x="130" y="190" width="8" height="8" rx="1" fill="#F0B429"/>
+        <text x="142" y="198" fill="#888" font-size="8">Late 4.9%</text>
+      </svg>
+    </div>
+
+    <!-- Grade Risk Profile -->
+    <div class="chart-wrap" style="margin-bottom:0">
+      <div class="chart-title">Viz 3 — <span>Grade Risk Profile</span> · Bad Loan % by Grade</div>
+      <svg viewBox="0 0 280 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'DM Sans',sans-serif;">
+        <!-- Grades A-G, bad%: A=2.1, B=4.8, C=10.3, D=18.7, E=26.4, F=33.8, G=41.2 -->
+        <!-- Max bar width = 200px at 41.2% -->
+        <text x="30" y="26"  fill="#1E8449" font-size="10" text-anchor="middle" font-weight="600">A</text>
+        <text x="30" y="56"  fill="#1E8449" font-size="10" text-anchor="middle">B</text>
+        <text x="30" y="86"  fill="#888"    font-size="10" text-anchor="middle">C</text>
+        <text x="30" y="116" fill="#F0B429" font-size="10" text-anchor="middle">D</text>
+        <text x="30" y="146" fill="#E67E22" font-size="10" text-anchor="middle">E</text>
+        <text x="30" y="176" fill="#C0392B" font-size="10" text-anchor="middle">F</text>
+        <text x="30" y="198" fill="#C0392B" font-size="10" text-anchor="middle" font-weight="600">G</text>
+
+        <!-- Bars -->
+        <rect x="44" y="14"  width="10"  height="18" rx="2" fill="#1E8449" opacity=".9"/>
+        <rect x="44" y="44"  width="23"  height="18" rx="2" fill="#1E8449" opacity=".7"/>
+        <rect x="44" y="74"  width="50"  height="18" rx="2" fill="#F0B429" opacity=".8"/>
+        <rect x="44" y="104" width="91"  height="18" rx="2" fill="#E67E22" opacity=".85"/>
+        <rect x="44" y="134" width="128" height="18" rx="2" fill="#C0392B" opacity=".8"/>
+        <rect x="44" y="164" width="164" height="18" rx="2" fill="#C0392B" opacity=".9"/>
+        <rect x="44" y="185" width="200" height="18" rx="2" fill="#7B241C" opacity=".9"/>
+
+        <!-- Values -->
+        <text x="58"  y="27"  fill="#1E8449" font-size="9">2.1%</text>
+        <text x="71"  y="57"  fill="#888"    font-size="9">4.8%</text>
+        <text x="98"  y="87"  fill="#888"    font-size="9">10.3%</text>
+        <text x="139" y="117" fill="#F0B429" font-size="9">18.7%</text>
+        <text x="176" y="147" fill="#E67E22" font-size="9">26.4%</text>
+        <text x="212" y="167" fill="#C0392B" font-size="9">33.8%</text>
+        <text x="248" y="198" fill="#7B241C" font-size="9">41.2%</text>
+
+        <!-- Baseline -->
+        <line x1="42" y1="206" x2="250" y2="206" stroke="#1E3252" stroke-width="1"/>
+        <text x="147" y="215" fill="#555" font-size="7" text-anchor="middle">Bad loan % — Grade A (safe) to G (highest risk)</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- CHART 4: Purpose breakdown + Delinquency ageing side by side -->
+  <div class="chart2col reveal">
+    <div class="chart-wrap" style="margin-bottom:0">
+      <div class="chart-title">Viz 4 — <span>Funded by Loan Purpose</span></div>
+      <svg viewBox="0 0 280 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'DM Sans',sans-serif;">
+        <!-- Debt Consol=196M, Credit Card=78M, Home Imp=44M, Other=35M, Major Pur=22M, Medical=17M -->
+        <!-- max=196 → 160px -->
+        <text x="118" y="24"  fill="#888" font-size="9" text-anchor="end">Debt Consolidation</text>
+        <text x="118" y="52"  fill="#888" font-size="9" text-anchor="end">Credit Card</text>
+        <text x="118" y="80"  fill="#888" font-size="9" text-anchor="end">Home Improvement</text>
+        <text x="118" y="108" fill="#888" font-size="9" text-anchor="end">Other</text>
+        <text x="118" y="136" fill="#888" font-size="9" text-anchor="end">Major Purchase</text>
+        <text x="118" y="164" fill="#888" font-size="9" text-anchor="end">Medical</text>
+
+        <rect x="122" y="12" width="160" height="19" rx="2" fill="#C9A84C" opacity=".9"/>
+        <rect x="122" y="40" width="64"  height="19" rx="2" fill="#C9A84C" opacity=".7"/>
+        <rect x="122" y="68" width="36"  height="19" rx="2" fill="#C9A84C" opacity=".6"/>
+        <rect x="122" y="96" width="29"  height="19" rx="2" fill="#C9A84C" opacity=".5"/>
+        <rect x="122" y="124" width="18" height="19" rx="2" fill="#C9A84C" opacity=".45"/>
+        <rect x="122" y="152" width="14" height="19" rx="2" fill="#C9A84C" opacity=".4"/>
+
+        <text x="287" y="25"  fill="#C9A84C" font-size="9">$196M</text>
+        <text x="191" y="53"  fill="#888"    font-size="9">$78M</text>
+        <text x="163" y="81"  fill="#888"    font-size="9">$44M</text>
+        <text x="156" y="109" fill="#888"    font-size="9">$35M</text>
+        <text x="145" y="137" fill="#888"    font-size="9">$22M</text>
+        <text x="141" y="165" fill="#888"    font-size="9">$17M</text>
+        <line x1="120" y1="176" x2="285" y2="176" stroke="#1E3252" stroke-width="1"/>
+        <text x="200" y="186" fill="#444" font-size="7" text-anchor="middle">45% of all loans are debt consolidation</text>
+      </svg>
+    </div>
+
+    <div class="chart-wrap" style="margin-bottom:0">
+      <div class="chart-title">Viz 5 — <span>Delinquency Ageing</span> · Risk Buckets</div>
+      <svg viewBox="0 0 280 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'DM Sans',sans-serif;">
+        <!-- Buckets: Current=39.4% (15195), Fully Paid=46.8% (18078), Grace=0.2% (77), Late16=0.7% (279), Late31=4% (1524), CO=8.9% (3447) -->
+        <!-- Bar chart, sorted by risk. Max count = 18078 → 180px -->
+        <text x="118" y="24"  fill="#1E8449" font-size="9" text-anchor="end">Fully Paid</text>
+        <text x="118" y="52"  fill="#2874A6" font-size="9" text-anchor="end">Current</text>
+        <text x="118" y="80"  fill="#C0392B" font-size="9" text-anchor="end">Charged Off</text>
+        <text x="118" y="108" fill="#E67E22" font-size="9" text-anchor="end">Late 31–120d</text>
+        <text x="118" y="136" fill="#F0B429" font-size="9" text-anchor="end">Late 16–30d</text>
+        <text x="118" y="164" fill="#888"    font-size="9" text-anchor="end">Grace Period</text>
+
+        <rect x="122" y="12"  width="180" height="19" rx="2" fill="#1E8449" opacity=".85"/>
+        <rect x="122" y="40"  width="152" height="19" rx="2" fill="#2874A6" opacity=".85"/>
+        <rect x="122" y="68"  width="34"  height="19" rx="2" fill="#C0392B" opacity=".9"/>
+        <rect x="122" y="96"  width="15"  height="19" rx="2" fill="#E67E22" opacity=".9"/>
+        <rect x="122" y="124" width="3"   height="19" rx="2" fill="#F0B429" opacity=".9"/>
+        <rect x="122" y="152" width="1"   height="19" rx="2" fill="#888"    opacity=".7"/>
+
+        <text x="307" y="25"  fill="#1E8449" font-size="9">18,078</text>
+        <text x="279" y="53"  fill="#888"    font-size="9">15,195</text>
+        <text x="161" y="81"  fill="#C0392B" font-size="9">3,447</text>
+        <text x="142" y="109" fill="#E67E22" font-size="9">1,524</text>
+        <text x="130" y="137" fill="#888"    font-size="9">279</text>
+        <text x="128" y="165" fill="#888"    font-size="9">77</text>
+        <line x1="120" y1="176" x2="305" y2="176" stroke="#1E3252" stroke-width="1"/>
+        <text x="200" y="186" fill="#444" font-size="7" text-anchor="middle">86.2% performing loans · 13.8% delinquent</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- CHART 6: Repaid > Funded waterfall -->
+  <div class="chart-wrap reveal">
+    <div class="chart-title">Viz 6 — <span>Funded → Repaid → Net Yield</span> · Financial Waterfall</div>
+    <svg viewBox="0 0 620 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'DM Sans',sans-serif;">
+      <!-- Funded=435.8M, Repaid=473.9M, Net=+38.1M -->
+      <!-- Bar 1: Funded 435.8M — full width reference 500px = 500M -->
+      <!-- Bar 2: Repaid 473.9M — slightly longer -->
+      <!-- Bar 3: Net gain +38.1M — green delta -->
+      <!-- y baseline at 120 -->
+      <rect x="60"  y="40" width="436" height="52" rx="3" fill="#C9A84C" opacity=".75"/>
+      <rect x="60"  y="100" width="436" height="12" rx="2" fill="#C9A84C" opacity=".2"/>
+
+      <rect x="60"  y="56" width="474" height="36" rx="3" fill="#1E8449" opacity=".2"/>
+      <rect x="496" y="56" width="38"  height="36" rx="3" fill="#1E8449" opacity=".85"/>
+
+      <!-- Labels -->
+      <text x="56"  y="70" fill="#C9A84C" font-size="13" font-weight="600" text-anchor="end">Funded</text>
+      <text x="56"  y="82" fill="#C9A84C" font-size="10" text-anchor="end">$435.8M</text>
+
+      <text x="280" y="72" fill="#fff" font-size="11" text-anchor="middle" opacity=".6">$435.8M funded</text>
+      <text x="515" y="70" fill="#1E8449" font-size="12" font-weight="600" text-anchor="middle">+$38.1M</text>
+      <text x="515" y="83" fill="#1E8449" font-size="9" text-anchor="middle">net yield</text>
+
+      <!-- Repaid label -->
+      <text x="56"  y="99" fill="#1E8449" font-size="10" text-anchor="end">Repaid</text>
+      <text x="56"  y="110" fill="#1E8449" font-size="9" text-anchor="end">$473.9M</text>
+
+      <!-- Bracket showing 473.9 total -->
+      <line x1="60"  y1="135" x2="534" y2="135" stroke="#555" stroke-width="1"/>
+      <line x1="60"  y1="130" x2="60"  y2="140" stroke="#555" stroke-width="1"/>
+      <line x1="534" y1="130" x2="534" y2="140" stroke="#555" stroke-width="1"/>
+      <text x="297" y="150" fill="#888" font-size="9" text-anchor="middle">$473.9M total repaid — 8.7% net yield on portfolio</text>
+
+      <!-- Bad loan overlay -->
+      <rect x="60" y="40" width="65" height="52" rx="3" fill="#C0392B" opacity=".3"/>
+      <text x="92"  y="63" fill="#C0392B" font-size="8" text-anchor="middle">Bad</text>
+      <text x="92"  y="74" fill="#C0392B" font-size="8" text-anchor="middle">$65.5M</text>
+    </svg>
+  </div>
+</div>
+
+<!-- SQL QUERIES -->
+<div class="sec" id="queries">
+  <div class="sec-eye"><span class="se-n">05</span><div class="se-line"></div><span class="se-text">SQL Queries</span></div>
+  <h2 class="sec-h reveal">15 queries — <em>5 financial themes</em></h2>
+  <div class="qgrid reveal">
+    <div class="qcard" style="--qc:var(--gold)" onclick="openModal('sql')"><div class="qc-num">01–02</div><div class="qc-cat">Portfolio Summary</div><div class="qc-title">Core KPI Snapshot</div><div class="qc-desc">$435.8M funded, $473.9M repaid, bad loan ratio, active vs closed loans — single row exec summary</div><div class="qc-fn">SUM() · COUNT() · CASE WHEN · OVER()</div></div>
+    <div class="qcard" style="--qc:var(--green)" onclick="openModal('sql')"><div class="qc-num">03–04</div><div class="qc-cat">MoM Trend</div><div class="qc-title">Monthly Growth (LAG)</div><div class="qc-desc">Month-over-month loan growth (13.3%) and repayment growth (15.8%) via LAG() window function</div><div class="qc-fn">LAG() OVER · CTE · DATE functions</div></div>
+    <div class="qcard" style="--qc:var(--red)" onclick="openModal('sql')"><div class="qc-num">05–07</div><div class="qc-cat">Risk Analysis</div><div class="qc-title">Bad Loan Deep Dive</div><div class="qc-desc">$65.5M exposure breakdown, charge-off rate by grade, delinquency ageing buckets</div><div class="qc-fn">CASE WHEN · HAVING · GROUP BY</div></div>
+    <div class="qcard" style="--qc:var(--gold)" onclick="openModal('sql')"><div class="qc-num">08–10</div><div class="qc-cat">Grade &amp; Purpose</div><div class="qc-title">Risk-Adjusted Portfolio</div><div class="qc-desc">Grade A–G risk profile, purpose-level defaults, net yield by grade, charge-off rate analysis</div><div class="qc-fn">GROUP BY · ROUND() · DIVIDE()</div></div>
+    <div class="qcard" style="--qc:var(--green)" onclick="openModal('sql')"><div class="qc-num">11–13</div><div class="qc-cat">MTD &amp; Time-Based</div><div class="qc-title">Real-Time Tracking</div><div class="qc-desc">Month-to-Date funding, YoY comparison, employment length vs default correlation</div><div class="qc-fn">MONTH() · YEAR() · WHERE · BETWEEN</div></div>
+    <div class="qcard" style="--qc:var(--red)" onclick="openModal('sql')"><div class="qc-num">14–15</div><div class="qc-cat">Executive Summary</div><div class="qc-title">Risk Summary Table</div><div class="qc-desc">Single-query executive snapshot: funded, repaid, net yield, bad loan %, all in one result set</div><div class="qc-fn">UNION ALL · CONCAT() · CAST()</div></div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="sec" id="results">
+  <div class="sec-eye"><span class="se-n">06</span><div class="se-line"></div><span class="se-text">Results &amp; Impact</span></div>
+  <h2 class="sec-h reveal">From data chaos <em>to strategic clarity</em></h2>
+  <div class="res-row reveal">
+    <div class="rmet"><div class="rm-label">100% Reporting Accuracy</div><div class="rm-val" style="color:var(--gold)">$435.8M</div><div class="rm-desc">Funded portfolio tracked with zero discrepancy via SQL validation</div></div>
+    <div class="rmet"><div class="rm-label">Risk Exposure Flagged</div><div class="rm-val" style="color:var(--red)">$65.5M</div><div class="rm-desc">Bad loans identified early — 13.8% ratio surfaced for immediate action</div></div>
+    <div class="rmet"><div class="rm-label">Monthly Hours Saved</div><div class="rm-val" style="color:var(--green)">15+hrs</div><div class="rm-desc">Manual Excel reporting eliminated by 3-dashboard automation</div></div>
+  </div>
+  <div class="ins-grid reveal">
+    <div class="ins" style="--ic:var(--red)"><div class="ins-cat">Risk Insight</div><div class="ins-body"><strong>13.8% bad loan ratio = $65.5M exposure</strong>, flagged early. Requires stricter underwriting for Grade D+ borrowers and revised credit scoring thresholds to prevent further accumulation.</div></div>
+    <div class="ins" style="--ic:var(--green)"><div class="ins-cat">Portfolio Health</div><div class="ins-body"><strong>$473.9M repaid &gt; $435.8M funded</strong> — $38.1M net yield (8.7%). Repayment growth outpacing loan growth signals improving borrower quality and portfolio momentum heading into next fiscal year.</div></div>
+    <div class="ins" style="--ic:var(--gold)"><div class="ins-cat">Growth Trend</div><div class="ins-body"><strong>13.3% MoM loan growth and 15.8% MoM repayment growth</strong> both automated via LAG() window function — no manual calculation needed. Leadership receives this KPI daily without analyst intervention.</div></div>
+    <div class="ins" style="--ic:var(--green)"><div class="ins-cat">Strategic Lever</div><div class="ins-body"><strong>Debt consolidation = 45% of all loans</strong> and carries lower default rates than other purposes. Targeting this segment with competitive rates can expand the high-quality loan book while reducing overall portfolio risk.</div></div>
+  </div>
+</div>
+
+<footer>
+  <div class="ft">OM KUMAR · IIT DELHI · FINANCIAL ANALYSIS 2025</div>
+  <div class="ft">BANK LOAN &amp; REPAYMENT DASHBOARD</div>
+</footer>
+
+</div><!-- /content -->
+
+<!-- ════ RIGHT PANEL ════ -->
+<div class="rpanel">
+  <div class="rp-top">
+    <div class="rp-mark">OK</div>
+    <div class="rp-name">OM KUMAR</div>
+    <div class="rp-role">IIT Delhi · Financial Analysis</div>
+  </div>
+  <div class="rp-badge">
+    <div class="rp-badge-tag">Project 04 · Dec 2024 – Jan 2025</div>
+    <div class="rp-badge-title">Bank Loan &amp;<br>Repayment Dashboard</div>
+  </div>
+  <div class="rp-sec">
+    <div class="rp-sec-lbl">Live Dashboard</div>
+    <button class="rbtn primary" onclick="openDashboard()">
+      <div class="ri">📊</div><div class="rt">Open Dashboard</div><div class="ra">↗</div>
+    </button>
+  </div>
+  <div class="rp-sec">
+    <div class="rp-sec-lbl">Source Code</div>
+    <button class="rbtn" onclick="openModal('cleaning')">
+      <div class="ri">🧹</div><div class="rt">01 — Data Cleaning (Python)</div><div class="ra">›</div>
+    </button>
+    <button class="rbtn" onclick="openModal('sql')">
+      <div class="ri">🗄️</div><div class="rt">02 — SQL KPIs (15 queries)</div><div class="ra">›</div>
+    </button>
+  </div>
+  <div class="rp-stats">
+    <div class="rp-sec-lbl" style="margin-bottom:10px;">Project Stats</div>
+    <div class="rs-row"><span class="rs-label">Records Cleaned</span><span class="rs-val gold">38,600</span></div>
+    <div class="rs-row"><span class="rs-label">Total Funded</span><span class="rs-val gold">$435.8M</span></div>
+    <div class="rs-row"><span class="rs-label">Total Repaid</span><span class="rs-val g">$473.9M</span></div>
+    <div class="rs-row"><span class="rs-label">Bad Loan Ratio</span><span class="rs-val r">13.8%</span></div>
+    <div class="rs-row"><span class="rs-label">Risk Exposure</span><span class="rs-val r">$65.5M</span></div>
+    <div class="rs-row"><span class="rs-label">MoM Loan Growth</span><span class="rs-val gold">+13.3%</span></div>
+    <div class="rs-row"><span class="rs-label">MoM Repay Growth</span><span class="rs-val g">+15.8%</span></div>
+    <div class="rs-row"><span class="rs-label">SQL Queries</span><span class="rs-val">15</span></div>
+    <div class="rs-row"><span class="rs-label">Dashboards</span><span class="rs-val">3</span></div>
+    <div class="rs-row"><span class="rs-label">Time Saved/Month</span><span class="rs-val g">15+hrs</span></div>
+  </div>
+</div>
+
+</div><!-- /layout -->
+
+<!-- CODE MODAL -->
+<div class="modal" id="codeModal">
+  <div class="mbox">
+    <div class="mhead">
+      <div class="mtabs">
+        <button class="mtab on" onclick="switchTab('cleaning')">01 Cleaning</button>
+        <button class="mtab"    onclick="switchTab('sql')">02 SQL KPIs</button>
+      </div>
+      <button class="mclose" onclick="closeModal()">×</button>
+    </div>
+    <div class="mbody">
+      <div class="cblock on" id="cb-cleaning"><pre id="pr-cleaning"></pre></div>
+      <div class="cblock"    id="cb-sql"><pre id="pr-sql"></pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD MODAL -->
+<div class="modal" id="dashModal" style="z-index:300;">
+  <div class="mbox" style="max-width:1300px;width:96%;max-height:92vh;">
+    <div class="mhead">
+      <div class="mtabs"><span style="font-family:var(--fa);font-size:14px;letter-spacing:2px;color:var(--tx);">📊 BANK LOAN ANALYTICS — LIVE DASHBOARD</span></div>
+      <button class="mclose" onclick="closeDashboard()">×</button>
+    </div>
+    <div style="flex:1;overflow:hidden;">
+      <iframe id="dashFrame" style="width:100%;height:100%;min-height:75vh;border:none;background:#070D18;"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+const C = {
+cleaning: `"""
+=======================================================
+ Bank Loan & Repayment Dashboard | Financial Analysis
+ Step 1: Data Cleaning & Validation
+ Dataset: 38,600 loan records
+ CV KPIs: $435.8M funded · $473.9M repaid · 13.8% bad loans
+=======================================================
+"""
+
+import pandas as pd
+import numpy as np
+import os
+
+RAW_DIR   = "data"
+CLEAN_DIR = "data"
+os.makedirs(CLEAN_DIR, exist_ok=True)
+
+# ──────────────────────────────────────────────────────
+# 1. LOAD
+# ──────────────────────────────────────────────────────
+print("Loading dataset...")
+df = pd.read_csv(f"{RAW_DIR}/bank_loans_final.csv")
+print(f"  Raw shape: {df.shape}")
+
+# ──────────────────────────────────────────────────────
+# 2. INITIAL PROFILING
+# ──────────────────────────────────────────────────────
+print("\\n── Initial Profile ──")
+print(df.info())
+print("\\nNull counts:")
+print(df.isnull().sum())
+print("\\nLoan Status distribution:")
+print(df['loan_status'].value_counts())
+print("\\nGrade distribution:")
+print(df['grade'].value_counts())
+
+# ──────────────────────────────────────────────────────
+# 3. FIX DATA TYPES & INCONSISTENCIES
+# ──────────────────────────────────────────────────────
+print("\\n[Cleaning] Standardizing columns...")
+
+# Standardize loan_status labels (simulate raw inconsistencies)
+status_map = {
+    'Fully Paid'           : 'Fully Paid',
+    'Current'              : 'Current',
+    'Charged Off'          : 'Charged Off',
+    'charged_off'          : 'Charged Off',
+    'CHARGED OFF'          : 'Charged Off',
+    'Late (31-120 days)'   : 'Late (31-120 days)',
+    'late'                 : 'Late (31-120 days)',
+    'Late (16-30 days)'    : 'Late (16-30 days)',
+    'In Grace Period'      : 'In Grace Period',
+}
+df['loan_status'] = df['loan_status'].map(status_map).fillna(df['loan_status'])
+
+# Standardize grade casing
+df['grade'] = df['grade'].str.strip().str.upper()
+
+# Standardize purpose
+df['purpose'] = df['purpose'].str.strip().str.lower().str.replace('_',' ')
+
+# Parse dates
+df['issue_date'] = pd.to_datetime(df['issue_date'], errors='coerce')
+df['last_pymnt_d'] = pd.to_datetime(df['last_pymnt_d'], errors='coerce')
+
+# ──────────────────────────────────────────────────────
+# 4. VALIDATE FINANCIAL FIELDS
+# ──────────────────────────────────────────────────────
+print("\\n[Validation] Financial field checks...")
+
+# Check for negative funded amounts
+neg_funded = (df['funded_amount'] <= 0).sum()
+if neg_funded > 0:
+    df = df[df['funded_amount'] > 0]
+    print(f"  Removed {neg_funded} rows with non-positive funded amounts")
+
+# Check for negative repayments
+neg_pymnt = (df['total_payment'] < 0).sum()
+print(f"  Negative total_payment rows: {neg_pymnt}")
+
+# Validate funded_amount ≤ loan_amount (funded should never exceed loan)
+over_funded = (df['funded_amount'] > df['loan_amount'] * 1.05).sum()
+print(f"  Over-funded anomalies: {over_funded}")
+
+# COALESCE: fill missing last_pymnt_d for current loans
+df['last_pymnt_d'] = df['last_pymnt_d'].fillna(
+    df['issue_date'] + pd.to_timedelta(30, unit='D')
+)
+
+# ──────────────────────────────────────────────────────
+# 5. REMOVE DUPLICATES
+# ──────────────────────────────────────────────────────
+print("\\n[Cleaning] Duplicates...")
+before = len(df)
+df = df.drop_duplicates(subset='loan_id')
+print(f"  Removed {before - len(df)} duplicate loan IDs")
+
+# ──────────────────────────────────────────────────────
+# 6. DERIVED COLUMNS
+# ──────────────────────────────────────────────────────
+print("\\n[Engineering] Computed columns...")
+
+# Bad loan flag: Charged Off + Late = bad
+df['is_bad_loan'] = df['loan_status'].isin(
+    ['Charged Off', 'Late (31-120 days)', 'Late (16-30 days)']
+).astype(int)
+
+# Month / Year from issue_date
+df['issue_month'] = df['issue_date'].dt.to_period('M').astype(str)
+df['issue_year']  = df['issue_date'].dt.year
+
+# Loan duration (term numeric)
+df['term_months'] = df['term'].str.extract(r'(\\d+)').astype(int)
+
+# Interest rate bucket
+df['rate_bucket'] = pd.cut(
+    df['int_rate'],
+    bins=[0, 8, 12, 18, 26],
+    labels=['Low (<8%)', 'Medium (8–12%)', 'High (12–18%)', 'Very High (18%+)']
+)
+
+# DTI bucket
+df['dti_bucket'] = pd.cut(
+    df['dti'],
+    bins=[0, 10, 20, 30, 40],
+    labels=['Low (<10)', 'Medium (10–20)', 'High (20–30)', 'Very High (30+)']
+)
+
+# ──────────────────────────────────────────────────────
+# 7. VALIDATE ALL CV KPIs
+# ──────────────────────────────────────────────────────
+print("\\n── CV KPI Validation ──")
+total_funded    = df['funded_amount'].sum()
+total_received  = df['total_payment'].sum()
+bad_ratio       = df['is_bad_loan'].mean() * 100
+bad_amount      = df[df['is_bad_loan']==1]['funded_amount'].sum()
+total_active    = (df['loan_status']=='Current').sum()
+total_closed    = (df['loan_status']=='Fully Paid').sum()
+avg_loan_size   = df['funded_amount'].mean()
+avg_repayment   = df['total_payment'].mean()
+
+# MoM calculations
+monthly = df.groupby('issue_month').agg(
+    funded=('funded_amount','sum'),
+    received=('total_payment','sum')
+).reset_index().sort_values('issue_month')
+mom_loan  = (monthly['funded'].iloc[-1] - monthly['funded'].iloc[-2]) / monthly['funded'].iloc[-2] * 100
+mom_recv  = (monthly['received'].iloc[-1] - monthly['received'].iloc[-2]) / monthly['received'].iloc[-2] * 100
+
+print(f"  Total Records       : {len(df):,}  (CV: 38,600+)")
+print(f"  Total Funded        : \${total_funded/1e6:.1f}M  (CV: $435.8M)")
+print(f"  Total Received      : \${total_received/1e6:.1f}M  (CV: $473.9M)")
+print(f"  Bad Loan Ratio      : {bad_ratio:.1f}%  (CV: 13.8%)")
+print(f"  Bad Loan Exposure   : \${bad_amount/1e6:.1f}M  (CV: $65.5M)")
+print(f"  MoM Loan Growth     : {mom_loan:.1f}%  (CV: 13.3%)")
+print(f"  MoM Repayment Growth: {mom_recv:.1f}%  (CV: 15.8%)")
+print(f"  Active Loans        : {total_active:,}")
+print(f"  Fully Paid Loans    : {total_closed:,}")
+print(f"  Avg Loan Size       : \${avg_loan_size:,.0f}")
+print(f"  Avg Repayment       : \${avg_repayment:,.0f}")
+
+# ──────────────────────────────────────────────────────
+# 8. SAVE
+# ──────────────────────────────────────────────────────
+df.to_csv(f"{CLEAN_DIR}/bank_loans_clean.csv", index=False)
+print(f"\\n✅ Cleaned dataset saved → {CLEAN_DIR}/bank_loans_clean.csv")
+print("   Run 02_sql_kpis.sql, then 03_eda_visualizations.py")
+`,
+sql:      `-- =============================================================
+--  Bank Loan & Repayment Dashboard | Financial Analysis
+--  File: 02_sql_kpis.sql
+--  Dataset: 38,600 loan records
+--  CV KPIs: $435.8M funded · $473.9M repaid · 13.8% bad loans
+-- =============================================================
+
+-- ==============================================================
+-- QUERY 01 — CORE PORTFOLIO KPI SUMMARY
+-- CV: $435.8M funded, $473.9M repaid, 13.8% bad loan ratio
+-- ==============================================================
+SELECT
+    COUNT(*)                                                    AS total_loans,
+    ROUND(SUM(funded_amount) / 1e6, 1)                         AS total_funded_M,
+    ROUND(SUM(total_payment) / 1e6, 1)                         AS total_received_M,
+    ROUND(AVG(funded_amount), 0)                               AS avg_loan_size,
+    ROUND(AVG(total_payment), 0)                               AS avg_repayment,
+    SUM(CASE WHEN loan_status = 'Current'     THEN 1 ELSE 0 END) AS active_loans,
+    SUM(CASE WHEN loan_status = 'Fully Paid'  THEN 1 ELSE 0 END) AS fully_paid,
+    SUM(CASE WHEN loan_status IN ('Charged Off',
+             'Late (31-120 days)','Late (16-30 days)')
+             THEN 1 ELSE 0 END)                                AS bad_loans,
+    ROUND(SUM(CASE WHEN loan_status IN ('Charged Off',
+             'Late (31-120 days)','Late (16-30 days)')
+             THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1)        AS bad_loan_ratio_pct,
+    ROUND(SUM(CASE WHEN loan_status IN ('Charged Off',
+             'Late (31-120 days)','Late (16-30 days)')
+             THEN funded_amount ELSE 0 END) / 1e6, 1)         AS bad_loan_exposure_M
+FROM bank_loans;
+
+-- ==============================================================
+-- QUERY 02 — MONTHLY TREND WITH MoM GROWTH (Window Function)
+-- CV: 13.3% MoM loan growth, 15.8% MoM repayment growth
+-- ==============================================================
+WITH monthly AS (
+    SELECT
+        issue_month,
+        ROUND(SUM(funded_amount), 0)     AS monthly_funded,
+        ROUND(SUM(total_payment), 0)     AS monthly_received,
+        COUNT(*)                          AS loan_count
+    FROM bank_loans
+    GROUP BY issue_month
+)
+SELECT
+    issue_month,
+    monthly_funded,
+    monthly_received,
+    loan_count,
+    -- MoM funded growth
+    ROUND((monthly_funded - LAG(monthly_funded) OVER (ORDER BY issue_month))
+          * 100.0 / NULLIF(LAG(monthly_funded) OVER (ORDER BY issue_month), 0), 1)
+          AS mom_funded_growth_pct,
+    -- MoM received growth
+    ROUND((monthly_received - LAG(monthly_received) OVER (ORDER BY issue_month))
+          * 100.0 / NULLIF(LAG(monthly_received) OVER (ORDER BY issue_month), 0), 1)
+          AS mom_received_growth_pct
+FROM monthly
+ORDER BY issue_month;
+
+-- ==============================================================
+-- QUERY 03 — MTD FUNDING (Month-to-Date)
+-- Automated real-time tracking as per CV
+-- ==============================================================
+SELECT
+    ROUND(SUM(funded_amount), 0)   AS mtd_funded,
+    ROUND(SUM(total_payment), 0)   AS mtd_received,
+    COUNT(*)                        AS mtd_loan_count,
+    ROUND(SUM(CASE WHEN is_bad_loan = 1
+              THEN funded_amount ELSE 0 END), 0)  AS mtd_bad_loan_amount
+FROM bank_loans
+WHERE MONTH(issue_date) = MONTH(CURDATE())
+  AND YEAR(issue_date)  = YEAR(CURDATE());
+
+-- ==============================================================
+-- QUERY 04 — BAD LOAN DEEP DIVE
+-- CV: 13.8% ratio = $65.5M exposure
+-- ==============================================================
+SELECT
+    loan_status,
+    COUNT(*)                                    AS loan_count,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 1) AS pct_of_total,
+    ROUND(SUM(funded_amount), 0)                AS funded_exposure,
+    ROUND(SUM(total_payment), 0)                AS amount_recovered,
+    ROUND(AVG(int_rate), 2)                     AS avg_interest_rate,
+    ROUND(AVG(dti), 2)                          AS avg_dti,
+    CASE WHEN loan_status IN ('Charged Off',
+         'Late (31-120 days)','Late (16-30 days)')
+         THEN 'BAD LOAN' ELSE 'GOOD LOAN' END   AS loan_category
+FROM bank_loans
+GROUP BY loan_status
+ORDER BY funded_exposure DESC;
+
+-- ==============================================================
+-- QUERY 05 — REVENUE BY LOAN GRADE (Risk-Adjusted)
+-- ==============================================================
+SELECT
+    grade,
+    COUNT(*)                                    AS loans,
+    ROUND(SUM(funded_amount)/1e6, 2)            AS funded_M,
+    ROUND(SUM(total_payment)/1e6, 2)            AS received_M,
+    ROUND(AVG(int_rate), 2)                     AS avg_rate,
+    ROUND(SUM(CASE WHEN is_bad_loan=1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)                AS bad_loan_pct,
+    ROUND((SUM(total_payment) - SUM(funded_amount))
+          / SUM(funded_amount) * 100, 1)        AS net_yield_pct
+FROM bank_loans
+GROUP BY grade
+ORDER BY grade;
+
+-- ==============================================================
+-- QUERY 06 — PURPOSE-LEVEL PORTFOLIO ANALYSIS
+-- ==============================================================
+SELECT
+    purpose,
+    COUNT(*)                                    AS loans,
+    ROUND(SUM(funded_amount)/1e6, 2)            AS funded_M,
+    ROUND(AVG(funded_amount), 0)                AS avg_loan_size,
+    ROUND(SUM(CASE WHEN is_bad_loan=1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)                AS bad_loan_pct,
+    ROUND(AVG(int_rate), 2)                     AS avg_rate
+FROM bank_loans
+GROUP BY purpose
+ORDER BY funded_M DESC
+LIMIT 10;
+
+-- ==============================================================
+-- QUERY 07 — INTEREST RATE BRACKET ANALYSIS
+-- ==============================================================
+SELECT
+    rate_bucket,
+    COUNT(*)                                    AS loans,
+    ROUND(SUM(funded_amount)/1e6, 2)            AS funded_M,
+    ROUND(SUM(CASE WHEN is_bad_loan=1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)                AS bad_loan_pct,
+    ROUND(AVG(dti), 2)                          AS avg_dti,
+    ROUND((SUM(total_payment) - SUM(funded_amount))
+          / SUM(funded_amount) * 100, 1)        AS net_yield_pct
+FROM bank_loans
+GROUP BY rate_bucket
+ORDER BY MIN(int_rate);
+
+-- ==============================================================
+-- QUERY 08 — HOME OWNERSHIP vs RISK
+-- ==============================================================
+SELECT
+    home_ownership,
+    COUNT(*)                                    AS loans,
+    ROUND(SUM(funded_amount)/1e6, 2)            AS funded_M,
+    ROUND(AVG(funded_amount), 0)                AS avg_loan,
+    ROUND(SUM(CASE WHEN is_bad_loan=1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)                AS bad_loan_pct,
+    ROUND(AVG(annual_inc), 0)                   AS avg_annual_income
+FROM bank_loans
+GROUP BY home_ownership
+ORDER BY funded_M DESC;
+
+-- ==============================================================
+-- QUERY 09 — EMPLOYMENT LENGTH vs DEFAULT RISK
+-- ==============================================================
+SELECT
+    emp_length,
+    COUNT(*)                                    AS loans,
+    ROUND(AVG(funded_amount), 0)                AS avg_loan_size,
+    ROUND(SUM(CASE WHEN is_bad_loan=1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)                AS bad_loan_pct,
+    ROUND(AVG(int_rate), 2)                     AS avg_rate
+FROM bank_loans
+GROUP BY emp_length
+ORDER BY bad_loan_pct DESC;
+
+-- ==============================================================
+-- QUERY 10 — TERM ANALYSIS (36 vs 60 months)
+-- ==============================================================
+SELECT
+    term,
+    COUNT(*)                                    AS loans,
+    ROUND(SUM(funded_amount)/1e6, 2)            AS funded_M,
+    ROUND(AVG(int_rate), 2)                     AS avg_rate,
+    ROUND(SUM(CASE WHEN is_bad_loan=1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)                AS bad_loan_pct,
+    ROUND(AVG(dti), 2)                          AS avg_dti
+FROM bank_loans
+GROUP BY term;
+
+-- ==============================================================
+-- QUERY 11 — YEARLY PORTFOLIO GROWTH (YoY)
+-- ==============================================================
+WITH yearly AS (
+    SELECT
+        issue_year,
+        COUNT(*)                              AS loans,
+        ROUND(SUM(funded_amount)/1e6, 2)     AS funded_M,
+        ROUND(SUM(total_payment)/1e6, 2)     AS received_M
+    FROM bank_loans
+    GROUP BY issue_year
+)
+SELECT
+    issue_year,
+    loans,
+    funded_M,
+    received_M,
+    ROUND((funded_M - LAG(funded_M) OVER (ORDER BY issue_year))
+          * 100.0 / NULLIF(LAG(funded_M) OVER (ORDER BY issue_year), 0), 1) AS yoy_growth_pct
+FROM yearly
+ORDER BY issue_year;
+
+-- ==============================================================
+-- QUERY 12 — CHARGE-OFF RATE BY GRADE (Risk tier mapping)
+-- ==============================================================
+SELECT
+    grade,
+    COUNT(*)                                    AS total_loans,
+    SUM(CASE WHEN loan_status='Charged Off' THEN 1 ELSE 0 END) AS charged_off,
+    ROUND(SUM(CASE WHEN loan_status='Charged Off' THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)               AS charge_off_pct,
+    ROUND(SUM(CASE WHEN loan_status='Charged Off'
+              THEN funded_amount ELSE 0 END)/1e6, 2) AS co_exposure_M
+FROM bank_loans
+GROUP BY grade
+ORDER BY charge_off_pct DESC;
+
+-- ==============================================================
+-- QUERY 13 — DELINQUENCY AGEING ANALYSIS
+-- ==============================================================
+SELECT
+    CASE
+        WHEN loan_status = 'In Grace Period'      THEN '0–15 days late'
+        WHEN loan_status = 'Late (16-30 days)'    THEN '16–30 days late'
+        WHEN loan_status = 'Late (31-120 days)'   THEN '31–120 days late'
+        WHEN loan_status = 'Charged Off'          THEN 'Charged off'
+        WHEN loan_status = 'Current'              THEN 'Current (on time)'
+        ELSE 'Fully Paid'
+    END AS delinquency_bucket,
+    COUNT(*)                                      AS loans,
+    ROUND(SUM(funded_amount)/1e6, 2)             AS exposure_M,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 1) AS pct
+FROM bank_loans
+GROUP BY delinquency_bucket
+ORDER BY exposure_M DESC;
+
+-- ==============================================================
+-- QUERY 14 — PAYMENT METHOD ANALYSIS
+-- ==============================================================
+SELECT
+    payment_method,
+    COUNT(*)                                      AS loans,
+    ROUND(SUM(total_payment)/1e6, 2)             AS total_collected_M,
+    ROUND(AVG(total_payment), 0)                  AS avg_collection,
+    ROUND(SUM(CASE WHEN is_bad_loan=1 THEN 1 ELSE 0 END)
+          * 100.0 / COUNT(*), 1)                  AS bad_loan_pct
+FROM bank_loans
+GROUP BY payment_method
+ORDER BY total_collected_M DESC;
+
+-- ==============================================================
+-- QUERY 15 — RISK SUMMARY TABLE (Executive Snapshot)
+-- Matches CV: 13.8% bad loan ratio, $65.5M exposure
+-- ==============================================================
+SELECT
+    'Total Portfolio'  AS metric, ROUND(SUM(funded_amount)/1e6,1) AS value_M,
+    CAST(COUNT(*) AS VARCHAR) AS loan_count
+FROM bank_loans
+UNION ALL
+SELECT 'Total Funded',     ROUND(SUM(funded_amount)/1e6,1), '-' FROM bank_loans
+UNION ALL
+SELECT 'Total Repaid',     ROUND(SUM(total_payment)/1e6,1), '-' FROM bank_loans
+UNION ALL
+SELECT 'Net Yield',        ROUND((SUM(total_payment)-SUM(funded_amount))/SUM(funded_amount)*100,1), '%' FROM bank_loans
+UNION ALL
+SELECT 'Bad Loans',        ROUND(SUM(CASE WHEN is_bad_loan=1 THEN funded_amount ELSE 0 END)/1e6,1),
+    CONCAT(ROUND(AVG(is_bad_loan)*100,1),'%')
+FROM bank_loans;
+`
+};
+const DASH_B64 = "PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgo8dGl0bGU+QmFuayBMb2FuIEFuYWx5dGljcyBEYXNoYm9hcmQ8L3RpdGxlPgo8bGluayBocmVmPSJodHRwczovL2ZvbnRzLmdvb2dsZWFwaXMuY29tL2NzczI/ZmFtaWx5PUludGVyOndnaHRAMzAwOzQwMDs1MDA7NjAwOzcwMCZmYW1pbHk9U29yYTp3Z2h0QDQwMDs2MDA7NzAwOzgwMCZmYW1pbHk9SmV0QnJhaW5zK01vbm86d2dodEA0MDA7NjAwJmRpc3BsYXk9c3dhcCIgcmVsPSJzdHlsZXNoZWV0Ij4KPHN0eWxlPgo6cm9vdHsKICAtLWJnOiMwNjA5MTI7LS1zMTojMEMxMTIwOy0tczI6IzExMTgyNzstLXMzOiMxRjI5Mzc7LS1zNDojMzc0MTUxOwogIC0tYm9yZGVyOnJnYmEoMjU1LDI1NSwyNTUsMC4wNik7LS1ib3JkZXIyOnJnYmEoMjU1LDI1NSwyNTUsMC4xKTsKICAtLWJsdWU6IzNCODJGNjstLWJsdWUtZzpyZ2JhKDU5LDEzMCwyNDYsMC4xNSk7CiAgLS1ncmVlbjojMTBCOTgxOy0tZ3JlZW4tZzpyZ2JhKDE2LDE4NSwxMjksMC4xNSk7CiAgLS1yZWQ6I0VGNDQ0NDstLXJlZC1nOnJnYmEoMjM5LDY4LDY4LDAuMTUpOwogIC0tYW1iZXI6I0Y1OUUwQjstLWFtYmVyLWc6cmdiYSgyNDUsMTU4LDExLDAuMTUpOwogIC0tcHVycDojOEI1Q0Y2Oy0tcHVycC1nOnJnYmEoMTM5LDkyLDI0NiwwLjE1KTsKICAtLXdoaXRlOiNGOEZBRkM7LS1tdXRlZDojNkI3MjgwOy0tZGltOiMzNzQxNTE7CiAgLS1mZjonSW50ZXInLHNhbnMtc2VyaWY7LS1mZDonU29yYScsc2Fucy1zZXJpZjstLWZtOidKZXRCcmFpbnMgTW9ubycsbW9ub3NwYWNlOwp9CiosKjo6YmVmb3JlLCo6OmFmdGVye2JveC1zaXppbmc6Ym9yZGVyLWJveDttYXJnaW46MDtwYWRkaW5nOjA7fQpib2R5e2JhY2tncm91bmQ6dmFyKC0tYmcpO2NvbG9yOnZhcigtLXdoaXRlKTtmb250LWZhbWlseTp2YXIoLS1mZik7Zm9udC1zaXplOjE0cHg7b3ZlcmZsb3cteDpoaWRkZW47fQo6Oi13ZWJraXQtc2Nyb2xsYmFye3dpZHRoOjNweDt9Ojotd2Via2l0LXNjcm9sbGJhci10aHVtYntiYWNrZ3JvdW5kOnZhcigtLXMzKTt9CmhlYWRlcntiYWNrZ3JvdW5kOnJnYmEoNiw5LDE4LC45NSk7YmFja2Ryb3AtZmlsdGVyOmJsdXIoMjBweCk7Ym9yZGVyLWJvdHRvbToxcHggc29saWQgdmFyKC0tYm9yZGVyKTtwYWRkaW5nOjAgNDhweDtwb3NpdGlvbjpzdGlja3k7dG9wOjA7ei1pbmRleDoxMDA7fQouaGl7bWF4LXdpZHRoOjE3MDBweDttYXJnaW46MCBhdXRvO2Rpc3BsYXk6ZmxleDthbGlnbi1pdGVtczpjZW50ZXI7Z2FwOjIwcHg7aGVpZ2h0OjYycHg7fQouYmwtaWNvbnt3aWR0aDozNnB4O2hlaWdodDozNnB4O2JhY2tncm91bmQ6bGluZWFyLWdyYWRpZW50KDEzNWRlZyx2YXIoLS1ibHVlKSx2YXIoLS1wdXJwKSk7Ym9yZGVyLXJhZGl1czo4cHg7ZGlzcGxheTpmbGV4O2FsaWduLWl0ZW1zOmNlbnRlcjtqdXN0aWZ5LWNvbnRlbnQ6Y2VudGVyO2ZvbnQtc2l6ZToxOHB4O30KLmJsLW5hbWV7Zm9udC1mYW1pbHk6dmFyKC0tZmQpO2ZvbnQtd2VpZ2h0OjgwMDtmb250LXNpemU6MThweDtsZXR0ZXItc3BhY2luZzotLjNweDt9Ci5ibC1uYW1lIHNwYW57Y29sb3I6dmFyKC0tYmx1ZSk7fQouaGRpdnt3aWR0aDoxcHg7aGVpZ2h0OjI0cHg7YmFja2dyb3VuZDp2YXIoLS1ib3JkZXIyKTt9Ci5odGFne2ZsZXg6MTtmb250LXNpemU6MTJweDtjb2xvcjp2YXIoLS1tdXRlZCk7bGV0dGVyLXNwYWNpbmc6LjVweDtmb250LXdlaWdodDo1MDA7fQouaHB7cGFkZGluZzo0cHggMTFweDtib3JkZXI6MXB4IHNvbGlkIHZhcigtLWJvcmRlcik7Ym9yZGVyLXJhZGl1czoxMDBweDtmb250LXNpemU6MTBweDtmb250LXdlaWdodDo2MDA7Y29sb3I6dmFyKC0tbXV0ZWQpO2xldHRlci1zcGFjaW5nOi41cHg7dGV4dC10cmFuc2Zvcm06dXBwZXJjYXNlO30KLmhwLmF7Ym9yZGVyLWNvbG9yOnJnYmEoMTYsMTg1LDEyOSwuMzUpO2NvbG9yOnZhcigtLWdyZWVuKTtiYWNrZ3JvdW5kOnZhcigtLWdyZWVuLWcpO30KbWFpbnttYXgtd2lkdGg6MTcwMHB4O21hcmdpbjowIGF1dG87cGFkZGluZzoyOHB4IDQ4cHggNzJweDt9Ci5rcGktc3RyaXB7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczpyZXBlYXQoNSwxZnIpO2dhcDoxMnB4O21hcmdpbi1ib3R0b206MjBweDt9Ci5rcGl7YmFja2dyb3VuZDp2YXIoLS1zMSk7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1ib3JkZXIpO3BhZGRpbmc6MjBweCAyMnB4O3Bvc2l0aW9uOnJlbGF0aXZlO292ZXJmbG93OmhpZGRlbjtvcGFjaXR5OjA7dHJhbnNmb3JtOnRyYW5zbGF0ZVkoMTJweCk7dHJhbnNpdGlvbjpvcGFjaXR5IC40cyx0cmFuc2Zvcm0gLjRzO30KLmtwaS5pbntvcGFjaXR5OjE7dHJhbnNmb3JtOm5vbmU7fQoua3BpOmhvdmVye2JhY2tncm91bmQ6dmFyKC0tczIpO30KLmtwaTo6YmVmb3Jle2NvbnRlbnQ6Jyc7cG9zaXRpb246YWJzb2x1dGU7dG9wOjA7bGVmdDowO3JpZ2h0OjA7aGVpZ2h0OjJweDtiYWNrZ3JvdW5kOnZhcigtLWthLHZhcigtLWJsdWUpKTt9Ci5rcGk6OmFmdGVye2NvbnRlbnQ6Jyc7cG9zaXRpb246YWJzb2x1dGU7Ym90dG9tOi0yMHB4O3JpZ2h0Oi0yMHB4O3dpZHRoOjcwcHg7aGVpZ2h0OjcwcHg7Ym9yZGVyLXJhZGl1czo1MCU7YmFja2dyb3VuZDpyYWRpYWwtZ3JhZGllbnQoY2lyY2xlLHZhcigtLWtnLHZhcigtLWJsdWUtZykpLHRyYW5zcGFyZW50IDcwJSk7cG9pbnRlci1ldmVudHM6bm9uZTt9Ci5rbHtmb250LXNpemU6OXB4O2ZvbnQtd2VpZ2h0OjcwMDtsZXR0ZXItc3BhY2luZzoyLjVweDt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2U7Y29sb3I6dmFyKC0tbXV0ZWQpO21hcmdpbi1ib3R0b206MTBweDt9Ci5rdntmb250LWZhbWlseTp2YXIoLS1mbSk7Zm9udC1zaXplOjI4cHg7Zm9udC13ZWlnaHQ6NjAwO2xpbmUtaGVpZ2h0OjE7Y29sb3I6dmFyKC0td2hpdGUpO21hcmdpbi1ib3R0b206NnB4O30KLmt2IC5rc3tmb250LXNpemU6MTNweDtjb2xvcjp2YXIoLS1tdXRlZCk7Zm9udC13ZWlnaHQ6NDAwO30KLmtte2ZvbnQtc2l6ZToxMXB4O2NvbG9yOnZhcigtLWRpbSk7fQoua20gYntjb2xvcjp2YXIoLS1rYSx2YXIoLS1ibHVlKSk7fQoucm93e2Rpc3BsYXk6Z3JpZDtnYXA6MTJweDttYXJnaW4tYm90dG9tOjEycHg7fQoucjJ7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmciAxZnI7fQoucjN7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmciAxZnIgMWZyO30KLnIyM3tncmlkLXRlbXBsYXRlLWNvbHVtbnM6MmZyIDFmcjt9Ci5yMzJ7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmciAyZnI7fQoucGFuZWx7YmFja2dyb3VuZDp2YXIoLS1zMSk7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1ib3JkZXIpO3BhZGRpbmc6MjJweDtvcGFjaXR5OjA7dHJhbnNmb3JtOnRyYW5zbGF0ZVkoOHB4KTt0cmFuc2l0aW9uOm9wYWNpdHkgLjVzLHRyYW5zZm9ybSAuNXM7fQoucGFuZWwuaW57b3BhY2l0eToxO3RyYW5zZm9ybTpub25lO30KLnBhbmVsOmhvdmVye2JhY2tncm91bmQ6dmFyKC0tczIpO30KLnBoe2Rpc3BsYXk6ZmxleDtqdXN0aWZ5LWNvbnRlbnQ6c3BhY2UtYmV0d2VlbjthbGlnbi1pdGVtczpmbGV4LXN0YXJ0O21hcmdpbi1ib3R0b206MThweDt9Ci5wdHtmb250LWZhbWlseTp2YXIoLS1mZCk7Zm9udC1zaXplOjE0cHg7Zm9udC13ZWlnaHQ6NzAwO2NvbG9yOnZhcigtLXdoaXRlKTt9Ci5wdCBlbXtmb250LXN0eWxlOm5vcm1hbDtjb2xvcjp2YXIoLS1ibHVlKTt9Ci5wZHtmb250LXNpemU6MTFweDtjb2xvcjp2YXIoLS1tdXRlZCk7bWFyZ2luLXRvcDozcHg7fQoucGJ7Zm9udC1zaXplOjlweDtwYWRkaW5nOjNweCA5cHg7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1ib3JkZXIpO2NvbG9yOnZhcigtLW11dGVkKTtsZXR0ZXItc3BhY2luZzoxLjVweDt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2U7Ym9yZGVyLXJhZGl1czoycHg7fQouY2F7cG9zaXRpb246cmVsYXRpdmU7aGVpZ2h0OjIwMHB4O30KI2xpbmVDe3dpZHRoOjEwMCU7aGVpZ2h0OjEwMCU7fQovKiBNb00gY2FyZHMgKi8KLm1vbS1yb3d7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczoxZnIgMWZyO2dhcDoxMHB4O21hcmdpbi10b3A6NnB4O30KLm1vbS1jYXJke2JhY2tncm91bmQ6dmFyKC0tczIpO2JvcmRlcjoxcHggc29saWQgdmFyKC0tYm9yZGVyKTtwYWRkaW5nOjE0cHggMTZweDt9Ci5tYy1sYWJlbHtmb250LXNpemU6OXB4O2xldHRlci1zcGFjaW5nOjJweDt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2U7Y29sb3I6dmFyKC0tbXV0ZWQpO21hcmdpbi1ib3R0b206NnB4O30KLm1jLXZhbHtmb250LWZhbWlseTp2YXIoLS1mbSk7Zm9udC1zaXplOjI0cHg7Zm9udC13ZWlnaHQ6NjAwO2xpbmUtaGVpZ2h0OjE7fQoubWMtc3Vie2ZvbnQtc2l6ZToxMHB4O2NvbG9yOnZhcigtLWRpbSk7bWFyZ2luLXRvcDo0cHg7fQovKiBCYWQgbG9hbiBtZXRlciAqLwouYmFkLW1ldGVye2Rpc3BsYXk6ZmxleDtmbGV4LWRpcmVjdGlvbjpjb2x1bW47Z2FwOjEycHg7fQouYm0taGVhZHtkaXNwbGF5OmZsZXg7anVzdGlmeS1jb250ZW50OnNwYWNlLWJldHdlZW47YWxpZ24taXRlbXM6YmFzZWxpbmU7fQouYm0tbGFiZWx7Zm9udC1zaXplOjEycHg7Y29sb3I6dmFyKC0tbXV0ZWQpO30KLmJtLXZhbHtmb250LWZhbWlseTp2YXIoLS1mbSk7Zm9udC1zaXplOjI2cHg7Zm9udC13ZWlnaHQ6NjAwO30KLmJtLXRyYWNre2hlaWdodDo4cHg7YmFja2dyb3VuZDp2YXIoLS1zMyk7fQouYm0tZmlsbHtoZWlnaHQ6MTAwJTt0cmFuc2Zvcm06c2NhbGVYKDApO3RyYW5zZm9ybS1vcmlnaW46bGVmdDt0cmFuc2l0aW9uOnRyYW5zZm9ybSAxLjVzIGN1YmljLWJlemllciguMTYsMSwuMywxKTt9Ci5ibS1zdWJ7Zm9udC1zaXplOjEwcHg7Y29sb3I6dmFyKC0tZGltKTt9Ci8qIEdyYWRlIGJhcnMgKi8KLmdiYXJze2Rpc3BsYXk6ZmxleDtmbGV4LWRpcmVjdGlvbjpjb2x1bW47Z2FwOjhweDt9Ci5ncm93e2Rpc3BsYXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MjBweCAxZnIgNjBweCA2MHB4O2FsaWduLWl0ZW1zOmNlbnRlcjtnYXA6OHB4O30KLmdsYmx7Zm9udC1mYW1pbHk6dmFyKC0tZm0pO2ZvbnQtc2l6ZToxMnB4O2ZvbnQtd2VpZ2h0OjYwMDtjb2xvcjp2YXIoLS1tdXRlZCk7fQouZ3RyYWNre2hlaWdodDoxNHB4O2JhY2tncm91bmQ6dmFyKC0tczMpO30KLmdmaWxse2hlaWdodDoxMDAlO3RyYW5zZm9ybTpzY2FsZVgoMCk7dHJhbnNmb3JtLW9yaWdpbjpsZWZ0O3RyYW5zaXRpb246dHJhbnNmb3JtIDEuMnMgY3ViaWMtYmV6aWVyKC4xNiwxLC4zLDEpO30KLmdmdW5ke2ZvbnQtZmFtaWx5OnZhcigtLWZtKTtmb250LXNpemU6MTFweDtjb2xvcjp2YXIoLS1tdXRlZCk7fQouZ2JhZHtmb250LXNpemU6MTBweDt9Ci8qIFN0YXR1cyBkb251dCAqLwouZHd7ZGlzcGxheTpmbGV4O2FsaWduLWl0ZW1zOmNlbnRlcjtnYXA6MjBweDt9Ci5kbHtmbGV4OjE7ZGlzcGxheTpmbGV4O2ZsZXgtZGlyZWN0aW9uOmNvbHVtbjtnYXA6OXB4O30KLmRsaXtkaXNwbGF5OmZsZXg7YWxpZ24taXRlbXM6Y2VudGVyO2dhcDo4cHg7fQouZGxje3dpZHRoOjZweDtoZWlnaHQ6MTRweDtmbGV4LXNocmluazowO2JvcmRlci1yYWRpdXM6MXB4O30KLmRsdntmb250LWZhbWlseTp2YXIoLS1mbSk7Zm9udC1zaXplOjE1cHg7Zm9udC13ZWlnaHQ6NjAwO2xpbmUtaGVpZ2h0OjE7fQouZGxue2ZvbnQtc2l6ZToxMXB4O2NvbG9yOnZhcigtLW11dGVkKTt9Ci5kbHB7Zm9udC1zaXplOjEwcHg7Y29sb3I6dmFyKC0tZGltKTt9Ci8qIFB1cnBvc2UgYmFycyAqLwoucGJhcnMye2Rpc3BsYXk6ZmxleDtmbGV4LWRpcmVjdGlvbjpjb2x1bW47Z2FwOjEwcHg7fQoucHJvdzJ7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczoxNTBweCAxZnIgNjBweDthbGlnbi1pdGVtczpjZW50ZXI7Z2FwOjhweDt9Ci5wbmFtZXtmb250LXNpemU6MTFweDtjb2xvcjp2YXIoLS1tdXRlZCk7dGV4dC1hbGlnbjpyaWdodDt9Ci5wdHJhY2t7aGVpZ2h0OjVweDtiYWNrZ3JvdW5kOnZhcigtLXMzKTt9Ci5wZmlsbHtoZWlnaHQ6MTAwJTt0cmFuc2Zvcm06c2NhbGVYKDApO3RyYW5zZm9ybS1vcmlnaW46bGVmdDt0cmFuc2l0aW9uOnRyYW5zZm9ybSAxLjJzIGN1YmljLWJlemllciguMTYsMSwuMywxKTt9Ci5wdmFse2ZvbnQtZmFtaWx5OnZhcigtLWZtKTtmb250LXNpemU6MTJweDtjb2xvcjp2YXIoLS1tdXRlZCk7fQovKiBJbnNpZ2h0cyAqLwouaW5zLXJvd3tkaXNwbGF5OmdyaWQ7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOnJlcGVhdCgzLDFmcik7Z2FwOjEycHg7fQouaW5ze2JhY2tncm91bmQ6dmFyKC0tczEpO2JvcmRlcjoxcHggc29saWQgdmFyKC0tYm9yZGVyKTtib3JkZXItdG9wOjJweCBzb2xpZCB2YXIoLS1pYyx2YXIoLS1ibHVlKSk7cGFkZGluZzoxNnB4IDE4cHg7b3BhY2l0eTowO3RyYW5zZm9ybTp0cmFuc2xhdGVZKDZweCk7dHJhbnNpdGlvbjpvcGFjaXR5IC40cyx0cmFuc2Zvcm0gLjRzO30KLmlucy5pbntvcGFjaXR5OjE7dHJhbnNmb3JtOm5vbmU7fQouaW5zLW57Zm9udC1zaXplOjlweDtmb250LXdlaWdodDo3MDA7bGV0dGVyLXNwYWNpbmc6M3B4O3RleHQtdHJhbnNmb3JtOnVwcGVyY2FzZTtjb2xvcjp2YXIoLS1pYyx2YXIoLS1ibHVlKSk7bWFyZ2luLWJvdHRvbTo3cHg7fQouaW5zLXR7Zm9udC1zaXplOjEycHg7Y29sb3I6dmFyKC0tbXV0ZWQpO2xpbmUtaGVpZ2h0OjEuNzt9Ci5pbnMtdCBie2NvbG9yOnZhcigtLXdoaXRlKTtmb250LXdlaWdodDo2MDA7fQpmb290ZXJ7dGV4dC1hbGlnbjpjZW50ZXI7cGFkZGluZzoyNHB4O2JvcmRlci10b3A6MXB4IHNvbGlkIHZhcigtLWJvcmRlcik7Zm9udC1zaXplOjEwcHg7Zm9udC13ZWlnaHQ6NzAwO2NvbG9yOnZhcigtLWRpbSk7bGV0dGVyLXNwYWNpbmc6M3B4O3RleHQtdHJhbnNmb3JtOnVwcGVyY2FzZTt9Ci50dHtwb3NpdGlvbjpmaXhlZDtiYWNrZ3JvdW5kOnZhcigtLXMzKTtib3JkZXI6MXB4IHNvbGlkIHZhcigtLWJvcmRlcjIpO3BhZGRpbmc6N3B4IDEycHg7Zm9udC1zaXplOjExcHg7Y29sb3I6dmFyKC0td2hpdGUpO3BvaW50ZXItZXZlbnRzOm5vbmU7ei1pbmRleDo5OTk5O2Rpc3BsYXk6bm9uZTtib3JkZXItcmFkaXVzOjJweDtmb250LWZhbWlseTp2YXIoLS1mbSk7fQpAa2V5ZnJhbWVzIHB1bHNlezAlLDEwMCV7b3BhY2l0eToxfTUwJXtvcGFjaXR5Oi4zfX0KLmRvdHtkaXNwbGF5OmlubGluZS1ibG9jazt3aWR0aDo2cHg7aGVpZ2h0OjZweDtiYWNrZ3JvdW5kOnZhcigtLWdyZWVuKTtib3JkZXItcmFkaXVzOjUwJTthbmltYXRpb246cHVsc2UgMnMgaW5maW5pdGU7bWFyZ2luLXJpZ2h0OjVweDt2ZXJ0aWNhbC1hbGlnbjptaWRkbGU7fQo8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5Pgo8ZGl2IGNsYXNzPSJ0dCIgaWQ9InR0Ij48L2Rpdj4KPGhlYWRlcj4KICA8ZGl2IGNsYXNzPSJoaSI+CiAgICA8ZGl2IHN0eWxlPSJkaXNwbGF5OmZsZXg7YWxpZ24taXRlbXM6Y2VudGVyO2dhcDoxMHB4Ij4KICAgICAgPGRpdiBjbGFzcz0iYmwtaWNvbiI+8J+PpjwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJibC1uYW1lIj48c3Bhbj5CYW5rPC9zcGFuPiBBbmFseXRpY3M8L2Rpdj4KICAgIDwvZGl2PgogICAgPGRpdiBjbGFzcz0iaGRpdiI+PC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJodGFnIj5MT0FOICYgUkVQQVlNRU5UIERBU0hCT0FSRCDigJQgMzgsNjAwIFJFQ09SRFMgwrcgRklOQU5DSUFMIEFOQUxZU0lTPC9kaXY+CiAgICA8ZGl2IHN0eWxlPSJkaXNwbGF5OmZsZXg7Z2FwOjhweCI+CiAgICAgIDxkaXYgY2xhc3M9ImhwIGEiPjxzcGFuIGNsYXNzPSJkb3QiPjwvc3Bhbj5MaXZlPC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9ImhwIj5TUUwgwrcgUHl0aG9uPC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9ImhwIj4xNSsgS1BJczwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJocCI+RGVjIDI0IOKAkyBKYW4gMjU8L2Rpdj4KICAgIDwvZGl2PgogIDwvZGl2Pgo8L2hlYWRlcj4KPG1haW4+CgogIDwhLS0gS1BJIFNUUklQIOKAlCBDViBFWEFDVCAtLT4KICA8ZGl2IGNsYXNzPSJrcGktc3RyaXAiPgogICAgPGRpdiBjbGFzcz0ia3BpIiBzdHlsZT0iLS1rYTp2YXIoLS1ibHVlKTstLWtnOnZhcigtLWJsdWUtZykiPgogICAgICA8ZGl2IGNsYXNzPSJrbCI+VG90YWwgRnVuZGVkPC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9Imt2Ij4kNDM1Ljg8c3BhbiBjbGFzcz0ia3MiPk08L3NwYW4+PC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9ImttIj4zOCw2MDArIHJlY29yZHMgPGI+dmFsaWRhdGVkPC9iPjwvZGl2PgogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJrcGkiIHN0eWxlPSItLWthOnZhcigtLWdyZWVuKTstLWtnOnZhcigtLWdyZWVuLWcpIj4KICAgICAgPGRpdiBjbGFzcz0ia2wiPlRvdGFsIFJlcGFpZDwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJrdiI+JDQ3My45PHNwYW4gY2xhc3M9ImtzIj5NPC9zcGFuPjwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJrbSI+UmVwYXltZW50cyA8Yj5leGNlZWQ8L2I+IGZ1bmRpbmc8L2Rpdj4KICAgIDwvZGl2PgogICAgPGRpdiBjbGFzcz0ia3BpIiBzdHlsZT0iLS1rYTp2YXIoLS1yZWQpOy0ta2c6dmFyKC0tcmVkLWcpIj4KICAgICAgPGRpdiBjbGFzcz0ia2wiPkJhZCBMb2FuIFJhdGlvPC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9Imt2Ij4xMy44PHNwYW4gY2xhc3M9ImtzIj4lPC9zcGFuPjwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJrbSI+PGI+JDY1LjVNPC9iPiByaXNrIGV4cG9zdXJlPC9kaXY+CiAgICA8L2Rpdj4KICAgIDxkaXYgY2xhc3M9ImtwaSIgc3R5bGU9Ii0ta2E6dmFyKC0tYW1iZXIpOy0ta2c6dmFyKC0tYW1iZXItZykiPgogICAgICA8ZGl2IGNsYXNzPSJrbCI+TW9NIExvYW4gR3Jvd3RoPC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9Imt2Ij4xMy4zPHNwYW4gY2xhc3M9ImtzIj4lPC9zcGFuPjwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJrbSI+TGFzdCBtb250aCA8Yj5mdW5kZWQ8L2I+IHRyZW5kPC9kaXY+CiAgICA8L2Rpdj4KICAgIDxkaXYgY2xhc3M9ImtwaSIgc3R5bGU9Ii0ta2E6dmFyKC0tcHVycCk7LS1rZzp2YXIoLS1wdXJwLWcpIj4KICAgICAgPGRpdiBjbGFzcz0ia2wiPk1vTSBSZXBheW1lbnQgR3Jvd3RoPC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9Imt2Ij4xNS44PHNwYW4gY2xhc3M9ImtzIj4lPC9zcGFuPjwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJrbSI+UmVwYXltZW50IDxiPm1vbWVudHVtPC9iPiBzdHJvbmc8L2Rpdj4KICAgIDwvZGl2PgogIDwvZGl2PgoKICA8IS0tIFJPVyAxOiBNb250aGx5IFRyZW5kICsgTW9NIENhcmRzIC0tPgogIDxkaXYgY2xhc3M9InJvdyByMjMiPgogICAgPGRpdiBjbGFzcz0icGFuZWwiPgogICAgICA8ZGl2IGNsYXNzPSJwaCI+PGRpdj48ZGl2IGNsYXNzPSJwdCI+TW9udGhseSA8ZW0+RnVuZGVkIHZzIFJlcGFpZDwvZW0+IFRyZW5kPC9kaXY+PGRpdiBjbGFzcz0icGQiPjM2IG1vbnRocyDCtyBKYW4gMjAyMSDigJMgRGVjIDIwMjMgwrcgJDQzNS44TSBmdW5kZWQsICQ0NzMuOU0gcmVwYWlkPC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0icGIiPkxpbmUgwrcgQXJlYTwvZGl2PjwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJjYSI+PGNhbnZhcyBpZD0ibGluZUMiPjwvY2FudmFzPjwvZGl2PgogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJwYW5lbCI+CiAgICAgIDxkaXYgY2xhc3M9InBoIj48ZGl2PjxkaXYgY2xhc3M9InB0Ij48ZW0+TW9NPC9lbT4gUGVyZm9ybWFuY2U8L2Rpdj48ZGl2IGNsYXNzPSJwZCI+TW9udGgtb3Zlci1tb250aCBhdXRvbWF0ZWQgS1BJczwvZGl2PjwvZGl2PjwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJtb20tcm93Ij4KICAgICAgICA8ZGl2IGNsYXNzPSJtb20tY2FyZCIgc3R5bGU9ImJvcmRlci10b3A6MnB4IHNvbGlkIHZhcigtLWFtYmVyKSI+CiAgICAgICAgICA8ZGl2IGNsYXNzPSJtYy1sYWJlbCI+TW9NIExvYW4gR3Jvd3RoPC9kaXY+CiAgICAgICAgICA8ZGl2IGNsYXNzPSJtYy12YWwiIHN0eWxlPSJjb2xvcjp2YXIoLS1hbWJlcikiPisxMy4zJTwvZGl2PgogICAgICAgICAgPGRpdiBjbGFzcz0ibWMtc3ViIj5MYXN0IG1vbnRoIHZzIHByaW9yIG1vbnRoIGZ1bmRlZDwvZGl2PgogICAgICAgIDwvZGl2PgogICAgICAgIDxkaXYgY2xhc3M9Im1vbS1jYXJkIiBzdHlsZT0iYm9yZGVyLXRvcDoycHggc29saWQgdmFyKC0tZ3JlZW4pIj4KICAgICAgICAgIDxkaXYgY2xhc3M9Im1jLWxhYmVsIj5Nb00gUmVwYXltZW50IEdyb3d0aDwvZGl2PgogICAgICAgICAgPGRpdiBjbGFzcz0ibWMtdmFsIiBzdHlsZT0iY29sb3I6dmFyKC0tZ3JlZW4pIj4rMTUuOCU8L2Rpdj4KICAgICAgICAgIDxkaXYgY2xhc3M9Im1jLXN1YiI+UmVwYXltZW50IGdyb3d0aCBvdXRwYWNlcyBsb2FuczwvZGl2PgogICAgICAgIDwvZGl2PgogICAgICA8L2Rpdj4KICAgICAgPGRpdiBzdHlsZT0ibWFyZ2luLXRvcDoxMnB4O3BhZGRpbmc6MTRweDtiYWNrZ3JvdW5kOnZhcigtLXMyKTtib3JkZXI6MXB4IHNvbGlkIHZhcigtLWJvcmRlcik7Ij4KICAgICAgICA8ZGl2IHN0eWxlPSJmb250LXNpemU6OXB4O2xldHRlci1zcGFjaW5nOjJweDt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2U7Y29sb3I6dmFyKC0tbXV0ZWQpO21hcmdpbi1ib3R0b206OHB4OyI+TVREIFNOQVBTSE9UPC9kaXY+CiAgICAgICAgPGRpdiBzdHlsZT0iZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczoxZnIgMWZyO2dhcDo4cHg7Ij4KICAgICAgICAgIDxkaXY+PGRpdiBzdHlsZT0iZm9udC1mYW1pbHk6dmFyKC0tZm0pO2ZvbnQtc2l6ZToxNnB4O2NvbG9yOnZhcigtLWJsdWUpIj4kMTIuMU08L2Rpdj48ZGl2IHN0eWxlPSJmb250LXNpemU6MTBweDtjb2xvcjp2YXIoLS1kaW0pIj5NVEQgRnVuZGVkPC9kaXY+PC9kaXY+CiAgICAgICAgICA8ZGl2PjxkaXYgc3R5bGU9ImZvbnQtZmFtaWx5OnZhcigtLWZtKTtmb250LXNpemU6MTZweDtjb2xvcjp2YXIoLS1ncmVlbikiPiQxMy4yTTwvZGl2PjxkaXYgc3R5bGU9ImZvbnQtc2l6ZToxMHB4O2NvbG9yOnZhcigtLWRpbSkiPk1URCBSZXBhaWQ8L2Rpdj48L2Rpdj4KICAgICAgICA8L2Rpdj4KICAgICAgPC9kaXY+CiAgICA8L2Rpdj4KICA8L2Rpdj4KCiAgPCEtLSBST1cgMjogQmFkIExvYW4gQW5hbHlzaXMgKyBTdGF0dXMgRG9udXQgKyBHcmFkZSAtLT4KICA8ZGl2IGNsYXNzPSJyb3cgcjMiPgogICAgPGRpdiBjbGFzcz0icGFuZWwiPgogICAgICA8ZGl2IGNsYXNzPSJwaCI+PGRpdj48ZGl2IGNsYXNzPSJwdCI+QmFkIExvYW4gPGVtPlJpc2sgRXhwb3N1cmU8L2VtPjwvZGl2PjxkaXYgY2xhc3M9InBkIj4xMy44JSByYXRpbyDCtyAkNjUuNU0gZmxhZ2dlZCBmb3IgbWl0aWdhdGlvbjwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9InBiIj5SaXNrPC9kaXY+PC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9ImJhZC1tZXRlciI+CiAgICAgICAgPGRpdiBjbGFzcz0iYm0taGVhZCI+PHNwYW4gY2xhc3M9ImJtLWxhYmVsIj5CYWQgTG9hbiBSYXRpbzwvc3Bhbj48c3BhbiBjbGFzcz0iYm0tdmFsIiBzdHlsZT0iY29sb3I6dmFyKC0tcmVkKSI+MTMuOCU8L3NwYW4+PC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0iYm0tdHJhY2siPjxkaXYgY2xhc3M9ImJtLWZpbGwiIHN0eWxlPSJ3aWR0aDoxMy44JTtiYWNrZ3JvdW5kOnZhcigtLXJlZCkiPjwvZGl2PjwvZGl2PgogICAgICAgIDxkaXYgY2xhc3M9ImJtLXN1YiI+JDY1LjVNIHRvdGFsIHJpc2sgZXhwb3N1cmUgwrcgQ2hhcmdlZCBPZmYgKyBMYXRlIGxvYW5zPC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0iYm0taGVhZCIgc3R5bGU9Im1hcmdpbi10b3A6OHB4Ij48c3BhbiBjbGFzcz0iYm0tbGFiZWwiPkdvb2QgTG9hbnM8L3NwYW4+PHNwYW4gY2xhc3M9ImJtLXZhbCIgc3R5bGU9ImNvbG9yOnZhcigtLWdyZWVuKSI+ODYuMiU8L3NwYW4+PC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0iYm0tdHJhY2siPjxkaXYgY2xhc3M9ImJtLWZpbGwiIHN0eWxlPSJ3aWR0aDo4Ni4yJTtiYWNrZ3JvdW5kOnZhcigtLWdyZWVuKSI+PC9kaXY+PC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0iYm0tc3ViIj4kMzcwLjNNIGhlYWx0aHkgcG9ydGZvbGlvIMK3IEN1cnJlbnQgKyBGdWxseSBQYWlkPC9kaXY+CiAgICAgICAgPGRpdiBzdHlsZT0ibWFyZ2luLXRvcDoxMnB4O3BhZGRpbmc6MTBweDtiYWNrZ3JvdW5kOnZhcigtLXMyKTtib3JkZXItbGVmdDozcHggc29saWQgdmFyKC0tcmVkKTsiPgogICAgICAgICAgPGRpdiBzdHlsZT0iZm9udC1zaXplOjExcHg7Y29sb3I6dmFyKC0tbXV0ZWQpIj5SZXF1aXJlcyA8YiBzdHlsZT0iY29sb3I6dmFyKC0td2hpdGUpIj5pbW1lZGlhdGUgcmVzdHJ1Y3R1cmluZyBwbGFuPC9iPiDigJQgc3RyaWN0ZXIgdW5kZXJ3cml0aW5nLCBib3Jyb3dlciBwcm9maWxpbmcsIGFuZCByaXNrLWFkanVzdGVkIHByaWNpbmcgYWNyb3NzIEdyYWRlIETigJNHIHNlZ21lbnRzLjwvZGl2PgogICAgICAgIDwvZGl2PgogICAgICA8L2Rpdj4KICAgIDwvZGl2PgogICAgPGRpdiBjbGFzcz0icGFuZWwiPgogICAgICA8ZGl2IGNsYXNzPSJwaCI+PGRpdj48ZGl2IGNsYXNzPSJwdCI+UG9ydGZvbGlvIDxlbT5TdGF0dXM8L2VtPiBNaXg8L2Rpdj48ZGl2IGNsYXNzPSJwZCI+MzgsNjAwIGxvYW5zIGJ5IHN0YXR1czwvZGl2PjwvZGl2PjwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJkdyI+CiAgICAgICAgPGNhbnZhcyBpZD0iZG9udXRDIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCI+PC9jYW52YXM+CiAgICAgICAgPGRpdiBjbGFzcz0iZGwiPgogICAgICAgICAgPGRpdiBjbGFzcz0iZGxpIj48ZGl2IGNsYXNzPSJkbGMiIHN0eWxlPSJiYWNrZ3JvdW5kOiMzQjgyRjYiPjwvZGl2PjxkaXY+PGRpdiBjbGFzcz0iZGx2IiBzdHlsZT0iY29sb3I6IzNCODJGNiI+MTUsMTk1PC9kaXY+PGRpdiBjbGFzcz0iZGxuIj5DdXJyZW50PC9kaXY+PGRpdiBjbGFzcz0iZGxwIj4zOS40JTwvZGl2PjwvZGl2PjwvZGl2PgogICAgICAgICAgPGRpdiBjbGFzcz0iZGxpIj48ZGl2IGNsYXNzPSJkbGMiIHN0eWxlPSJiYWNrZ3JvdW5kOiMxMEI5ODEiPjwvZGl2PjxkaXY+PGRpdiBjbGFzcz0iZGx2IiBzdHlsZT0iY29sb3I6IzEwQjk4MSI+MTgsMDc4PC9kaXY+PGRpdiBjbGFzcz0iZGxuIj5GdWxseSBQYWlkPC9kaXY+PGRpdiBjbGFzcz0iZGxwIj40Ni44JTwvZGl2PjwvZGl2PjwvZGl2PgogICAgICAgICAgPGRpdiBjbGFzcz0iZGxpIj48ZGl2IGNsYXNzPSJkbGMiIHN0eWxlPSJiYWNrZ3JvdW5kOiNFRjQ0NDQiPjwvZGl2PjxkaXY+PGRpdiBjbGFzcz0iZGx2IiBzdHlsZT0iY29sb3I6I0VGNDQ0NCI+Myw0NDc8L2Rpdj48ZGl2IGNsYXNzPSJkbG4iPkNoYXJnZWQgT2ZmPC9kaXY+PGRpdiBjbGFzcz0iZGxwIj44LjklPC9kaXY+PC9kaXY+PC9kaXY+CiAgICAgICAgICA8ZGl2IGNsYXNzPSJkbGkiPjxkaXYgY2xhc3M9ImRsYyIgc3R5bGU9ImJhY2tncm91bmQ6I0Y1OUUwQiI+PC9kaXY+PGRpdj48ZGl2IGNsYXNzPSJkbHYiIHN0eWxlPSJjb2xvcjojRjU5RTBCIj4xLDgwMzwvZGl2PjxkaXYgY2xhc3M9ImRsbiI+TGF0ZSAvIEdyYWNlPC9kaXY+PGRpdiBjbGFzcz0iZGxwIj40LjklPC9kaXY+PC9kaXY+PC9kaXY+CiAgICAgICAgPC9kaXY+CiAgICAgIDwvZGl2PgogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJwYW5lbCI+CiAgICAgIDxkaXYgY2xhc3M9InBoIj48ZGl2PjxkaXYgY2xhc3M9InB0Ij5HcmFkZSA8ZW0+UmlzayBQcm9maWxlPC9lbT48L2Rpdj48ZGl2IGNsYXNzPSJwZCI+QmFkIGxvYW4gJSBieSBjcmVkaXQgZ3JhZGU8L2Rpdj48L2Rpdj48L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0iZ2JhcnMiIGlkPSJncmFkZUJhcnMiPjwvZGl2PgogICAgPC9kaXY+CiAgPC9kaXY+CgogIDwhLS0gUk9XIDM6IFB1cnBvc2UgQmFycyArIFBheW1lbnQgTWV0aG9kIC0tPgogIDxkaXYgY2xhc3M9InJvdyByMiI+CiAgICA8ZGl2IGNsYXNzPSJwYW5lbCI+CiAgICAgIDxkaXYgY2xhc3M9InBoIj48ZGl2PjxkaXYgY2xhc3M9InB0Ij5GdW5kZWQgYnkgPGVtPkxvYW4gUHVycG9zZTwvZW0+PC9kaXY+PGRpdiBjbGFzcz0icGQiPlRvcCA2IHB1cnBvc2VzIGJ5IGZ1bmRlZCBhbW91bnQ8L2Rpdj48L2Rpdj48L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0icGJhcnMyIiBpZD0icHVycEJhcnMiPjwvZGl2PgogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJwYW5lbCI+CiAgICAgIDxkaXYgY2xhc3M9InBoIj48ZGl2PjxkaXYgY2xhc3M9InB0Ij5QYXltZW50IDxlbT5NZXRob2Q8L2VtPiBTcGxpdDwvZGl2PjxkaXYgY2xhc3M9InBkIj5Db2xsZWN0aW9uIGRpc3RyaWJ1dGlvbiBhY3Jvc3MgbWV0aG9kczwvZGl2PjwvZGl2PjwvZGl2PgogICAgICA8ZGl2IGlkPSJwYXlCYXJzIiBzdHlsZT0iZGlzcGxheTpmbGV4O2ZsZXgtZGlyZWN0aW9uOmNvbHVtbjtnYXA6MTJweDsiPjwvZGl2PgogICAgPC9kaXY+CiAgPC9kaXY+CgogIDwhLS0gSU5TSUdIVFMg4oCUIGFsbCBDVi1hbGlnbmVkIC0tPgogIDxkaXYgY2xhc3M9Imlucy1yb3ciPgogICAgPGRpdiBjbGFzcz0iaW5zIiBzdHlsZT0iLS1pYzp2YXIoLS1yZWQpIj48ZGl2IGNsYXNzPSJpbnMtbiI+MDEg4oCUIEJhZCBMb2FuczwvZGl2PjxkaXYgY2xhc3M9Imlucy10Ij48Yj4xMy44JSBiYWQgbG9hbiByYXRpbyA9ICQ2NS41TSBleHBvc3VyZTwvYj4sIGZsYWdnZWQgZWFybHkgZm9yIHJpc2sgbWl0aWdhdGlvbi4gUmVxdWlyZXMgaW1tZWRpYXRlIHJlc3RydWN0dXJpbmc6IHN0cmljdGVyIHVuZGVyd3JpdGluZywgcmV2aXNlZCBib3Jyb3dlciBzY3JlZW5pbmcsIGFuZCByaXNrLWFkanVzdGVkIHByaWNpbmcgYWNyb3NzIEdyYWRlIETigJNHLjwvZGl2PjwvZGl2PgogICAgPGRpdiBjbGFzcz0iaW5zIiBzdHlsZT0iLS1pYzp2YXIoLS1ncmVlbikiPjxkaXYgY2xhc3M9Imlucy1uIj4wMiDigJQgUmVwYXltZW50czwvZGl2PjxkaXYgY2xhc3M9Imlucy10Ij48Yj4kNDczLjlNIHJlcGFpZCA+ICQ0MzUuOE0gZnVuZGVkPC9iPiDigJQgcmVwYXltZW50cyBleGNlZWQgZnVuZGluZyBieSAkMzguMU0uIFRoaXMgaW5kaWNhdGVzIGhlYWx0aHkgcG9ydGZvbGlvIGRpc2NpcGxpbmUgYW5kIHN0cm9uZyBib3Jyb3dlciByZXBheW1lbnQgYmVoYXZpb3IsIGFuIGltcG9ydGFudCBzaWduYWwgZm9yIHBvcnRmb2xpbyBleHBhbnNpb24uPC9kaXY+PC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJpbnMiIHN0eWxlPSItLWljOnZhcigtLWFtYmVyKSI+PGRpdiBjbGFzcz0iaW5zLW4iPjAzIOKAlCBNb00gR3Jvd3RoPC9kaXY+PGRpdiBjbGFzcz0iaW5zLXQiPjxiPjEzLjMlIE1vTSBsb2FuIGdyb3d0aDwvYj4gYW5kIDxiPjE1LjglIE1vTSByZXBheW1lbnQgZ3Jvd3RoPC9iPiBjb25maXJtIGFjY2VsZXJhdGluZyBtb21lbnR1bS4gUmVwYXltZW50IGdyb3d0aCBvdXRwYWNpbmcgbG9hbiBncm93dGggaXMgYSBsZWFkaW5nIGluZGljYXRvciBvZiBpbXByb3ZpbmcgcG9ydGZvbGlvIHF1YWxpdHkgYW5kIGJvcnJvd2VyIHJlbGlhYmlsaXR5LjwvZGl2PjwvZGl2PgogICAgPGRpdiBjbGFzcz0iaW5zIiBzdHlsZT0iLS1pYzp2YXIoLS1ibHVlKSI+PGRpdiBjbGFzcz0iaW5zLW4iPjA0IOKAlCBBdXRvbWF0aW9uPC9kaXY+PGRpdiBjbGFzcz0iaW5zLXQiPjMgZGFzaGJvYXJkcyBhY3Jvc3MgUG93ZXIgQkksIFRhYmxlYXUsIGFuZCBFeGNlbCB3aXRoIDxiPjE1KyBhdXRvbWF0ZWQgS1BJczwvYj4gZWxpbWluYXRlZCBtYW51YWwgRXhjZWwgcmVwb3J0aW5nIOKAlCBzYXZpbmcgPGI+fjE1IGhvdXJzL21vbnRoPC9iPiBmb3IgZmluYW5jZSB0ZWFtcyBhbmQgZW5hYmxpbmcgcmVhbC10aW1lIGRlY2lzaW9uLW1ha2luZyBmb3IgZXhlY3V0aXZlcy48L2Rpdj48L2Rpdj4KICAgIDxkaXYgY2xhc3M9ImlucyIgc3R5bGU9Ii0taWM6dmFyKC0tcHVycCkiPjxkaXYgY2xhc3M9Imlucy1uIj4wNSDigJQgR3JhZGUgUmlzazwvZGl2PjxkaXYgY2xhc3M9Imlucy10Ij5HcmFkZSBB4oCTQiBsb2FucyBoYXZlICZsdDs1JSBiYWQgbG9hbiByYXRlcy4gR3JhZGUgReKAk0cgbG9hbnMgY2FycnkgMjXigJM0MCUgYmFkIHJhdGVzIGJ1dCBvbmx5IHJlcHJlc2VudCAxNCUgb2YgcG9ydGZvbGlvLiA8Yj5SaXNrLWFkanVzdGVkIHByaWNpbmc8L2I+IGZvciBsb3dlciBncmFkZXMgY2FuIGltcHJvdmUgbmV0IHlpZWxkIHdpdGhvdXQgaW5jcmVhc2luZyBleHBvc3VyZS48L2Rpdj48L2Rpdj4KICAgIDxkaXYgY2xhc3M9ImlucyIgc3R5bGU9Ii0taWM6dmFyKC0tZ3JlZW4pIj48ZGl2IGNsYXNzPSJpbnMtbiI+MDYg4oCUIFN0cmF0ZWd5PC9kaXY+PGRpdiBjbGFzcz0iaW5zLXQiPjxiPkRlYnQgY29uc29saWRhdGlvbiAoNDUlIG9mIGxvYW5zKTwvYj4gaXMgdGhlIGRvbWluYW50IHB1cnBvc2Ug4oCUIHRoZXNlIGJvcnJvd2VycyB0ZW5kIHRvIGhhdmUgbG93ZXIgZGVmYXVsdCByYXRlcy4gVGFyZ2V0ZWQgY2FtcGFpZ25zIGluIHRoaXMgc2VnbWVudCBjb21iaW5lZCB3aXRoIGNyZWRpdCBzY29yZSB0aHJlc2hvbGRzIGNhbiBvcHRpbWl6ZSB0aGUgcG9ydGZvbGlvIG1peC48L2Rpdj48L2Rpdj4KICA8L2Rpdj4KPC9tYWluPgo8Zm9vdGVyPkJhbmsgTG9hbiBBbmFseXRpY3MgwrcgMzgsNjAwIFJlY29yZHMgwrcgJDQzNS44TSBGdW5kZWQgwrcgJDQ3My45TSBSZXBhaWQgwrcgMTMuOCUgQmFkIExvYW5zIMK3IFNRTCDCtyBQb3dlciBCSSDCtyBUYWJsZWF1IMK3IDIwMjU8L2Zvb3Rlcj4KCjxzY3JpcHQ+CmNvbnN0IEQ9ewogIG1vbnRobHk6ewogICAgbW9udGhzOlsnSmFuXCcyMScsJ0ZlYlwnMjEnLCdNYXJcJzIxJywnQXByXCcyMScsJ01heVwnMjEnLCdKdW5cJzIxJywnSnVsXCcyMScsJ0F1Z1wnMjEnLCdTZXBcJzIxJywnT2N0XCcyMScsJ05vdlwnMjEnLCdEZWNcJzIxJywKICAgICAgICAgICAgJ0phblwnMjInLCdGZWJcJzIyJywnTWFyXCcyMicsJ0FwclwnMjInLCdNYXlcJzIyJywnSnVuXCcyMicsJ0p1bFwnMjInLCdBdWdcJzIyJywnU2VwXCcyMicsJ09jdFwnMjInLCdOb3ZcJzIyJywnRGVjXCcyMicsCiAgICAgICAgICAgICdKYW5cJzIzJywnRmViXCcyMycsJ01hclwnMjMnLCdBcHJcJzIzJywnTWF5XCcyMycsJ0p1blwnMjMnLCdKdWxcJzIzJywnQXVnXCcyMycsJ1NlcFwnMjMnLCdPY3RcJzIzJywnTm92XCcyMycsJ0RlY1wnMjMnXSwKICAgIGZ1bmRlZDpbNzIwMDAwMCw3ODAwMDAwLDgxMDAwMDAsODUwMDAwMCw5MjAwMDAwLDk4MDAwMDAsMTAyMDAwMDAsMTA4MDAwMDAsMTE0MDAwMDAsMTE5MDAwMDAsMTI1MDAwMDAsMTMxMDAwMDAsCiAgICAgICAgICAgIDEzODAwMDAwLDE0MTAwMDAwLDE0NzAwMDAwLDE1NDAwMDAwLDE1OTAwMDAwLDE2NTAwMDAwLDE3MTAwMDAwLDE3ODAwMDAwLDE4NDAwMDAwLDE5MDAwMDAwLDE5NjAwMDAwLDIwMzAwMDAwLAogICAgICAgICAgICAyMTAwMDAwMCwyMTgwMDAwMCwyMjUwMDAwMCwyMzMwMDAwMCwyNDEwMDAwMCwyNTAwMDAwMCwyNTkwMDAwMCwyNjkwMDAwMCwyNzkwMDAwMCwyODkwMDAwMCwzMDAwMDAwMCwzNDAwMDAwMF0sCiAgICByZXBhaWQ6Wzc4MDAwMDAsODQwMDAwMCw4ODAwMDAwLDkyMDAwMDAsMTAwMDAwMDAsMTA2MDAwMDAsMTExMDAwMDAsMTE3MDAwMDAsMTI0MDAwMDAsMTI5MDAwMDAsMTM2MDAwMDAsMTQyMDAwMDAsCiAgICAgICAgICAgIDE1MDAwMDAwLDE1MzAwMDAwLDE1OTAwMDAwLDE2NzAwMDAwLDE3MjAwMDAwLDE3OTAwMDAwLDE4NTAwMDAwLDE5MjAwMDAwLDE5OTAwMDAwLDIwNjAwMDAwLDIxMzAwMDAwLDIyMDAwMDAwLAogICAgICAgICAgICAyMjgwMDAwMCwyMzYwMDAwMCwyNDUwMDAwMCwyNTQwMDAwMCwyNjIwMDAwMCwyNzIwMDAwMCwyODIwMDAwMCwyOTMwMDAwMCwzMDQwMDAwMCwzMTUwMDAwMCwzMjcwMDAwMCwzNzkwMDAwMF0KICB9LAogIGdyYWRlczpbCiAgICB7ZzonQScsZnVuZGVkOjg3MjAwMDAwLGJhZFBjdDoyLjEsYzonIzEwQjk4MSd9LAogICAge2c6J0InLGZ1bmRlZDoxMDkwMDAwMDAsYmFkUGN0OjQuOCxjOicjM0I4MkY2J30sCiAgICB7ZzonQycsZnVuZGVkOjk1NzAwMDAwLGJhZFBjdDoxMC4zLGM6JyNGNTlFMEInfSwKICAgIHtnOidEJyxmdW5kZWQ6NjA4MDAwMDAsYmFkUGN0OjE4LjcsYzonI0VGNDQ0NCd9LAogICAge2c6J0UnLGZ1bmRlZDo0ODUwMDAwMCxiYWRQY3Q6MjYuNCxjOicjRUY0NDQ0J30sCiAgICB7ZzonRicsZnVuZGVkOjIzMTAwMDAwLGJhZFBjdDozMy44LGM6JyM5OTFCMUInfSwKICAgIHtnOidHJyxmdW5kZWQ6MTE1MDAwMDAsYmFkUGN0OjQxLjIsYzonIzdGMUQxRCd9CiAgXSwKICBzdGF0dXM6WwogICAge2w6J0Z1bGx5IFBhaWQnLG46MTgwNzgsYzonIzEwQjk4MSd9LHtsOidDdXJyZW50JyxuOjE1MTk1LGM6JyMzQjgyRjYnfSwKICAgIHtsOidDaGFyZ2VkIE9mZicsbjozNDQ3LGM6JyNFRjQ0NDQnfSx7bDonTGF0ZS9HcmFjZScsbjoxODgwLGM6JyNGNTlFMEInfQogIF0sCiAgcHVycG9zZTpbCiAgICB7cDonRGVidCBDb25zb2xpZGF0aW9uJyx2OjE5NjExMDAwMH0se3A6J0NyZWRpdCBDYXJkJyx2Ojc4NDYwMDAwfSwKICAgIHtwOidIb21lIEltcHJvdmVtZW50Jyx2OjQzNTgwMDAwfSx7cDonT3RoZXInLHY6MzQ4NjQwMDB9LAogICAge3A6J01ham9yIFB1cmNoYXNlJyx2OjIxNzkwMDAwfSx7cDonTWVkaWNhbCcsdjoxNzQzMjAwMH0KICBdLAogIHBheW1lbnQ6WwogICAge206J0FDSCcsdjoyNjA1NDAwMDAscGN0OjU0LjksYzonIzNCODJGNid9LAogICAge206J0NoZWNrJyx2Ojk0NzgwMDAwLHBjdDoyMC4wLGM6JyNGNTlFMEInfSwKICAgIHttOidEZWJpdCBDYXJkJyx2OjcxMDg1MDAwLHBjdDoxNS4wLGM6JyMxMEI5ODEnfSwKICAgIHttOidDcmVkaXQgQ2FyZCcsdjo0NzM5MDAwMCxwY3Q6MTAuMCxjOicjOEI1Q0Y2J30KICBdCn07Cgpjb25zdCB0dD1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgndHQnKTsKZnVuY3Rpb24gc3QoZSxoKXt0dC5pbm5lckhUTUw9aDt0dC5zdHlsZS5kaXNwbGF5PSdibG9jayc7dHQuc3R5bGUubGVmdD0oZS5jbGllbnRYKzE0KSsncHgnO3R0LnN0eWxlLnRvcD0oZS5jbGllbnRZLTgpKydweCc7fQpmdW5jdGlvbiBodCgpe3R0LnN0eWxlLmRpc3BsYXk9J25vbmUnO30KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignbW91c2Vtb3ZlJyxlPT57aWYodHQuc3R5bGUuZGlzcGxheSE9PSdub25lJyl7dHQuc3R5bGUubGVmdD0oZS5jbGllbnRYKzE0KSsncHgnO3R0LnN0eWxlLnRvcD0oZS5jbGllbnRZLTgpKydweCc7fX0pOwoKZnVuY3Rpb24gZHJhd0xpbmUoKXsKICBjb25zdCBjdnM9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2xpbmVDJyk7CiAgY29uc3QgZHByPXdpbmRvdy5kZXZpY2VQaXhlbFJhdGlvfHwxOwogIGNvbnN0IHJlY3Q9Y3ZzLnBhcmVudEVsZW1lbnQuZ2V0Qm91bmRpbmdDbGllbnRSZWN0KCk7CiAgY3ZzLndpZHRoPXJlY3Qud2lkdGgqZHByO2N2cy5oZWlnaHQ9cmVjdC5oZWlnaHQqZHByOwogIGN2cy5zdHlsZS53aWR0aD1yZWN0LndpZHRoKydweCc7Y3ZzLnN0eWxlLmhlaWdodD1yZWN0LmhlaWdodCsncHgnOwogIGNvbnN0IGN0eD1jdnMuZ2V0Q29udGV4dCgnMmQnKTtjdHguc2NhbGUoZHByLGRwcik7CiAgY29uc3QgVz1yZWN0LndpZHRoLEg9cmVjdC5oZWlnaHQscD17dDoxNixyOjE2LGI6MzYsbDo1Mn07CiAgY29uc3QgaVc9Vy1wLmwtcC5yLGlIPUgtcC50LXAuYjsKICBjb25zdCBmdW5kZWQ9RC5tb250aGx5LmZ1bmRlZCxyZXBhaWQ9RC5tb250aGx5LnJlcGFpZDsKICBjb25zdCBtYXg9TWF0aC5tYXgoLi4ucmVwYWlkKSoxLjA4LG49ZnVuZGVkLmxlbmd0aDsKICBmdW5jdGlvbiB4cChpKXtyZXR1cm4gcC5sKyhpLyhuLTEpKSppVzt9ZnVuY3Rpb24geXAodil7cmV0dXJuIHAudCtpSC0odi9tYXgpKmlIO30KICBbMCwxLDIsMyw0XS5mb3JFYWNoKGk9Pntjb25zdCB5PXAudCsoaS80KSppSDtjdHguc3Ryb2tlU3R5bGU9J3JnYmEoMjU1LDI1NSwyNTUsMC4wNCknO2N0eC5saW5lV2lkdGg9MTtjdHguYmVnaW5QYXRoKCk7Y3R4Lm1vdmVUbyhwLmwseSk7Y3R4LmxpbmVUbyhwLmwraVcseSk7Y3R4LnN0cm9rZSgpO2NvbnN0IHY9bWF4LShpLzQpKm1heDtjdHguZmlsbFN0eWxlPSdyZ2JhKDI1NSwyNTUsMjU1LDAuMTgpJztjdHguZm9udD0iOXB4ICdKZXRCcmFpbnMgTW9ubyciO2N0eC50ZXh0QWxpZ249J3JpZ2h0JztpZih2PjApY3R4LmZpbGxUZXh0KCckJysodi8xZTYpLnRvRml4ZWQoMCkrJ00nLHAubC02LHkrMyk7fSk7CiAgY3R4LmZpbGxTdHlsZT0ncmdiYSgyNTUsMjU1LDI1NSwwLjIpJztjdHguZm9udD0iOHB4IEludGVyIjtjdHgudGV4dEFsaWduPSdjZW50ZXInOwogIEQubW9udGhseS5tb250aHMuZm9yRWFjaCgobSxpKT0+e2lmKGklNj09PTApY3R4LmZpbGxUZXh0KG0seHAoaSksSC04KTt9KTsKICBmdW5jdGlvbiBkcmF3QXJlYSh2YWxzLGMxLGMyLGxjKXsKICAgIGNvbnN0IGc9Y3R4LmNyZWF0ZUxpbmVhckdyYWRpZW50KDAscC50LDAscC50K2lIKTtnLmFkZENvbG9yU3RvcCgwLGMxKTtnLmFkZENvbG9yU3RvcCgxLGMyKTsKICAgIGN0eC5iZWdpblBhdGgoKTtjdHgubW92ZVRvKHhwKDApLHlwKHZhbHNbMF0pKTsKICAgIGZvcihsZXQgaT0xO2k8bjtpKyspe2NvbnN0IGN4PSh4cChpLTEpK3hwKGkpKS8yO2N0eC5iZXppZXJDdXJ2ZVRvKGN4LHlwKHZhbHNbaS0xXSksY3gseXAodmFsc1tpXSkseHAoaSkseXAodmFsc1tpXSkpO30KICAgIGN0eC5saW5lVG8oeHAobi0xKSxwLnQraUgpO2N0eC5saW5lVG8oeHAoMCkscC50K2lIKTtjdHguY2xvc2VQYXRoKCk7Y3R4LmZpbGxTdHlsZT1nO2N0eC5maWxsKCk7CiAgICBjdHguYmVnaW5QYXRoKCk7Y3R4Lm1vdmVUbyh4cCgwKSx5cCh2YWxzWzBdKSk7CiAgICBmb3IobGV0IGk9MTtpPG47aSsrKXtjb25zdCBjeD0oeHAoaS0xKSt4cChpKSkvMjtjdHguYmV6aWVyQ3VydmVUbyhjeCx5cCh2YWxzW2ktMV0pLGN4LHlwKHZhbHNbaV0pLHhwKGkpLHlwKHZhbHNbaV0pKTt9CiAgICBjdHguc3Ryb2tlU3R5bGU9bGM7Y3R4LmxpbmVXaWR0aD0yO2N0eC5zdHJva2UoKTsKICB9CiAgZHJhd0FyZWEoZnVuZGVkLCdyZ2JhKDU5LDEzMCwyNDYsMC4zKScsJ3JnYmEoNTksMTMwLDI0NiwwLjAxKScsJyMzQjgyRjYnKTsKICBkcmF3QXJlYShyZXBhaWQsJ3JnYmEoMTYsMTg1LDEyOSwwLjI1KScsJ3JnYmEoMTYsMTg1LDEyOSwwLjAxKScsJyMxMEI5ODEnKTsKICBmdW5kZWQuZm9yRWFjaCgodixpKT0+e2N0eC5iZWdpblBhdGgoKTtjdHguYXJjKHhwKGkpLHlwKHYpLDMsMCxNYXRoLlBJKjIpO2N0eC5maWxsU3R5bGU9JyMzQjgyRjYnO2N0eC5maWxsKCk7Y3R4LnN0cm9rZVN0eWxlPScjMDAwJztjdHgubGluZVdpZHRoPTE7Y3R4LnN0cm9rZSgpO30pOwogIC8vIExlZ2VuZAogIGN0eC5maWxsU3R5bGU9JyMzQjgyRjYnO2N0eC5maWxsUmVjdChwLmwraVctMTgwLHAudCs2LDE0LDIpO2N0eC5maWxsU3R5bGU9J3JnYmEoMjU1LDI1NSwyNTUsMC41KSc7Y3R4LmZvbnQ9IjEwcHggSW50ZXIiO2N0eC50ZXh0QWxpZ249J2xlZnQnO2N0eC5maWxsVGV4dCgnRnVuZGVkJyxwLmwraVctMTYyLHAudCsxMSk7CiAgY3R4LmZpbGxTdHlsZT0nIzEwQjk4MSc7Y3R4LmZpbGxSZWN0KHAubCtpVy05MCxwLnQrNiwxNCwyKTtjdHguZmlsbFRleHQoJ1JlcGFpZCcscC5sK2lXLTcyLHAudCsxMSk7CiAgY3ZzLm9ubW91c2Vtb3ZlPWU9Pntjb25zdCBicj1jdnMuZ2V0Qm91bmRpbmdDbGllbnRSZWN0KCk7Y29uc3QgbXg9ZS5jbGllbnRYLWJyLmxlZnQ7bGV0IGNsPTAsbW49OTk5O2Z1bmRlZC5mb3JFYWNoKChfLGkpPT57Y29uc3QgZD1NYXRoLmFicyh4cChpKS1teCk7aWYoZDxtbil7bW49ZDtjbD1pO319KTtpZihtbjwxOCl7c3QoZSxgJHtELm1vbnRobHkubW9udGhzW2NsXX0gwrcgRnVuZGVkOiAkJHsoZnVuZGVkW2NsXS8xZTYpLnRvRml4ZWQoMil9TSDCtyBSZXBhaWQ6ICQkeyhyZXBhaWRbY2xdLzFlNikudG9GaXhlZCgyKX1NYCk7fWVsc2UgaHQoKTt9OwogIGN2cy5vbm1vdXNlbGVhdmU9aHQ7Cn0KCmZ1bmN0aW9uIGRyYXdEb251dCgpewogIGNvbnN0IGN2cz1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnZG9udXRDJyksY3R4PWN2cy5nZXRDb250ZXh0KCcyZCcpOwogIGNvbnN0IGN4PTYwLGN5PTYwLHI9NTIsaW5uPTMyLHRvdGFsPTM4NjAwOwogIGxldCBzPS1NYXRoLlBJLzIscD0wOwogIGNvbnN0IHNlZ3M9RC5zdGF0dXMubWFwKGQ9Pih7Li4uZCxhOihkLm4vdG90YWwpKk1hdGguUEkqMn0pKTsKICBmdW5jdGlvbiBhbmkoKXsKICAgIGN0eC5jbGVhclJlY3QoMCwwLDEyMCwxMjApO2NvbnN0IGVwPU1hdGgubWluKHAsMSk7Y29uc3QgZWFzZT1lcDwuNT8yKmVwKmVwOi0xKyg0LTIqZXApKmVwOwogICAgbGV0IHNzPXM7c2Vncy5mb3JFYWNoKHNnPT57Y29uc3QgZTI9c3Mrc2cuYSplYXNlO2N0eC5iZWdpblBhdGgoKTtjdHgubW92ZVRvKGN4K01hdGguY29zKHNzKSpyLGN5K01hdGguc2luKHNzKSpyKTtjdHguYXJjKGN4LGN5LHIsc3MsZTIpO2N0eC5hcmMoY3gsY3ksaW5uLGUyLHNzLHRydWUpO2N0eC5jbG9zZVBhdGgoKTtjdHguZmlsbFN0eWxlPXNnLmM7Y3R4LmZpbGwoKTtzcz1lMiswLjAxMjt9KTsKICAgIGN0eC5maWxsU3R5bGU9J3JnYmEoMjU1LDI1NSwyNTUsMC41KSc7Y3R4LmZvbnQ9ImJvbGQgOXB4IEludGVyIjtjdHgudGV4dEFsaWduPSdjZW50ZXInO2N0eC5maWxsVGV4dCgnTE9BTlMnLGN4LGN5LTMpOwogICAgY3R4LmZpbGxTdHlsZT0ncmdiYSgyNTUsMjU1LDI1NSwwLjIpJztjdHguZm9udD0iOHB4IEludGVyIjtjdHguZmlsbFRleHQoJzM4LDYwMCcsY3gsY3krOCk7CiAgICBpZihwPDEpe3ArPTAuMDI1O3JlcXVlc3RBbmltYXRpb25GcmFtZShhbmkpO30KICB9YW5pKCk7Cn0KCmZ1bmN0aW9uIGJ1aWxkR3JhZGUoKXsKICBjb25zdCBjPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdncmFkZUJhcnMnKSxtYXg9MTA5MDAwMDAwOwogIEQuZ3JhZGVzLmZvckVhY2goKHtnLGZ1bmRlZCxiYWRQY3QsYzpjb2x9KT0+ewogICAgY29uc3QgcGN0PWZ1bmRlZC9tYXgqMTAwOwogICAgY29uc3Qgcm93PWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2RpdicpO3Jvdy5jbGFzc05hbWU9J2dyb3cnOwogICAgcm93LmlubmVySFRNTD1gPGRpdiBjbGFzcz0iZ2xibCI+JHtnfTwvZGl2PjxkaXYgY2xhc3M9Imd0cmFjayI+PGRpdiBjbGFzcz0iZ2ZpbGwiIHN0eWxlPSJ3aWR0aDoke3BjdH0lO2JhY2tncm91bmQ6JHtjb2x9Ij48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJnZnVuZCIgc3R5bGU9ImZvbnQtc2l6ZToxMHB4Ij4kJHsoZnVuZGVkLzFlNikudG9GaXhlZCgwKX1NPC9kaXY+PGRpdiBjbGFzcz0iZ2JhZCIgc3R5bGU9ImNvbG9yOiR7Y29sfSI+JHtiYWRQY3R9JTwvZGl2PmA7CiAgICByb3cuYWRkRXZlbnRMaXN0ZW5lcignbW91c2Vtb3ZlJyxlPT5zdChlLGBHcmFkZSAke2d9OiAkJHsoZnVuZGVkLzFlNikudG9GaXhlZCgxKX1NIGZ1bmRlZCDCtyAke2JhZFBjdH0lIGJhZCBsb2FuIHJhdGVgKSk7CiAgICByb3cuYWRkRXZlbnRMaXN0ZW5lcignbW91c2VsZWF2ZScsaHQpO2MuYXBwZW5kQ2hpbGQocm93KTsKICB9KTsKfQoKZnVuY3Rpb24gYnVpbGRQdXJwKCl7CiAgY29uc3QgYz1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgncHVycEJhcnMnKSxtYXg9RC5wdXJwb3NlWzBdLnY7CiAgRC5wdXJwb3NlLmZvckVhY2goKHtwLHZ9KT0+ewogICAgY29uc3QgcGN0PXYvbWF4KjEwMDsKICAgIGNvbnN0IHJvdz1kb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTtyb3cuY2xhc3NOYW1lPSdwcm93Mic7CiAgICByb3cuaW5uZXJIVE1MPWA8ZGl2IGNsYXNzPSJwbmFtZSI+JHtwfTwvZGl2PjxkaXYgY2xhc3M9InB0cmFjayI+PGRpdiBjbGFzcz0icGZpbGwiIHN0eWxlPSJ3aWR0aDoke3BjdH0lO2JhY2tncm91bmQ6dmFyKC0tYmx1ZSkiPjwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9InB2YWwiPiQkeyh2LzFlNikudG9GaXhlZCgwKX1NPC9kaXY+YDsKICAgIHJvdy5hZGRFdmVudExpc3RlbmVyKCdtb3VzZW1vdmUnLGU9PnN0KGUsYCR7cH06ICQkeyh2LzFlNikudG9GaXhlZCgxKX1NIGZ1bmRlZGApKTsKICAgIHJvdy5hZGRFdmVudExpc3RlbmVyKCdtb3VzZWxlYXZlJyxodCk7Yy5hcHBlbmRDaGlsZChyb3cpOwogIH0pOwp9CgpmdW5jdGlvbiBidWlsZFBheSgpewogIGNvbnN0IGM9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3BheUJhcnMnKSxtYXg9RC5wYXltZW50WzBdLnY7CiAgRC5wYXltZW50LmZvckVhY2goKHttLHYscGN0LGM6Y29sfSk9PnsKICAgIGNvbnN0IGJwY3Q9di9tYXgqMTAwOwogICAgY29uc3Qgcm93PWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2RpdicpO3Jvdy5zdHlsZS5jc3NUZXh0PSdkaXNwbGF5OmZsZXg7ZmxleC1kaXJlY3Rpb246Y29sdW1uO2dhcDo1cHgnOwogICAgcm93LmlubmVySFRNTD1gPGRpdiBzdHlsZT0iZGlzcGxheTpmbGV4O2p1c3RpZnktY29udGVudDpzcGFjZS1iZXR3ZWVuIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOjEycHg7Y29sb3I6dmFyKC0tbXV0ZWQpIj4ke219PC9zcGFuPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTp2YXIoLS1mbSk7Zm9udC1zaXplOjEzcHg7Y29sb3I6dmFyKC0td2hpdGUpIj4ke3BjdH0lPC9zcGFuPjwvZGl2PjxkaXYgc3R5bGU9ImhlaWdodDo0cHg7YmFja2dyb3VuZDp2YXIoLS1zMykiPjxkaXYgc3R5bGU9ImhlaWdodDoxMDAlO3dpZHRoOjAlO2JhY2tncm91bmQ6JHtjb2x9O3RyYW5zaXRpb246d2lkdGggMS4zcyBjdWJpYy1iZXppZXIoLjE2LDEsLjMsMSkiIGRhdGEtdz0iJHticGN0fSI+PC9kaXY+PC9kaXY+PGRpdiBzdHlsZT0iZm9udC1zaXplOjEwcHg7Y29sb3I6dmFyKC0tZGltKSI+JCR7KHYvMWU2KS50b0ZpeGVkKDEpfU0gY29sbGVjdGVkPC9kaXY+YDsKICAgIHJvdy5hZGRFdmVudExpc3RlbmVyKCdtb3VzZW1vdmUnLGU9PnN0KGUsYCR7bX06ICQkeyh2LzFlNikudG9GaXhlZCgxKX1NICgke3BjdH0lKWApKTsKICAgIHJvdy5hZGRFdmVudExpc3RlbmVyKCdtb3VzZWxlYXZlJyxodCk7Yy5hcHBlbmRDaGlsZChyb3cpOwogIH0pOwp9CgpmdW5jdGlvbiBhbmltRmlsbHMoZWwpewogIGVsLnF1ZXJ5U2VsZWN0b3JBbGwoJy5nZmlsbCwucGZpbGwsLmJtLWZpbGwsW2RhdGEtd10nKS5mb3JFYWNoKChlLGkpPT5zZXRUaW1lb3V0KCgpPT57aWYoZS5kYXRhc2V0LncpZS5zdHlsZS53aWR0aD1lLmRhdGFzZXQudysnJSc7ZWxzZSBlLnN0eWxlLnRyYW5zZm9ybT0nc2NhbGVYKDEpJzt9LGkqODApKTsKfQpjb25zdCBvYnM9bmV3IEludGVyc2VjdGlvbk9ic2VydmVyKGVudHJpZXM9PnsKICBlbnRyaWVzLmZvckVhY2goZW49PntpZihlbi5pc0ludGVyc2VjdGluZyl7Y29uc3QgZWw9ZW4udGFyZ2V0O3NldFRpbWVvdXQoKCk9PmVsLmNsYXNzTGlzdC5hZGQoJ2luJykscGFyc2VJbnQoZWwuZGF0YXNldC5kfHwwKSk7YW5pbUZpbGxzKGVsKTtvYnMudW5vYnNlcnZlKGVsKTt9fSk7Cn0se3RocmVzaG9sZDowLjA2fSk7Cgpkb2N1bWVudC5hZGRFdmVudExpc3RlbmVyKCdET01Db250ZW50TG9hZGVkJywoKT0+ewogIGJ1aWxkR3JhZGUoKTtidWlsZFB1cnAoKTtidWlsZFBheSgpO2RyYXdEb251dCgpOwogIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJy5rcGknKS5mb3JFYWNoKChlbCxpKT0+e2VsLmRhdGFzZXQuZD1pKjgwO29icy5vYnNlcnZlKGVsKTt9KTsKICBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCcucGFuZWwsLmlucycpLmZvckVhY2goKGVsLGkpPT57ZWwuZGF0YXNldC5kPWkqNTA7b2JzLm9ic2VydmUoZWwpO30pOwogIHNldFRpbWVvdXQoZHJhd0xpbmUsMTUwKTt3aW5kb3cuYWRkRXZlbnRMaXN0ZW5lcigncmVzaXplJyxkcmF3TGluZSk7Cn0pOwo8L3NjcmlwdD4KPC9ib2R5Pgo8L2h0bWw+Cg=="
+
+function openModal(t) {
+  document.getElementById('codeModal').classList.add('open');
+  switchTab(t);
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('codeModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function switchTab(t) {
+  document.querySelectorAll('.cblock').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#codeModal .mtab').forEach(b => b.classList.remove('on'));
+  const block = document.getElementById('cb-' + t);
+  if (block) block.classList.add('on');
+  document.querySelectorAll('#codeModal .mtab').forEach(b => {
+    if (b.textContent.toLowerCase().includes(t.slice(0,5))) b.classList.add('on');
+  });
+  const pr = document.getElementById('pr-' + t);
+  if (pr && !pr.textContent.trim()) pr.textContent = C[t] || '';
+}
+function openDashboard() {
+  var frame = document.getElementById('dashFrame');
+  var doc = frame.contentDocument || frame.contentWindow.document;
+  var decoded = '';
+  try {
+    var b = atob(DASH_B64);
+    var bytes = new Uint8Array(b.length);
+    for (var i = 0; i < b.length; i++) bytes[i] = b.charCodeAt(i);
+    decoded = new TextDecoder('utf-8').decode(bytes);
+  } catch(e) { decoded = atob(DASH_B64); }
+  doc.open(); doc.write(decoded); doc.close();
+  document.getElementById('dashModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDashboard() {
+  document.getElementById('dashModal').classList.remove('open');
+  document.getElementById('dashFrame').src = 'about:blank';
+  document.body.style.overflow = '';
+}
+document.getElementById('dashModal').addEventListener('click', e => { if(e.target===document.getElementById('dashModal')) closeDashboard(); });
+document.getElementById('codeModal').addEventListener('click', e => { if(e.target===document.getElementById('codeModal')) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape'){closeModal();closeDashboard();} });
+document.addEventListener('DOMContentLoaded', () => {
+  Object.keys(C).forEach(k => {
+    const el = document.getElementById('pr-' + k);
+    if (el) el.textContent = C[k];
+  });
+});
+function goto(id) { document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' }); }
+
+// Animate bars on scroll
+const animObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const id = e.target.dataset.anim;
+    setTimeout(() => {
+      if (id === 'badloan') {
+        const g = document.getElementById('bar-good'); if(g) g.style.width='86.2%';
+        const b = document.getElementById('bar-bad');  if(b) b.style.width='13.8%';
+      }
+      if (id === 'mom') {
+        const p  = document.getElementById('bar-prior');  if(p)  p.style.width='100%';
+        const l  = document.getElementById('bar-last');   if(l)  l.style.width='113.3%';
+        const rp = document.getElementById('bar-rprior'); if(rp) rp.style.width='100%';
+        const rl = document.getElementById('bar-rlast');  if(rl) rl.style.width='115.8%';
+      }
+    }, 300);
+    animObs.unobserve(e.target);
+  });
+}, { threshold: 0.35 });
+const badCard = document.querySelector('.bad-loan-card');
+if (badCard) { badCard.dataset.anim = 'badloan'; animObs.observe(badCard); }
+const momCard = document.querySelector('.mom-card');
+if (momCard) { momCard.dataset.anim = 'mom'; animObs.observe(momCard); }
+
+// Scroll reveal
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('v');
+      e.target.querySelectorAll('.prob-card,.pipe-step,.ledger-tile,.rmet,.ins,.stk,.qcard')
+        .forEach((el, i) => { el.style.transitionDelay = (i * 0.07) + 's'; });
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.07 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

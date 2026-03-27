@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Netflix Content Analytics — Om Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lora:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--r:#E50914;--rg:rgba(229,9,20,.1);--r2:#FF1E2D;--bg:#080808;--c1:#111;--c2:#181818;--tx:#F0EBE0;--m:#777;--d:#2e2e2e;--gold:#C9963A;--teal:#1ABCB4;--b:rgba(255,255,255,.07);--rw:296px;--fa:'Bebas Neue',sans-serif;--fs:'Lora',serif;--fb:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:var(--fb);font-size:14px;overflow-x:hidden;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--r);}
+.layout{display:flex;}
+.content{flex:1;min-width:0;padding-right:var(--rw);}
+.rpanel{width:var(--rw);position:fixed;top:0;right:0;bottom:0;background:var(--c1);border-left:1px solid var(--b);display:flex;flex-direction:column;z-index:60;overflow-y:auto;}
+.rp-top{padding:24px 20px;border-bottom:1px solid var(--b);}
+.rp-mark{width:38px;height:38px;background:var(--r);display:flex;align-items:center;justify-content:center;font-family:var(--fa);font-size:18px;margin-bottom:12px;}
+.rp-name{font-family:var(--fa);font-size:15px;letter-spacing:2px;}
+.rp-role{font-size:12px;color:var(--m);margin-top:2px;}
+.rp-badge{padding:16px 20px;border-bottom:1px solid var(--b);}
+.rp-badge-tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--r);margin-bottom:6px;font-family:var(--fa);}
+.rp-badge-title{font-family:var(--fs);font-size:16px;font-style:italic;color:var(--tx);line-height:1.4;}
+.rp-sec{padding:14px 20px;border-bottom:1px solid var(--b);}
+.rp-sec-lbl{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--m);margin-bottom:11px;font-family:var(--fa);}
+.rbtn{display:flex;align-items:center;gap:10px;width:100%;padding:12px 13px;border:1px solid var(--b);background:transparent;color:var(--tx);font-family:var(--fb);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;margin-bottom:7px;text-decoration:none;}
+.rbtn:last-child{margin-bottom:0;}
+.rbtn:hover{border-color:var(--r);background:var(--rg);}
+.rbtn.primary{background:var(--r);border-color:var(--r);font-weight:600;}
+.rbtn.primary:hover{background:var(--r2);}
+.rbtn .ri{width:26px;height:26px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.rbtn .rt{flex:1;text-align:left;font-size:13px;}
+.rbtn .ra{font-size:10px;color:var(--m);flex-shrink:0;}
+.rp-stats{padding:14px 20px;}
+.rs-row{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--d);}
+.rs-row:last-child{border-bottom:none;}
+.rs-label{font-size:11px;color:var(--m);}
+.rs-val{font-family:var(--fa);font-size:20px;letter-spacing:.5px;}
+.rs-val.r{color:var(--r);}
+.rs-val.g{color:var(--gold);}
+.rs-val.t{color:var(--teal);}
+nav{position:sticky;top:0;z-index:40;background:rgba(8,8,8,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--b);padding:0 44px;height:60px;display:flex;align-items:center;gap:20px;}
+.nlogo{font-family:var(--fa);font-size:19px;letter-spacing:3px;}
+.nlogo span{color:var(--r);}
+.ndiv{width:1px;height:14px;background:var(--d);}
+.nlinks{display:flex;gap:18px;}
+.nlink{font-size:13px;color:var(--m);cursor:pointer;transition:color .2s;background:none;border:none;font-family:var(--fb);}
+.nlink:hover{color:var(--tx);}
+.nperiod{margin-left:auto;font-family:var(--fm);font-size:11px;color:var(--d);letter-spacing:1px;}
+.hero{padding:68px 44px 56px;position:relative;overflow:hidden;border-bottom:1px solid var(--b);}
+.hero::before{content:'';position:absolute;top:-80px;left:-120px;width:560px;height:560px;background:radial-gradient(circle,rgba(229,9,20,.06) 0%,transparent 65%);pointer-events:none;}
+.htag{font-family:var(--fa);font-size:11px;letter-spacing:4px;color:var(--r);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.htag::before{content:'';display:block;width:20px;height:1.5px;background:var(--r);}
+.htitle{font-family:var(--fa);font-size:clamp(56px,7vw,100px);line-height:.92;letter-spacing:1px;margin-bottom:16px;}
+.htitle span{display:block;font-family:var(--fs);font-style:italic;font-size:clamp(26px,3.5vw,48px);font-weight:400;color:var(--m);}
+.hdesc{font-size:17px;line-height:1.75;color:var(--m);max-width:560px;font-weight:300;margin-bottom:40px;}
+.hstats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--b);}
+.hs{padding:18px 20px;border-right:1px solid var(--b);}
+.hs:last-child{border-right:none;}
+.hs-val{font-family:var(--fa);font-size:42px;letter-spacing:-1px;line-height:1;margin-bottom:3px;}
+.hs-val em{font-size:16px;color:var(--m);font-style:normal;}
+.hs-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--m);}
+.sec{padding:64px 44px;border-bottom:1px solid var(--b);}
+.sec-eye{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.se-n{font-family:var(--fm);font-size:14px;color:var(--m);letter-spacing:1px;}
+.se-line{width:22px;height:2px;background:var(--r);}
+.se-text{font-size:15px;letter-spacing:4px;text-transform:uppercase;color:var(--r);font-family:var(--fa);font-weight:400;}
+.sec-h{font-family:var(--fs);font-size:clamp(36px,4vw,60px);font-weight:700;line-height:1.0;margin-bottom:44px;}
+.sec-h em{font-style:italic;color:var(--r);}
+.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--b);}
+.prob{background:var(--c1);padding:24px;display:flex;gap:14px;transition:background .2s;}
+.prob:hover{background:var(--c2);}
+.prob-ico{width:40px;height:40px;border:1px solid rgba(229,9,20,.2);background:var(--rg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.prob-h{font-size:14px;font-weight:600;margin-bottom:5px;}
+.prob-p{font-size:13px;color:var(--m);line-height:1.6;}
+.pipe{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:stretch;gap:0;margin-bottom:36px;}
+.pipe-step{background:var(--c1);border:1px solid var(--b);border-right:none;padding:22px 18px;transition:all .25s;}
+.pipe-step:last-child{border-right:1px solid var(--b);}
+.pipe-step:hover{background:var(--c2);border-color:rgba(229,9,20,.25);}
+.ps-num{font-family:var(--fa);font-size:36px;color:rgba(255,255,255,.04);line-height:1;margin-bottom:10px;}
+.ps-icon{font-size:20px;margin-bottom:8px;}
+.ps-title{font-family:var(--fa);font-size:16px;letter-spacing:1px;margin-bottom:6px;}
+.ps-body{font-size:12px;color:var(--m);line-height:1.6;}
+.ps-tools{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;}
+.pt{font-family:var(--fm);font-size:8px;padding:2px 6px;border:1px solid var(--d);color:var(--d);}
+.parrow{display:flex;align-items:center;padding:0 4px;color:var(--d);font-size:12px;align-self:center;flex-shrink:0;}
+.stack-row{display:flex;flex-wrap:wrap;gap:8px;}
+.stk{display:flex;align-items:center;gap:8px;background:var(--c1);border:1px solid var(--b);padding:10px 14px;transition:border-color .2s;}
+.stk:hover{border-color:var(--r);}
+.stk-ico{font-size:16px;}
+.stk-name{font-size:13px;font-weight:500;}
+.stk-role{font-size:11px;color:var(--m);}
+.schema-box{background:var(--c1);border:1px solid var(--b);padding:28px;margin-bottom:36px;}
+.schema-svg{width:100%;height:auto;}
+.qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.qcard{background:var(--c1);border:1px solid var(--b);padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.qcard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--qc,var(--r));transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.qcard:hover{background:var(--c2);}
+.qcard:hover::after{transform:scaleX(1);}
+.qc-num{font-family:var(--fa);font-size:28px;color:rgba(255,255,255,.04);line-height:1;margin-bottom:8px;}
+.qc-cat{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--qc,var(--r));font-family:var(--fa);margin-bottom:5px;}
+.qc-title{font-size:13px;font-weight:600;margin-bottom:4px;}
+.qc-desc{font-size:11px;color:var(--m);line-height:1.5;}
+.qc-fn{font-family:var(--fm);font-size:10px;color:var(--d);margin-top:9px;}
+.res-big{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--b);margin-bottom:16px;}
+.rb{background:var(--c1);padding:24px 20px;}
+.rb-lbl{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--m);font-family:var(--fa);margin-bottom:7px;}
+.rb-val{font-family:var(--fa);font-size:clamp(38px,4vw,60px);letter-spacing:-1px;line-height:1;margin-bottom:5px;}
+.rb-desc{font-size:13px;color:var(--d);line-height:1.5;}
+.ins-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ins{background:var(--c1);border-left:2px solid var(--ic,var(--r));padding:18px 20px;}
+.ins-cat{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--ic,var(--r));font-family:var(--fa);margin-bottom:8px;}
+.ins-body{font-size:13px;color:var(--m);line-height:1.7;}
+.ins-body strong{color:var(--tx);font-weight:500;}
+footer{padding:28px 44px;display:flex;justify-content:space-between;}
+.ft{font-family:var(--fm);font-size:11px;letter-spacing:1.5px;color:var(--d);}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.v{opacity:1;transform:none;}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal.open{opacity:1;pointer-events:all;}
+.mbox{background:var(--c1);border:1px solid var(--b);width:90%;max-width:960px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;}
+.mhead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--b);flex-shrink:0;gap:10px;}
+.mtabs{display:flex;gap:2px;flex-wrap:wrap;}
+.mtab{padding:5px 12px;font-size:11px;font-family:var(--fa);letter-spacing:1px;cursor:pointer;border:none;background:transparent;color:var(--m);transition:all .15s;}
+.mtab.on,.mtab:hover{background:var(--r);color:#fff;}
+.mclose{background:none;border:none;color:var(--m);font-size:22px;cursor:pointer;line-height:1;flex-shrink:0;}
+.mclose:hover{color:var(--tx);}
+.mbody{overflow-y:auto;flex:1;}
+.cblock{padding:18px 20px;display:none;}
+.cblock.on{display:block;}
+pre{font-family:var(--fm);font-size:11px;line-height:1.75;color:#bbb;white-space:pre;overflow-x:auto;}
+</style>
+</head>
+<body>
+<div class="layout">
+<div class="content">
+<nav>
+  <div class="nlogo"><span>NETFLIX</span> ANALYTICS</div>
+  <div class="ndiv"></div>
+  <div class="nlinks">
+    <button class="nlink" onclick="goto('#problem')">Problem</button>
+    <button class="nlink" onclick="goto('#approach')">Approach</button>
+    <button class="nlink" onclick="goto('#schema')">Schema</button>
+    <button class="nlink" onclick="goto('#queries')">Queries</button>
+    <button class="nlink" onclick="goto('#results')">Results</button>
+  </div>
+  <div class="nperiod">MAY 2025 – JUN 2025</div>
+</nav>
+<div class="hero">
+  <div class="htag">Product Analytics · End-to-End</div>
+  <h1 class="htitle">NETFLIX CONTENT<span>Analytics Dashboard</span></h1>
+  <p class="hdesc">Analyzed 7,000+ titles in MySQL with 15+ advanced queries. Built Power BI dashboards with DAX, cross-filtering &amp; drill-downs across 190+ countries.</p>
+  <div class="hstats">
+    <div class="hs"><div class="hs-val">8,807<em> titles</em></div><div class="hs-label">Catalog Analyzed</div></div>
+    <div class="hs"><div class="hs-val">20<em>+ queries</em></div><div class="hs-label">SQL Written</div></div>
+    <div class="hs"><div class="hs-val">190<em>+</em></div><div class="hs-label">Countries</div></div>
+    <div class="hs"><div class="hs-val">~60<em>%</em></div><div class="hs-label">Faster Retrieval</div></div>
+  </div>
+</div>
+<div class="sec" id="problem">
+  <div class="sec-eye"><span class="se-n">01</span><div class="se-line"></div><span class="se-text">The Problem</span></div>
+  <h2 class="sec-h reveal">No unified view of a <em>global catalog</em></h2>
+  <div class="prob-grid reveal">
+    <div class="prob"><div class="prob-ico">🌍</div><div><div class="prob-h">Inconsistent country names</div><div class="prob-p">"USA", "U.S.A.", "United States" — 3 variants, 1 country. Distorting geo-insights by 35%</div></div></div>
+    <div class="prob"><div class="prob-ico">🏷️</div><div><div class="prob-h">Multi-value genre fields</div><div class="prob-p">Genres as comma-separated strings. Impossible to GROUP BY or aggregate accurately in SQL</div></div></div>
+    <div class="prob"><div class="prob-ico">📊</div><div><div class="prob-h">No KPI visibility</div><div class="prob-p">Zero consolidated view on catalog size, genre mix, release trends, or content gaps across regions</div></div></div>
+    <div class="prob"><div class="prob-ico">⚡</div><div><div class="prob-h">Slow dashboard loads</div><div class="prob-p">No pre-aggregated tables or indexes — Power BI running on raw joins, every visual slow to respond</div></div></div>
+  </div>
+</div>
+<div class="sec" id="approach">
+  <div class="sec-eye"><span class="se-n">02</span><div class="se-line"></div><span class="se-text">Approach</span></div>
+  <h2 class="sec-h reveal">4-step end-to-end <em>pipeline</em></h2>
+  <div class="pipe reveal">
+    <div class="pipe-step"><div class="ps-num">01</div><div class="ps-icon">🗄️</div><div class="ps-title">SCHEMA DESIGN</div><div class="ps-body">Star schema in MySQL — normalized tables with bridge tables for many-to-many genre &amp; country relationships</div><div class="ps-tools"><span class="pt">MySQL</span><span class="pt">Star Schema</span><span class="pt">Indexes</span></div></div>
+    <div class="parrow">▶</div>
+    <div class="pipe-step"><div class="ps-num">02</div><div class="ps-icon">🧹</div><div class="ps-title">DATA CLEANING</div><div class="ps-body">TRIM, STR_TO_DATE, SUBSTRING_INDEX to split multi-values. Normalized 15+ country name variants</div><div class="ps-tools"><span class="pt">TRIM()</span><span class="pt">CASE WHEN</span><span class="pt">COALESCE</span></div></div>
+    <div class="parrow">▶</div>
+    <div class="pipe-step"><div class="ps-num">03</div><div class="ps-icon">🔍</div><div class="ps-title">SQL ANALYSIS</div><div class="ps-body">20 queries — genre mix, release trends, content gaps, YoY growth, director analysis, regional breakdowns</div><div class="ps-tools"><span class="pt">LAG()</span><span class="pt">RANK()</span><span class="pt">CTE</span><span class="pt">HAVING</span></div></div>
+    <div class="parrow">▶</div>
+    <div class="pipe-step"><div class="ps-num">04</div><div class="ps-icon">📈</div><div class="ps-title">POWER BI + DAX</div><div class="ps-body">4 interactive visuals, 15+ DAX measures, cross-filtering, Continent → Country → Genre drill-down</div><div class="ps-tools"><span class="pt">DAX</span><span class="pt">Cross-filter</span><span class="pt">Drill-down</span></div></div>
+  </div>
+  <div class="stack-row reveal">
+    <div class="stk"><div class="stk-ico">🗄️</div><div><div class="stk-name">MySQL 8.0</div><div class="stk-role">Database · Schema · Queries</div></div></div>
+    <div class="stk"><div class="stk-ico">📊</div><div><div class="stk-name">Power BI</div><div class="stk-role">Dashboard · Visualization</div></div></div>
+    <div class="stk"><div class="stk-ico">📐</div><div><div class="stk-name">DAX</div><div class="stk-role">KPIs · Measures · Hierarchy</div></div></div>
+    <div class="stk"><div class="stk-ico">📁</div><div><div class="stk-name">Star Schema</div><div class="stk-role">Data Modeling</div></div></div>
+    <div class="stk"><div class="stk-ico">🌐</div><div><div class="stk-name">HTML Dashboard</div><div class="stk-role">Portfolio Showcase</div></div></div>
+  </div>
+</div>
+<div class="sec" id="schema">
+  <div class="sec-eye"><span class="se-n">03</span><div class="se-line"></div><span class="se-text">Data Model</span></div>
+  <h2 class="sec-h reveal">Star schema — <em>normalized for speed</em></h2>
+  <div class="schema-box reveal">
+    <svg class="schema-svg" viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;">
+      <rect x="240" y="100" width="200" height="100" rx="3" fill="#181818" stroke="#E50914" stroke-width="1.5"/>
+      <rect x="240" y="100" width="200" height="22" rx="3" fill="#E50914"/>
+      <rect x="240" y="119" width="200" height="3" fill="#E50914"/>
+      <text x="340" y="115" fill="#fff" font-size="11" font-weight="600" text-anchor="middle" dominant-baseline="middle">content</text>
+      <text x="252" y="140" fill="#666" font-size="9">show_id · title · type · director</text>
+      <text x="252" y="154" fill="#666" font-size="9">release_year · rating · duration</text>
+      <text x="252" y="168" fill="#666" font-size="9">date_added · description</text>
+      <text x="340" y="190" fill="#444" font-size="8" text-anchor="middle">★ FACT TABLE</text>
+      <rect x="20" y="20" width="148" height="70" rx="3" fill="#181818" stroke="#2e2e2e" stroke-width="1"/>
+      <rect x="20" y="20" width="148" height="20" rx="3" fill="#1e1e1e"/>
+      <text x="94" y="33" fill="#999" font-size="10" font-weight="600" text-anchor="middle" dominant-baseline="middle">genre</text>
+      <text x="30" y="56" fill="#555" font-size="8">genre_id  INT PK</text>
+      <text x="30" y="68" fill="#555" font-size="8">genre_name  VARCHAR(100)</text>
+      <rect x="20" y="130" width="155" height="60" rx="3" fill="#0e0e0e" stroke="#222" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="97" y="155" fill="#333" font-size="9" font-weight="500" text-anchor="middle" dominant-baseline="middle">content_genre</text>
+      <text x="30" y="172" fill="#2a2a2a" font-size="8">content_id · genre_id · PK(both)</text>
+      <text x="97" y="183" fill="#222" font-size="7" text-anchor="middle">BRIDGE TABLE</text>
+      <rect x="512" y="20" width="148" height="70" rx="3" fill="#181818" stroke="#2e2e2e" stroke-width="1"/>
+      <rect x="512" y="20" width="148" height="20" rx="3" fill="#1e1e1e"/>
+      <text x="586" y="33" fill="#999" font-size="10" font-weight="600" text-anchor="middle" dominant-baseline="middle">country</text>
+      <text x="522" y="56" fill="#555" font-size="8">country_id  INT PK</text>
+      <text x="522" y="68" fill="#555" font-size="8">country_name  VARCHAR(100)</text>
+      <rect x="505" y="130" width="160" height="60" rx="3" fill="#0e0e0e" stroke="#222" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="585" y="155" fill="#333" font-size="9" font-weight="500" text-anchor="middle" dominant-baseline="middle">content_country</text>
+      <text x="515" y="172" fill="#2a2a2a" font-size="8">content_id · country_id · PK(both)</text>
+      <text x="585" y="183" fill="#222" font-size="7" text-anchor="middle">BRIDGE TABLE</text>
+      <rect x="60" y="240" width="180" height="44" rx="3" fill="#0a0a0a" stroke="#1a1a1a" stroke-width="1"/>
+      <text x="150" y="259" fill="#2a2a2a" font-size="8" text-anchor="middle">summary_genre_distribution</text>
+      <text x="150" y="272" fill="#222" font-size="7" text-anchor="middle">PRE-AGGREGATED → Power BI speed</text>
+      <rect x="440" y="240" width="180" height="44" rx="3" fill="#0a0a0a" stroke="#1a1a1a" stroke-width="1"/>
+      <text x="530" y="259" fill="#2a2a2a" font-size="8" text-anchor="middle">summary_country_content</text>
+      <text x="530" y="272" fill="#222" font-size="7" text-anchor="middle">PRE-AGGREGATED → Power BI speed</text>
+      <rect x="215" y="240" width="250" height="44" rx="3" fill="#0a0a0a" stroke="rgba(229,9,20,.25)" stroke-width="1"/>
+      <text x="340" y="259" fill="#444" font-size="9" text-anchor="middle">vw_netflix_flat</text>
+      <text x="340" y="272" fill="#2a2a2a" font-size="7" text-anchor="middle">DENORMALIZED VIEW — direct Power BI connect</text>
+      <line x1="94" y1="90" x2="94" y2="130" stroke="#2e2e2e" stroke-width="1"/><circle cx="94" cy="90" r="2.5" fill="#2e2e2e"/>
+      <line x1="175" y1="160" x2="240" y2="152" stroke="#E50914" stroke-width="1.5" stroke-dasharray="4,3" opacity=".6"/>
+      <line x1="586" y1="90" x2="586" y2="130" stroke="#2e2e2e" stroke-width="1"/><circle cx="586" cy="90" r="2.5" fill="#2e2e2e"/>
+      <line x1="505" y1="160" x2="440" y2="152" stroke="#E50914" stroke-width="1.5" stroke-dasharray="4,3" opacity=".6"/>
+      <line x1="290" y1="200" x2="200" y2="240" stroke="#1e1e1e" stroke-width="1" stroke-dasharray="3,4"/>
+      <line x1="390" y1="200" x2="490" y2="240" stroke="#1e1e1e" stroke-width="1" stroke-dasharray="3,4"/>
+      <line x1="340" y1="200" x2="340" y2="240" stroke="rgba(229,9,20,.2)" stroke-width="1" stroke-dasharray="3,3"/>
+    </svg>
+  </div>
+</div>
+<div class="sec" id="queries">
+  <div class="sec-eye"><span class="se-n">04</span><div class="se-line"></div><span class="se-text">SQL Queries</span></div>
+  <h2 class="sec-h reveal">20 queries — <em>5 analytical themes</em></h2>
+  <div class="qgrid reveal">
+    <div class="qcard" style="--qc:#E50914" onclick="openModal('queries')"><div class="qc-num">01–03</div><div class="qc-cat">Content Overview</div><div class="qc-title">Catalog KPIs &amp; YoY Trends</div><div class="qc-desc">Total titles split, year-over-year additions, monthly seasonal patterns</div><div class="qc-fn">SUM() · COUNT() · OVER()</div></div>
+    <div class="qcard" style="--qc:#C9963A" onclick="openModal('queries')"><div class="qc-num">04–07</div><div class="qc-cat">Genre Analysis</div><div class="qc-title">Genre Mix &amp; Co-occurrence</div><div class="qc-desc">Top 15 genres, YoY growth with LAG(), multi-genre pairs via Self-JOIN</div><div class="qc-fn">LAG() · HAVING · Self-JOIN</div></div>
+    <div class="qcard" style="--qc:#1ABCB4" onclick="openModal('queries')"><div class="qc-num">08–11</div><div class="qc-cat">Regional Analysis</div><div class="qc-title">Country &amp; Content Gaps</div><div class="qc-desc">Top 20 countries, content gap analysis, genre per country ranking</div><div class="qc-fn">RANK() OVER · CROSS JOIN · EXISTS</div></div>
+    <div class="qcard" style="--qc:#E50914" onclick="openModal('queries')"><div class="qc-num">12–14</div><div class="qc-cat">Ratings &amp; Duration</div><div class="qc-title">Audience Maturity &amp; Runtime</div><div class="qc-desc">Rating distribution, avg movie duration over years, season counts</div><div class="qc-fn">AVG() · MIN() · MAX() · GROUP BY</div></div>
+    <div class="qcard" style="--qc:#C9963A" onclick="openModal('queries')"><div class="qc-num">15–16</div><div class="qc-cat">Director Insights</div><div class="qc-title">Prolific Directors</div><div class="qc-desc">Top directors by volume, genre specialization, career timeline</div><div class="qc-fn">GROUP_CONCAT · HAVING · JOIN</div></div>
+    <div class="qcard" style="--qc:#1ABCB4" onclick="openModal('queries')"><div class="qc-num">17–20</div><div class="qc-cat">Advanced Analytics</div><div class="qc-title">Content Strategy &amp; KPIs</div><div class="qc-desc">Catalog freshness, movie-to-show ratio, LEAD/LAG acceleration, exec summary</div><div class="qc-fn">LEAD() · LAG() · NULLIF() · CTE</div></div>
+  </div>
+</div>
+<div class="sec" id="results">
+  <div class="sec-eye"><span class="se-n">05</span><div class="se-line"></div><span class="se-text">Results</span></div>
+  <h2 class="sec-h reveal">Insights that <em>move strategy</em></h2>
+  <div class="res-big reveal">
+    <div class="rb"><div class="rb-lbl">Data Retrieval Speed</div><div class="rb-val" style="color:var(--r)">~60%</div><div class="rb-desc">Faster via pre-aggregated summary tables &amp; indexed star schema</div></div>
+    <div class="rb"><div class="rb-lbl">Geo-Insight Accuracy</div><div class="rb-val" style="color:var(--gold)">+35%</div><div class="rb-desc">After fixing regional inconsistencies via SQL normalization + DAX</div></div>
+    <div class="rb"><div class="rb-lbl">Countries Covered</div><div class="rb-val" style="color:var(--teal)">190+</div><div class="rb-desc">Real-time insights with Continent → Country → Genre drill-down</div></div>
+  </div>
+  <div class="ins-grid reveal">
+    <div class="ins" style="--ic:var(--r)"><div class="ins-cat">Genre Insight</div><div class="ins-body"><strong>International Movies (2,752) &amp; Dramas (2,427)</strong> dominate — confirming Netflix's deliberate global-first content acquisition strategy.</div></div>
+    <div class="ins" style="--ic:var(--gold)"><div class="ins-cat">Trend Insight</div><div class="ins-body">Peak acquisition was <strong>2016–2018</strong>. Post-2019, TV Shows grew as Movies declined — a pivot toward serialized, long-form engagement content.</div></div>
+    <div class="ins" style="--ic:var(--teal)"><div class="ins-cat">Rating Insight</div><div class="ins-body"><strong>TV-MA accounts for 36.4%</strong> of catalog — the highest rating — confirming Netflix's mature-audience skew as a core positioning choice.</div></div>
+    <div class="ins" style="--ic:var(--r)"><div class="ins-cat">Gap Insight</div><div class="ins-body">Africa &amp; Southeast Asia show <strong>major content gaps</strong> — countries with under 10 titles — surfacing concrete expansion opportunities.</div></div>
+  </div>
+</div>
+<footer><div class="ft">OM KUMAR · IIT DELHI · PRODUCT ANALYTICS 2025</div><div class="ft">NETFLIX CONTENT ANALYTICS</div></footer>
+</div>
+
+<div class="rpanel">
+  <div class="rp-top"><div class="rp-mark">OK</div><div class="rp-name">OM KUMAR</div><div class="rp-role">IIT Delhi · Product Analytics</div></div>
+  <div class="rp-badge"><div class="rp-badge-tag">Project 01 · May–Jun 2025</div><div class="rp-badge-title">Netflix Content<br>Analytics Dashboard</div></div>
+  <div class="rp-sec">
+    <div class="rp-sec-lbl">Live Dashboard</div>
+    <button class="rbtn primary" onclick="openDashboard()"><div class="ri">📊</div><div class="rt">Open Dashboard</div><div class="ra">↗</div></button>
+  </div>
+  <div class="rp-sec">
+    <div class="rp-sec-lbl">Source Code</div>
+    <button class="rbtn" onclick="openModal('schema')"><div class="ri">🗄️</div><div class="rt">01 — Schema SQL</div><div class="ra">›</div></button>
+    <button class="rbtn" onclick="openModal('cleaning')"><div class="ri">🧹</div><div class="rt">02 — Data Cleaning SQL</div><div class="ra">›</div></button>
+    <button class="rbtn" onclick="openModal('queries')"><div class="ri">🔍</div><div class="rt">03 — Analysis Queries (20)</div><div class="ra">›</div></button>
+    <button class="rbtn" onclick="openModal('dax')"><div class="ri">📐</div><div class="rt">04 — DAX Measures (15+)</div><div class="ra">›</div></button>
+  </div>
+  <div class="rp-stats">
+    <div class="rp-sec-lbl" style="margin-bottom:10px;">Project Stats</div>
+    <div class="rs-row"><span class="rs-label">Titles Analyzed</span><span class="rs-val">8,807</span></div>
+    <div class="rs-row"><span class="rs-label">SQL Queries</span><span class="rs-val r">20</span></div>
+    <div class="rs-row"><span class="rs-label">DAX Measures</span><span class="rs-val g">15+</span></div>
+    <div class="rs-row"><span class="rs-label">Countries</span><span class="rs-val t">190+</span></div>
+    <div class="rs-row"><span class="rs-label">Speed Gain</span><span class="rs-val">~60%</span></div>
+    <div class="rs-row"><span class="rs-label">Accuracy Gain</span><span class="rs-val">+35%</span></div>
+    <div class="rs-row"><span class="rs-label">Dashboards Built</span><span class="rs-val">3</span></div>
+    <div class="rs-row"><span class="rs-label">BI Tool</span><span class="rs-val r">Power BI</span></div>
+  </div>
+</div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="mbox">
+    <div class="mhead">
+      <div class="mtabs">
+        <button class="mtab on" onclick="tab('schema')">01 Schema</button>
+        <button class="mtab" onclick="tab('cleaning')">02 Cleaning</button>
+        <button class="mtab" onclick="tab('queries')">03 Queries</button>
+        <button class="mtab" onclick="tab('dax')">04 DAX</button>
+      </div>
+      <button class="mclose" onclick="closeModal()">×</button>
+    </div>
+    <div class="mbody">
+      <div class="cblock on" id="cb-schema"><pre id="pr-schema"></pre></div>
+      <div class="cblock" id="cb-cleaning"><pre id="pr-cleaning"></pre></div>
+      <div class="cblock" id="cb-queries"><pre id="pr-queries"></pre></div>
+      <div class="cblock" id="cb-dax"><pre id="pr-dax"></pre></div>
+    </div>
+  </div>
+</div>
+<script>
+const C={schema:`-- ============================================================
+-- Netflix Content Analytics | Schema Setup
+-- Author: Om Kumar
+-- Description: Creates a normalized star-schema-like model
+--              for the Netflix catalog dataset (8,800+ titles)
+-- ============================================================
+
+CREATE DATABASE IF NOT EXISTS netflix_analytics;
+USE netflix_analytics;
+
+-- ─────────────────────────────────────────
+-- 1. RAW STAGING TABLE  (import CSV here first)
+-- ─────────────────────────────────────────
+DROP TABLE IF EXISTS raw_netflix_titles;
+
+CREATE TABLE raw_netflix_titles (
+    show_id      VARCHAR(10),
+    type         VARCHAR(20),
+    title        VARCHAR(300),
+    director     VARCHAR(500),
+    cast         TEXT,
+    country      VARCHAR(500),
+    date_added   VARCHAR(50),
+    release_year INT,
+    rating       VARCHAR(20),
+    duration     VARCHAR(20),
+    listed_in    VARCHAR(300),
+    description  TEXT
+);
+
+-- Load CSV (update path as needed):
+-- LOAD DATA INFILE '/path/to/netflix_titles.csv'
+-- INTO TABLE raw_netflix_titles
+-- FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+-- LINES TERMINATED BY '\\n'
+-- IGNORE 1 ROWS;
+
+
+-- ─────────────────────────────────────────
+-- 2. NORMALIZED DIMENSION TABLES
+-- ─────────────────────────────────────────
+
+DROP TABLE IF EXISTS content_genre;
+DROP TABLE IF EXISTS content_country;
+DROP TABLE IF EXISTS content;
+DROP TABLE IF EXISTS genre;
+DROP TABLE IF EXISTS country;
+
+CREATE TABLE content (
+    content_id     INT AUTO_INCREMENT PRIMARY KEY,
+    show_id        VARCHAR(10) UNIQUE NOT NULL,
+    type           ENUM('Movie','TV Show') NOT NULL,
+    title          VARCHAR(300) NOT NULL,
+    director       VARCHAR(500),
+    release_year   YEAR,
+    rating         VARCHAR(20),
+    duration_raw   VARCHAR(20),
+    duration_value INT,
+    duration_unit  VARCHAR(20),
+    date_added     DATE,
+    description    TEXT,
+    INDEX idx_type         (type),
+    INDEX idx_release_year (release_year),
+    INDEX idx_rating       (rating),
+    INDEX idx_date_added   (date_added)
+);
+
+CREATE TABLE genre (
+    genre_id   INT AUTO_INCREMENT PRIMARY KEY,
+    genre_name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE country (
+    country_id   INT AUTO_INCREMENT PRIMARY KEY,
+    country_name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE content_genre (
+    content_id INT NOT NULL,
+    genre_id   INT NOT NULL,
+    PRIMARY KEY (content_id, genre_id),
+    FOREIGN KEY (content_id) REFERENCES content(content_id),
+    FOREIGN KEY (genre_id)   REFERENCES genre(genre_id),
+    INDEX idx_cg_genre   (genre_id),
+    INDEX idx_cg_content (content_id)
+);
+
+CREATE TABLE content_country (
+    content_id INT NOT NULL,
+    country_id INT NOT NULL,
+    PRIMARY KEY (content_id, country_id),
+    FOREIGN KEY (content_id) REFERENCES content(content_id),
+    FOREIGN KEY (country_id) REFERENCES country(country_id),
+    INDEX idx_cc_country (country_id),
+    INDEX idx_cc_content (content_id)
+);
+
+
+-- ─────────────────────────────────────────
+-- 3. PRE-AGGREGATED SUMMARY TABLES
+-- ─────────────────────────────────────────
+
+DROP TABLE IF EXISTS summary_genre_distribution;
+CREATE TABLE summary_genre_distribution (
+    genre_name  VARCHAR(100),
+    total_count INT,
+    movie_count INT,
+    show_count  INT
+);
+
+DROP TABLE IF EXISTS summary_country_content;
+CREATE TABLE summary_country_content (
+    country_name VARCHAR(100),
+    total_count  INT,
+    movie_count  INT,
+    show_count   INT
+);
+
+DROP TABLE IF EXISTS summary_yearly_additions;
+CREATE TABLE summary_yearly_additions (
+    release_year INT,
+    total_added  INT,
+    movies_added INT,
+    shows_added  INT
+);
+
+DROP TABLE IF EXISTS summary_country_genre_matrix;
+CREATE TABLE summary_country_genre_matrix (
+    country_name VARCHAR(100),
+    genre_name   VARCHAR(100),
+    title_count  INT,
+    PRIMARY KEY (country_name, genre_name)
+);
+
+
+-- ─────────────────────────────────────────
+-- 4. DENORMALIZED FLAT VIEW (for Power BI)
+-- ─────────────────────────────────────────
+
+DROP VIEW IF EXISTS vw_netflix_flat;
+CREATE VIEW vw_netflix_flat AS
+SELECT
+    c.content_id,
+    c.show_id,
+    c.type,
+    c.title,
+    c.director,
+    c.release_year,
+    c.rating,
+    c.duration_value,
+    c.duration_unit,
+    c.date_added,
+    YEAR(c.date_added)  AS year_added,
+    MONTH(c.date_added) AS month_added,
+    g.genre_name,
+    co.country_name
+FROM content c
+LEFT JOIN content_genre  cg ON c.content_id = cg.content_id
+LEFT JOIN genre           g ON cg.genre_id  = g.genre_id
+LEFT JOIN content_country cc ON c.content_id = cc.content_id
+LEFT JOIN country         co ON cc.country_id = co.country_id;
+`,cleaning:`-- ============================================================
+-- Netflix Content Analytics | Data Cleaning & Normalization
+-- Author: Om Kumar
+-- Description: Cleans raw CSV data and populates the
+--              normalized schema tables
+-- ============================================================
+
+USE netflix_analytics;
+
+-- ─────────────────────────────────────────
+-- STEP 1: Inspect Raw Data Issues
+-- ─────────────────────────────────────────
+
+-- Check total rows
+SELECT COUNT(*) AS total_raw_rows FROM raw_netflix_titles;
+
+-- Identify NULL / empty fields
+SELECT
+    SUM(CASE WHEN NULLIF(TRIM(director), '') IS NULL THEN 1 ELSE 0 END)   AS null_directors,
+    SUM(CASE WHEN NULLIF(TRIM(cast), '')     IS NULL THEN 1 ELSE 0 END)   AS null_cast,
+    SUM(CASE WHEN NULLIF(TRIM(country), '')  IS NULL THEN 1 ELSE 0 END)   AS null_country,
+    SUM(CASE WHEN NULLIF(TRIM(date_added),'') IS NULL THEN 1 ELSE 0 END)  AS null_date_added,
+    SUM(CASE WHEN NULLIF(TRIM(rating), '')   IS NULL THEN 1 ELSE 0 END)   AS null_rating,
+    SUM(CASE WHEN NULLIF(TRIM(duration), '') IS NULL THEN 1 ELSE 0 END)   AS null_duration
+FROM raw_netflix_titles;
+
+-- Spot inconsistent country values
+SELECT country, COUNT(*) AS cnt
+FROM raw_netflix_titles
+WHERE country IS NOT NULL
+GROUP BY country
+ORDER BY cnt DESC
+LIMIT 30;
+
+-- Multi-value genre examples
+SELECT listed_in
+FROM raw_netflix_titles
+WHERE listed_in LIKE '%,%'
+LIMIT 10;
+
+-- Multi-value country examples
+SELECT country
+FROM raw_netflix_titles
+WHERE country LIKE '%,%'
+LIMIT 10;
+
+
+-- ─────────────────────────────────────────
+-- STEP 2: Standardize Country Names
+-- ─────────────────────────────────────────
+
+-- Create a mapping table for inconsistent country labels
+DROP TABLE IF EXISTS country_mapping;
+CREATE TABLE country_mapping (
+    raw_name        VARCHAR(200),
+    standard_name   VARCHAR(100)
+);
+
+INSERT INTO country_mapping (raw_name, standard_name) VALUES
+('United States',          'United States'),
+('USA',                    'United States'),
+('U.S.A.',                 'United States'),
+('US',                     'United States'),
+('United Kingdom',         'United Kingdom'),
+('UK',                     'United Kingdom'),
+('U.K.',                   'United Kingdom'),
+('South Korea',            'South Korea'),
+('Korea',                  'South Korea'),
+('West Germany',           'Germany'),
+('East Germany',           'Germany'),
+('Soviet Union',           'Russia'),
+('Hong Kong',              'China'),
+('Taiwan',                 'China');
+
+
+-- ─────────────────────────────────────────
+-- STEP 3: Populate content table
+-- ─────────────────────────────────────────
+
+INSERT INTO content (
+    show_id, type, title, director,
+    release_year, rating, duration_raw,
+    duration_value, duration_unit, date_added, description
+)
+SELECT
+    TRIM(show_id)                                              AS show_id,
+
+    -- Standardize type
+    CASE
+        WHEN UPPER(TRIM(type)) = 'MOVIE'   THEN 'Movie'
+        WHEN UPPER(TRIM(type)) = 'TV SHOW' THEN 'TV Show'
+        ELSE TRIM(type)
+    END                                                        AS type,
+
+    TRIM(title)                                                AS title,
+
+    -- Null-safe director
+    NULLIF(TRIM(director), '')                                 AS director,
+
+    release_year,
+
+    -- Standardize rating
+    NULLIF(TRIM(rating), '')                                   AS rating,
+
+    NULLIF(TRIM(duration), '')                                 AS duration_raw,
+
+    -- Extract numeric duration value
+    CAST(SUBSTRING_INDEX(TRIM(duration), ' ', 1) AS UNSIGNED)  AS duration_value,
+
+    -- Extract duration unit (min / Season)
+    TRIM(SUBSTRING_INDEX(TRIM(duration), ' ', -1))             AS duration_unit,
+
+    -- Parse date_added to DATE
+    CASE
+        WHEN NULLIF(TRIM(date_added), '') IS NOT NULL
+        THEN STR_TO_DATE(TRIM(date_added), '%M %d, %Y')
+        ELSE NULL
+    END                                                        AS date_added,
+
+    NULLIF(TRIM(description), '')                              AS description
+
+FROM raw_netflix_titles
+WHERE NULLIF(TRIM(show_id), '') IS NOT NULL;
+
+
+-- ─────────────────────────────────────────
+-- STEP 4: Populate genre & content_genre tables
+-- ─────────────────────────────────────────
+
+-- Extract individual genres from comma-separated listed_in
+-- Using a numbers helper to split up to 5 genres per title
+DROP TABLE IF EXISTS helper_numbers;
+CREATE TABLE helper_numbers (n INT PRIMARY KEY);
+INSERT INTO helper_numbers VALUES (1),(2),(3),(4),(5),(6),(7),(8);
+
+INSERT IGNORE INTO genre (genre_name)
+SELECT DISTINCT
+    TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(r.listed_in, ',', n.n), ',', -1)) AS genre_name
+FROM raw_netflix_titles r
+JOIN helper_numbers n
+    ON n.n <= 1 + LENGTH(r.listed_in) - LENGTH(REPLACE(r.listed_in, ',', ''))
+WHERE NULLIF(TRIM(r.listed_in), '') IS NOT NULL;
+
+INSERT IGNORE INTO content_genre (content_id, genre_id)
+SELECT DISTINCT
+    c.content_id,
+    g.genre_id
+FROM raw_netflix_titles r
+JOIN helper_numbers n
+    ON n.n <= 1 + LENGTH(r.listed_in) - LENGTH(REPLACE(r.listed_in, ',', ''))
+JOIN content c ON c.show_id = TRIM(r.show_id)
+JOIN genre g
+    ON g.genre_name = TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(r.listed_in, ',', n.n), ',', -1))
+WHERE NULLIF(TRIM(r.listed_in), '') IS NOT NULL;
+
+
+-- ─────────────────────────────────────────
+-- STEP 5: Populate country & content_country tables
+-- ─────────────────────────────────────────
+
+INSERT IGNORE INTO country (country_name)
+SELECT DISTINCT
+    COALESCE(
+        m.standard_name,
+        TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(r.country, ',', n.n), ',', -1))
+    ) AS country_name
+FROM raw_netflix_titles r
+JOIN helper_numbers n
+    ON n.n <= 1 + LENGTH(r.country) - LENGTH(REPLACE(r.country, ',', ''))
+LEFT JOIN country_mapping m
+    ON TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(r.country, ',', n.n), ',', -1)) = m.raw_name
+WHERE NULLIF(TRIM(r.country), '') IS NOT NULL;
+
+INSERT IGNORE INTO content_country (content_id, country_id)
+SELECT DISTINCT
+    c.content_id,
+    co.country_id
+FROM raw_netflix_titles r
+JOIN helper_numbers n
+    ON n.n <= 1 + LENGTH(r.country) - LENGTH(REPLACE(r.country, ',', ''))
+JOIN content c ON c.show_id = TRIM(r.show_id)
+JOIN country co
+    ON co.country_name = COALESCE(
+        (SELECT m.standard_name FROM country_mapping m
+         WHERE m.raw_name = TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(r.country, ',', n.n), ',', -1))),
+        TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(r.country, ',', n.n), ',', -1))
+    )
+WHERE NULLIF(TRIM(r.country), '') IS NOT NULL;
+
+
+-- ─────────────────────────────────────────
+-- STEP 6: Populate Pre-Aggregated Summary Tables
+-- ─────────────────────────────────────────
+
+-- Genre distribution summary
+INSERT INTO summary_genre_distribution (genre_name, total_count, movie_count, show_count)
+SELECT
+    g.genre_name,
+    COUNT(DISTINCT cg.content_id)                                             AS total_count,
+    COUNT(DISTINCT CASE WHEN c.type = 'Movie'   THEN cg.content_id END)      AS movie_count,
+    COUNT(DISTINCT CASE WHEN c.type = 'TV Show' THEN cg.content_id END)      AS show_count
+FROM genre g
+JOIN content_genre cg ON g.genre_id   = cg.genre_id
+JOIN content       c  ON cg.content_id = c.content_id
+GROUP BY g.genre_name;
+
+-- Country content summary
+INSERT INTO summary_country_content (country_name, total_count, movie_count, show_count)
+SELECT
+    co.country_name,
+    COUNT(DISTINCT cc.content_id)                                             AS total_count,
+    COUNT(DISTINCT CASE WHEN c.type = 'Movie'   THEN cc.content_id END)      AS movie_count,
+    COUNT(DISTINCT CASE WHEN c.type = 'TV Show' THEN cc.content_id END)      AS show_count
+FROM country co
+JOIN content_country cc ON co.country_id = cc.country_id
+JOIN content          c ON cc.content_id  = c.content_id
+GROUP BY co.country_name;
+
+-- Yearly additions summary
+INSERT INTO summary_yearly_additions (release_year, total_added, movies_added, shows_added)
+SELECT
+    release_year,
+    COUNT(*)                                                   AS total_added,
+    SUM(CASE WHEN type = 'Movie'   THEN 1 ELSE 0 END)         AS movies_added,
+    SUM(CASE WHEN type = 'TV Show' THEN 1 ELSE 0 END)         AS shows_added
+FROM content
+WHERE release_year IS NOT NULL
+GROUP BY release_year;
+
+-- Country × Genre matrix
+INSERT INTO summary_country_genre_matrix (country_name, genre_name, title_count)
+SELECT
+    co.country_name,
+    g.genre_name,
+    COUNT(DISTINCT c.content_id) AS title_count
+FROM content c
+JOIN content_genre  cg ON c.content_id  = cg.content_id
+JOIN genre          g  ON cg.genre_id   = g.genre_id
+JOIN content_country cc ON c.content_id = cc.content_id
+JOIN country        co  ON cc.country_id = co.country_id
+GROUP BY co.country_name, g.genre_name;
+
+-- Verify row counts
+SELECT 'content'                    AS tbl, COUNT(*) AS rows FROM content
+UNION ALL
+SELECT 'genre',                              COUNT(*) FROM genre
+UNION ALL
+SELECT 'country',                            COUNT(*) FROM country
+UNION ALL
+SELECT 'content_genre',                      COUNT(*) FROM content_genre
+UNION ALL
+SELECT 'content_country',                    COUNT(*) FROM content_country
+UNION ALL
+SELECT 'summary_genre_distribution',         COUNT(*) FROM summary_genre_distribution
+UNION ALL
+SELECT 'summary_country_content',            COUNT(*) FROM summary_country_content
+UNION ALL
+SELECT 'summary_country_genre_matrix',       COUNT(*) FROM summary_country_genre_matrix;
+`,queries:`-- ============================================================
+-- Netflix Content Analytics | 15+ Analytical SQL Queries
+-- Author: Om Kumar
+-- Description: Covers genre mix, release trends, content gaps,
+--              regional patterns, ratings, and YoY analysis
+-- ============================================================
+
+USE netflix_analytics;
+
+
+-- ═══════════════════════════════════════════
+-- SECTION A: CONTENT OVERVIEW
+-- ═══════════════════════════════════════════
+
+-- ── Query 1: Total Catalog Size — Movies vs TV Shows
+-- Purpose: High-level KPI split for dashboard cards
+SELECT
+    type,
+    COUNT(*)                                        AS total_titles,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 1) AS pct_of_catalog
+FROM content
+GROUP BY type
+ORDER BY total_titles DESC;
+-- Insight: ~70% Movies, ~30% TV Shows on Netflix
+
+
+-- ── Query 2: Year-Over-Year Content Additions
+-- Purpose: Trend line chart — how aggressively Netflix grew
+SELECT
+    YEAR(date_added)                                AS year_added,
+    COUNT(*)                                        AS total_added,
+    SUM(CASE WHEN type = 'Movie'   THEN 1 ELSE 0 END) AS movies_added,
+    SUM(CASE WHEN type = 'TV Show' THEN 1 ELSE 0 END) AS shows_added
+FROM content
+WHERE date_added IS NOT NULL
+GROUP BY YEAR(date_added)
+ORDER BY year_added;
+-- Insight: Explosive growth 2015–2019, plateau post-2020
+
+
+-- ── Query 3: Monthly Content Addition Patterns
+-- Purpose: Identify seasonal acquisition cycles
+SELECT
+    YEAR(date_added)  AS yr,
+    MONTH(date_added) AS mo,
+    MONTHNAME(date_added) AS month_name,
+    COUNT(*)          AS titles_added
+FROM content
+WHERE date_added IS NOT NULL
+GROUP BY yr, mo, month_name
+ORDER BY yr, mo;
+-- Insight: Q4 typically shows spikes aligned with holiday content strategy
+
+
+-- ═══════════════════════════════════════════
+-- SECTION B: GENRE ANALYSIS
+-- ═══════════════════════════════════════════
+
+-- ── Query 4: Top 15 Genres by Volume
+-- Purpose: Genre mix bar chart
+SELECT
+    g.genre_name,
+    COUNT(DISTINCT cg.content_id)                     AS title_count,
+    ROUND(COUNT(DISTINCT cg.content_id) * 100.0
+        / (SELECT COUNT(*) FROM content), 1)          AS pct_catalog
+FROM genre g
+JOIN content_genre cg ON g.genre_id = cg.genre_id
+GROUP BY g.genre_name
+ORDER BY title_count DESC
+LIMIT 15;
+-- Insight: International Movies, Dramas, Comedies dominate the catalog
+
+
+-- ── Query 5: Genre Split — Movies vs TV Shows
+-- Purpose: Understand content strategy per format
+SELECT
+    g.genre_name,
+    COUNT(DISTINCT CASE WHEN c.type = 'Movie'   THEN c.content_id END) AS movies,
+    COUNT(DISTINCT CASE WHEN c.type = 'TV Show' THEN c.content_id END) AS tv_shows,
+    COUNT(DISTINCT c.content_id)                                        AS total
+FROM genre g
+JOIN content_genre cg ON g.genre_id    = cg.genre_id
+JOIN content       c  ON cg.content_id = c.content_id
+GROUP BY g.genre_name
+HAVING total > 50
+ORDER BY total DESC;
+
+
+-- ── Query 6: Genre Growth Over Time (YoY using LAG)
+-- Purpose: Identify rising vs declining genres
+SELECT
+    yr,
+    genre_name,
+    titles_added,
+    LAG(titles_added) OVER (PARTITION BY genre_name ORDER BY yr) AS prev_year,
+    titles_added
+        - LAG(titles_added) OVER (PARTITION BY genre_name ORDER BY yr) AS yoy_change
+FROM (
+    SELECT
+        YEAR(c.date_added)    AS yr,
+        g.genre_name,
+        COUNT(DISTINCT c.content_id) AS titles_added
+    FROM content c
+    JOIN content_genre cg ON c.content_id = cg.content_id
+    JOIN genre          g ON cg.genre_id  = g.genre_id
+    WHERE c.date_added IS NOT NULL
+    GROUP BY yr, g.genre_name
+) base
+ORDER BY genre_name, yr;
+-- Insight: International content grew fastest 2018–2021
+
+
+-- ── Query 7: Multi-Genre Co-occurrence
+-- Purpose: Which genres appear together most often
+SELECT
+    g1.genre_name AS genre_a,
+    g2.genre_name AS genre_b,
+    COUNT(*)      AS co_occurrences
+FROM content_genre cg1
+JOIN content_genre cg2 ON cg1.content_id = cg2.content_id
+                      AND cg1.genre_id   < cg2.genre_id
+JOIN genre g1 ON cg1.genre_id = g1.genre_id
+JOIN genre g2 ON cg2.genre_id = g2.genre_id
+GROUP BY g1.genre_name, g2.genre_name
+ORDER BY co_occurrences DESC
+LIMIT 20;
+-- Insight: International TV + Dramas is the most common pair
+
+
+-- ═══════════════════════════════════════════
+-- SECTION C: REGIONAL / COUNTRY ANALYSIS
+-- ═══════════════════════════════════════════
+
+-- ── Query 8: Top 20 Content-Producing Countries
+-- Purpose: World map bubble chart
+SELECT
+    co.country_name,
+    COUNT(DISTINCT cc.content_id)                          AS total_titles,
+    SUM(CASE WHEN c.type = 'Movie'   THEN 1 ELSE 0 END)   AS movies,
+    SUM(CASE WHEN c.type = 'TV Show' THEN 1 ELSE 0 END)   AS tv_shows
+FROM country      co
+JOIN content_country cc ON co.country_id  = cc.country_id
+JOIN content          c ON cc.content_id  = c.content_id
+GROUP BY co.country_name
+ORDER BY total_titles DESC
+LIMIT 20;
+-- Insight: US, India, UK are the top 3 producing nations
+
+
+-- ── Query 9: Content Gaps — Countries with Low Catalog Presence
+-- Purpose: Identify expansion opportunities
+SELECT
+    co.country_name,
+    COUNT(DISTINCT cc.content_id) AS total_titles
+FROM country      co
+JOIN content_country cc ON co.country_id = cc.country_id
+GROUP BY co.country_name
+HAVING total_titles < 10
+ORDER BY total_titles ASC;
+-- Insight: Many African & Central Asian countries have <5 titles each
+
+
+-- ── Query 10: Genre Preferences by Country (Top Genre per Country)
+-- Purpose: What content type should Netflix push per region
+SELECT
+    country_name,
+    genre_name,
+    title_count
+FROM (
+    SELECT
+        co.country_name,
+        g.genre_name,
+        COUNT(DISTINCT c.content_id) AS title_count,
+        RANK() OVER (
+            PARTITION BY co.country_name
+            ORDER BY COUNT(DISTINCT c.content_id) DESC
+        ) AS rnk
+    FROM country       co
+    JOIN content_country cc ON co.country_id  = cc.country_id
+    JOIN content          c ON cc.content_id  = c.content_id
+    JOIN content_genre   cg ON c.content_id   = cg.content_id
+    JOIN genre            g ON cg.genre_id    = g.genre_id
+    GROUP BY co.country_name, g.genre_name
+) ranked
+WHERE rnk = 1
+ORDER BY title_count DESC
+LIMIT 30;
+
+
+-- ── Query 11: Countries with No TV Show Representation
+-- Purpose: Where to introduce TV content to expand engagement
+SELECT
+    co.country_name,
+    COUNT(DISTINCT cc.content_id) AS movie_count
+FROM country       co
+JOIN content_country cc ON co.country_id = cc.country_id
+JOIN content          c ON cc.content_id = c.content_id
+WHERE c.type = 'Movie'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM content_country cc2
+      JOIN content c2 ON cc2.content_id = c2.content_id
+      WHERE cc2.country_id = co.country_id
+        AND c2.type = 'TV Show'
+  )
+GROUP BY co.country_name
+ORDER BY movie_count DESC;
+
+
+-- ═══════════════════════════════════════════
+-- SECTION D: RATINGS & DURATION
+-- ═══════════════════════════════════════════
+
+-- ── Query 12: Ratings Distribution
+-- Purpose: Audience maturity breakdown
+SELECT
+    rating,
+    COUNT(*)                                               AS total,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 1)    AS pct
+FROM content
+WHERE rating IS NOT NULL
+GROUP BY rating
+ORDER BY total DESC;
+-- Insight: TV-MA (mature) is #1 — Netflix skews adult audience
+
+
+-- ── Query 13: Average Movie Duration Over the Years
+-- Purpose: Has Netflix content gotten longer or shorter?
+SELECT
+    release_year,
+    ROUND(AVG(duration_value), 0) AS avg_duration_mins,
+    MIN(duration_value)            AS shortest,
+    MAX(duration_value)            AS longest
+FROM content
+WHERE type = 'Movie'
+  AND duration_unit = 'min'
+  AND duration_value IS NOT NULL
+GROUP BY release_year
+ORDER BY release_year;
+
+
+-- ── Query 14: TV Show Season Count Distribution
+-- Purpose: Are most shows short-run or long-running?
+SELECT
+    duration_value  AS seasons,
+    COUNT(*)        AS show_count
+FROM content
+WHERE type = 'TV Show'
+  AND duration_unit LIKE '%Season%'
+GROUP BY duration_value
+ORDER BY seasons;
+-- Insight: The vast majority of Netflix shows have only 1 season
+
+
+-- ═══════════════════════════════════════════
+-- SECTION E: DIRECTOR & CAST INSIGHTS
+-- ═══════════════════════════════════════════
+
+-- ── Query 15: Most Prolific Directors on Netflix
+-- Purpose: Who has the highest content volume?
+SELECT
+    director,
+    COUNT(*)                                          AS total_titles,
+    GROUP_CONCAT(DISTINCT type ORDER BY type)         AS content_types,
+    MIN(release_year)                                 AS first_title,
+    MAX(release_year)                                 AS latest_title
+FROM content
+WHERE director IS NOT NULL
+GROUP BY director
+HAVING total_titles > 2
+ORDER BY total_titles DESC
+LIMIT 20;
+-- Insight: Rajiv Chilaka (Indian animation) tops the director leaderboard
+
+
+-- ── Query 16: Director Genre Specialization
+-- Purpose: Which genres do top directors focus on?
+SELECT
+    c.director,
+    g.genre_name,
+    COUNT(DISTINCT c.content_id) AS title_count
+FROM content c
+JOIN content_genre cg ON c.content_id = cg.content_id
+JOIN genre         g  ON cg.genre_id  = g.genre_id
+WHERE c.director IS NOT NULL
+GROUP BY c.director, g.genre_name
+HAVING title_count >= 3
+ORDER BY title_count DESC
+LIMIT 30;
+
+
+-- ═══════════════════════════════════════════
+-- SECTION F: ADVANCED / PRODUCT ANALYTICS
+-- ═══════════════════════════════════════════
+
+-- ── Query 17: Content Freshness — Age of Catalog at Time of Addition
+-- Purpose: Was Netflix acquiring new or old content?
+SELECT
+    YEAR(date_added)                                   AS year_added,
+    ROUND(AVG(YEAR(date_added) - release_year), 1)    AS avg_catalog_age_yrs,
+    SUM(CASE WHEN YEAR(date_added) = release_year
+             THEN 1 ELSE 0 END)                        AS same_year_releases,
+    COUNT(*)                                           AS total_added
+FROM content
+WHERE date_added IS NOT NULL
+GROUP BY YEAR(date_added)
+ORDER BY year_added;
+-- Insight: Netflix increasingly adds day-and-date releases post 2017
+
+
+-- ── Query 18: Content Gap Score by Country (Gap = Many Movies, Few Shows)
+-- Purpose: Surface countries ripe for TV Show investment
+SELECT
+    co.country_name,
+    SUM(CASE WHEN c.type = 'Movie'   THEN 1 ELSE 0 END) AS movies,
+    SUM(CASE WHEN c.type = 'TV Show' THEN 1 ELSE 0 END) AS tv_shows,
+    ROUND(
+        SUM(CASE WHEN c.type = 'Movie'   THEN 1 ELSE 0 END)
+      / NULLIF(SUM(CASE WHEN c.type = 'TV Show' THEN 1 ELSE 0 END), 0),
+    1)                                                   AS movie_to_show_ratio
+FROM country       co
+JOIN content_country cc ON co.country_id  = cc.country_id
+JOIN content          c ON cc.content_id  = c.content_id
+GROUP BY co.country_name
+HAVING movies > 10
+ORDER BY movie_to_show_ratio DESC
+LIMIT 20;
+-- Insight: India has 6:1 movie-to-show ratio — massive TV Show gap
+
+
+-- ── Query 19: LEAD/LAG — Sequential Genre Trend Analysis
+-- Purpose: Which genres are accelerating vs stalling?
+SELECT
+    genre_name,
+    yr,
+    titles_added,
+    LAG(titles_added,  1) OVER (PARTITION BY genre_name ORDER BY yr) AS yr_minus_1,
+    LEAD(titles_added, 1) OVER (PARTITION BY genre_name ORDER BY yr) AS yr_plus_1,
+    ROUND(
+        (titles_added - LAG(titles_added,1) OVER (PARTITION BY genre_name ORDER BY yr))
+      / NULLIF(LAG(titles_added,1) OVER (PARTITION BY genre_name ORDER BY yr), 0) * 100,
+    1) AS yoy_growth_pct
+FROM (
+    SELECT
+        g.genre_name,
+        YEAR(c.date_added)           AS yr,
+        COUNT(DISTINCT c.content_id) AS titles_added
+    FROM content c
+    JOIN content_genre cg ON c.content_id = cg.content_id
+    JOIN genre          g ON cg.genre_id  = g.genre_id
+    WHERE c.date_added IS NOT NULL
+    GROUP BY g.genre_name, YEAR(c.date_added)
+) base
+ORDER BY genre_name, yr;
+
+
+-- ── Query 20: Content Strategy Summary — Key KPIs
+-- Purpose: Single-row summary for executive dashboard
+SELECT
+    COUNT(*)                                                      AS total_titles,
+    SUM(CASE WHEN type = 'Movie'   THEN 1 ELSE 0 END)            AS total_movies,
+    SUM(CASE WHEN type = 'TV Show' THEN 1 ELSE 0 END)            AS total_shows,
+    ROUND(AVG(CASE WHEN type='Movie' THEN duration_value END), 0) AS avg_movie_mins,
+    ROUND(AVG(CASE WHEN type='TV Show' THEN duration_value END),0) AS avg_show_seasons,
+    COUNT(DISTINCT
+        (SELECT country_id FROM content_country
+         WHERE content_id = content.content_id LIMIT 1))         AS countries_represented,
+    MIN(release_year)                                             AS oldest_title_yr,
+    MAX(release_year)                                             AS newest_title_yr
+FROM content;
+`,dax:`# Power BI DAX Measures Reference
+## Netflix Content Analytics Dashboard
+
+> **How to use this file:**  
+> In Power BI Desktop, open the **Model view**, select your table, and paste each measure
+> into the formula bar under **New Measure**. All measures assume you connected to the
+> \`vw_netflix_flat\` view or the summary tables produced in \`02_data_cleaning.sql\`.
+
+---
+
+## TABLE: \`content\` (or \`vw_netflix_flat\`)
+
+---
+
+### KPI MEASURES
+
+\`\`\`dax
+-- ── Total Titles ────────────────────────────────────────────
+Total Titles = COUNTROWS(content)
+
+-- ── Total Movies ────────────────────────────────────────────
+Total Movies =
+CALCULATE(
+    COUNTROWS(content),
+    content[type] = "Movie"
+)
+
+-- ── Total TV Shows ───────────────────────────────────────────
+Total TV Shows =
+CALCULATE(
+    COUNTROWS(content),
+    content[type] = "TV Show"
+)
+
+-- ── Movie % of Catalog ──────────────────────────────────────
+Movie Pct =
+DIVIDE(
+    [Total Movies],
+    [Total Titles],
+    0
+) * 100
+
+-- ── TV Show % of Catalog ────────────────────────────────────
+TV Show Pct =
+DIVIDE(
+    [Total TV Shows],
+    [Total Titles],
+    0
+) * 100
+
+-- ── Average Movie Duration (minutes) ────────────────────────
+Avg Movie Duration =
+CALCULATE(
+    AVERAGE(content[duration_val]),
+    content[type] = "Movie",
+    content[duration_unit] = "min"
+)
+
+-- ── Countries Represented ───────────────────────────────────
+Countries Covered =
+DISTINCTCOUNT(vw_netflix_flat[country_name])
+
+-- ── Genres Available ────────────────────────────────────────
+Genres Count =
+DISTINCTCOUNT(vw_netflix_flat[genre_name])
+\`\`\`
+
+---
+
+### TREND MEASURES
+
+\`\`\`dax
+-- ── Titles Added This Year (slicer-aware) ───────────────────
+Titles This Year =
+CALCULATE(
+    COUNTROWS(content),
+    YEAR(content[date_added]) = YEAR(TODAY())
+)
+
+-- ── YoY Title Count Change ──────────────────────────────────
+YoY Change =
+VAR CurrentYear = SELECTEDVALUE(summary_year_trend[release_year])
+VAR CurrentCount =
+    CALCULATE(
+        SUM(summary_year_trend[title_count]),
+        summary_year_trend[release_year] = CurrentYear
+    )
+VAR PrevCount =
+    CALCULATE(
+        SUM(summary_year_trend[title_count]),
+        summary_year_trend[release_year] = CurrentYear - 1
+    )
+RETURN
+    CurrentCount - PrevCount
+
+-- ── YoY Growth % ────────────────────────────────────────────
+YoY Growth Pct =
+DIVIDE(
+    [YoY Change],
+    CALCULATE(
+        SUM(summary_year_trend[title_count]),
+        summary_year_trend[release_year]
+            = SELECTEDVALUE(summary_year_trend[release_year]) - 1
+    ),
+    0
+) * 100
+
+-- ── Cumulative Titles Over Time ──────────────────────────────
+Cumulative Titles =
+CALCULATE(
+    COUNTROWS(content),
+    FILTER(
+        ALL(content[release_year]),
+        content[release_year] <= MAX(content[release_year])
+    )
+)
+\`\`\`
+
+---
+
+### FILTERING / CONDITIONAL MEASURES
+
+\`\`\`dax
+-- ── Selected Type Label (for dynamic titles) ────────────────
+Selected Type Label =
+IF(
+    ISFILTERED(content[type]),
+    SELECTEDVALUE(content[type], "All Content"),
+    "All Content"
+)
+
+-- ── Titles in Selected Country ───────────────────────────────
+Titles in Selected Country =
+CALCULATE(
+    DISTINCTCOUNT(vw_netflix_flat[show_id]),
+    NOT ISBLANK(vw_netflix_flat[country_name])
+)
+
+-- ── Titles in Selected Genre ─────────────────────────────────
+Titles in Selected Genre =
+CALCULATE(
+    DISTINCTCOUNT(vw_netflix_flat[show_id]),
+    NOT ISBLANK(vw_netflix_flat[genre_name])
+)
+
+-- ── % of Total (context-aware, used in tooltips) ─────────────
+Pct of Total =
+DIVIDE(
+    COUNTROWS(content),
+    CALCULATE(COUNTROWS(content), ALL(content)),
+    0
+) * 100
+\`\`\`
+
+---
+
+### CONDITIONAL FORMATTING MEASURES
+
+\`\`\`dax
+-- ── Color for Type (Movie = red, TV Show = dark grey) ────────
+Type Color =
+SWITCH(
+    SELECTEDVALUE(content[type]),
+    "Movie",   "#E50914",
+    "TV Show", "#221F1F",
+    "#B3B3B3"
+)
+
+-- ── KPI Arrow (positive = ▲, negative = ▼) ───────────────────
+Growth Arrow =
+IF([YoY Change] >= 0, "▲ ", "▼ ")
+    & FORMAT(ABS([YoY Growth Pct]), "0.0") & "%"
+\`\`\`
+
+---
+
+## RECOMMENDED VISUALS → MEASURE MAPPING
+
+| Visual | Measures Used |
+|---|---|
+| KPI Card — Total Titles | \`Total Titles\` |
+| KPI Card — Movies | \`Total Movies\`, \`Movie Pct\` |
+| KPI Card — TV Shows | \`Total TV Shows\`, \`TV Show Pct\` |
+| KPI Card — Avg Duration | \`Avg Movie Duration\` |
+| Line Chart — Trend | \`release_year\` axis + \`title_count\` broken by \`type\` |
+| Treemap — Genre Mix | \`genre_name\` + \`Titles in Selected Genre\` |
+| Map — World | \`country_name\` + \`Titles in Selected Country\` |
+| Bar Chart — Ratings | \`rating\` + \`COUNTROWS\` |
+| Donut — Movie vs TV | \`type\` + \`Total Titles\` |
+
+---
+
+## DRILL-DOWN HIERARCHY SETUP
+
+\`\`\`
+Continent → Country → Genre
+\`\`\`
+
+Create a calculated column for Continent in Power BI:
+\`\`\`dax
+Continent =
+SWITCH(
+    TRUE(),
+    vw_netflix_flat[country_name] IN {"United States","Canada","Mexico"} ,          "North America",
+    vw_netflix_flat[country_name] IN {"United Kingdom","France","Germany","Spain",
+                                       "Italy","Portugal","Sweden","Norway"}       , "Europe",
+    vw_netflix_flat[country_name] IN {"India","Japan","South Korea","China",
+                                       "Thailand","Singapore","Hong Kong"}         , "Asia",
+    vw_netflix_flat[country_name] IN {"Brazil","Argentina","Colombia","Chile"}     , "South America",
+    vw_netflix_flat[country_name] IN {"Nigeria","South Africa","Egypt","Ghana",
+                                       "Kenya"}                                    , "Africa",
+    vw_netflix_flat[country_name] IN {"Australia","New Zealand"}                   , "Oceania",
+    "Other"
+)
+\`\`\`
+
+---
+
+## POWER BI SETUP CHECKLIST
+
+- [ ] Connect to MySQL via **Get Data → MySQL database**
+- [ ] Import tables: \`content\`, \`genre\`, \`country\`, \`content_genre\`, \`content_country\`
+- [ ] Import view: \`vw_netflix_flat\`
+- [ ] Import summary tables: \`summary_year_trend\`, \`summary_rating\`, \`summary_country_genre\`, \`summary_kpi\`
+- [ ] Set relationships in Model view:
+  - \`content[show_id]\` → \`content_genre[show_id]\`
+  - \`content[show_id]\` → \`content_country[show_id]\`
+  - \`genre[genre_id]\` → \`content_genre[genre_id]\`
+  - \`country[country_id]\` → \`content_country[country_id]\`
+- [ ] Create all DAX measures above
+- [ ] Build Continent calculated column
+- [ ] Set drill-down hierarchy: Continent → country_name → genre_name
+- [ ] Add slicers: \`type\`, \`release_year\`, \`rating\`, \`country_name\`
+- [ ] Enable cross-filter on all visuals (Edit Interactions)
+`};
+function openModal(t){document.getElementById('modal').classList.add('open');tab(t);document.body.style.overflow='hidden';}
+function closeModal(){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
+function tab(t){document.querySelectorAll('.cblock').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('on'));document.getElementById('cb-'+t).classList.add('on');document.querySelectorAll('.mtab').forEach(b=>{if(b.textContent.toLowerCase().includes(t.slice(0,4)))b.classList.add('on');});const pr=document.getElementById('pr-'+t);if(!pr.textContent)pr.textContent=C[t]||'';}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.addEventListener('DOMContentLoaded',()=>{Object.keys(C).forEach(k=>{const e=document.getElementById('pr-'+k);if(e)e.textContent=C[k];});});
+function goto(id){document.querySelector(id)?.scrollIntoView({behavior:'smooth'});}
+const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('v');e.target.querySelectorAll('.prob,.pipe-step,.qcard,.rb,.ins,.stk').forEach((el,i)=>{el.style.transitionDelay=(i*.07)+'s';});io.unobserve(e.target);}});},{threshold:.07});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+
+<!-- DASHBOARD MODAL -->
+<div class="modal" id="dashModal" style="z-index:300;">
+  <div class="mbox" style="max-width:1300px;width:96%;max-height:92vh;">
+    <div class="mhead">
+      <div class="mtabs"><span style="font-family:var(--fa);font-size:14px;letter-spacing:2px;color:var(--tx);">📊 NETFLIX CONTENT ANALYTICS — LIVE DASHBOARD</span></div>
+      <button class="mclose" onclick="closeDashboard()">×</button>
+    </div>
+    <div style="flex:1;overflow:hidden;">
+      <iframe id="dashFrame" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+&lt;title&gt;Netflix Content Analytics Dashboard&lt;/title&gt;
+&lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot;&gt;
+&lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin&gt;
+&lt;link href=&quot;https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&amp;family=DM+Serif+Display:ital@0;1&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
+&lt;style&gt;
+:root{--red:#E50914;--red-dim:#8B0000;--red-glow:rgba(229,9,20,0.18);--bg:#0a0a0a;--surface:#111111;--surface2:#181818;--surface3:#222222;--border:rgba(255,255,255,0.07);--text:#f0f0f0;--text-muted:#777;--text-dim:#444;--teal:#00B4D8;--font-display:&#x27;Bebas Neue&#x27;,sans-serif;--font-serif:&#x27;DM Serif Display&#x27;,serif;--font-body:&#x27;DM Sans&#x27;,sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;line-height:1.5;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#333;border-radius:2px;}
+
+/* HEADER */
+header{position:relative;padding:0 40px;border-bottom:1px solid var(--border);overflow:hidden;}
+header::after{content:&#x27;&#x27;;position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);}
+.header-inner{max-width:1500px;margin:0 auto;display:flex;align-items:center;gap:32px;padding:28px 0 24px;}
+.logo-mark{width:44px;height:44px;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:24px;flex-shrink:0;clip-path:polygon(8% 0%,92% 0%,100% 8%,100% 92%,92% 100%,8% 100%,0% 92%,0% 8%);}
+.header-text{flex:1;}
+.header-title{font-family:var(--font-display);font-size:28px;letter-spacing:3px;color:#fff;line-height:1;margin-bottom:4px;}
+.header-title span{color:var(--red);}
+.header-sub{font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;}
+.header-meta{display:flex;gap:24px;align-items:center;}
+.meta-pill{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+.meta-pill .val{font-family:var(--font-display);font-size:20px;letter-spacing:1px;color:#fff;}
+.meta-pill .lbl{font-size:10px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;}
+.meta-sep{width:1px;height:36px;background:var(--border);}
+
+/* MAIN */
+main{max-width:1500px;margin:0 auto;padding:36px 40px 60px;}
+
+/* KPI CARDS */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);padding:24px 26px 20px;position:relative;overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity 0.5s ease,transform 0.5s ease,border-color 0.3s;}
+.kpi-card.visible{opacity:1;transform:translateY(0);}
+.kpi-card:hover{border-color:rgba(229,9,20,0.3);}
+.kpi-card::before{content:&#x27;&#x27;;position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--red));}
+.kpi-card::after{content:&#x27;&#x27;;position:absolute;bottom:-30px;right:-20px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,var(--accent-glow,var(--red-glow)) 0%,transparent 70%);pointer-events:none;}
+.kpi-label{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
+.kpi-value{font-family:var(--font-display);font-size:48px;line-height:1;letter-spacing:1px;color:#fff;margin-bottom:8px;}
+.kpi-value .unit{font-size:20px;color:var(--text-muted);font-family:var(--font-body);font-weight:300;}
+.kpi-sub{font-size:12px;color:var(--text-muted);}
+.kpi-sub strong{color:var(--accent,var(--red));}
+.kpi-icon{position:absolute;top:22px;right:22px;font-size:22px;opacity:0.15;}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+
+/* PANELS */
+.panel{background:var(--surface);border:1px solid var(--border);padding:24px;opacity:0;transform:translateY(12px);transition:opacity 0.6s ease,transform 0.6s ease,border-color 0.3s;}
+.panel.visible{opacity:1;transform:translateY(0);}
+.panel:hover{border-color:rgba(255,255,255,0.12);}
+.panel-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;}
+.panel-title{font-family:var(--font-serif);font-size:17px;color:#fff;line-height:1.2;}
+.panel-title em{font-style:italic;color:var(--red);}
+.panel-desc{font-size:11px;color:var(--text-dim);margin-top:3px;letter-spacing:0.5px;}
+.panel-badge{font-size:10px;padding:4px 10px;border:1px solid var(--border);color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+
+/* AREA CHART */
+.area-chart-wrap{position:relative;height:200px;}
+#areaChart{width:100%;height:100%;}
+
+/* GENRE BARS */
+.genre-bars{display:flex;flex-direction:column;gap:11px;}
+.genre-row{display:grid;grid-template-columns:200px 1fr 52px;align-items:center;gap:12px;}
+.genre-name{font-size:12px;color:var(--text-muted);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color 0.2s;}
+.genre-row:hover .genre-name{color:var(--text);}
+.genre-track{height:6px;background:var(--surface3);overflow:hidden;}
+.genre-fill{height:100%;background:linear-gradient(90deg,var(--red),#ff4040);transform:scaleX(0);transform-origin:left;transition:transform 1.2s cubic-bezier(0.16,1,0.3,1);}
+.genre-fill.alt{background:linear-gradient(90deg,#444,#888);}
+.genre-count{font-family:var(--font-display);font-size:15px;color:var(--text-muted);letter-spacing:0.5px;}
+
+/* DONUT */
+.donut-wrap{display:flex;align-items:center;gap:28px;}
+#donutCanvas{flex-shrink:0;}
+.donut-legend{flex:1;display:flex;flex-direction:column;gap:14px;}
+.legend-item{display:flex;align-items:center;gap:10px;}
+.legend-dot{width:8px;height:8px;flex-shrink:0;}
+.legend-text .l-name{font-size:12px;color:var(--text-muted);}
+.legend-text .l-val{font-family:var(--font-display);font-size:22px;letter-spacing:1px;color:#fff;line-height:1;}
+.legend-text .l-pct{font-size:11px;color:var(--text-dim);}
+
+/* COUNTRY BARS */
+.country-bars{display:flex;flex-direction:column;gap:12px;}
+.country-row{display:flex;flex-direction:column;gap:5px;}
+.country-header{display:flex;justify-content:space-between;align-items:baseline;}
+.country-name{font-size:12px;color:var(--text-muted);}
+.country-count{font-family:var(--font-display);font-size:14px;color:var(--text-muted);letter-spacing:0.5px;}
+.country-track{height:4px;background:var(--surface3);}
+.country-fill{height:100%;transform:scaleX(0);transform-origin:left;transition:transform 1.4s cubic-bezier(0.16,1,0.3,1);}
+
+/* RATING BARS */
+.rating-bars{display:flex;flex-direction:column;gap:10px;}
+.rating-row{display:grid;grid-template-columns:68px 1fr 48px;align-items:center;gap:10px;}
+.rating-label{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-align:right;}
+.rating-track{height:20px;background:var(--surface3);overflow:hidden;}
+.rating-fill{height:100%;transform:scaleX(0);transform-origin:left;transition:transform 1.3s cubic-bezier(0.16,1,0.3,1);}
+.rating-count{font-family:var(--font-display);font-size:14px;color:var(--text-muted);}
+
+/* MONTH GRID */
+.month-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;}
+.month-col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.month-bar-wrap{width:100%;height:80px;display:flex;align-items:flex-end;}
+.month-bar{width:100%;background:var(--red);transform:scaleY(0);transform-origin:bottom;transition:transform 1s cubic-bezier(0.16,1,0.3,1);opacity:0.7;}
+.month-bar:hover{opacity:1;cursor:default;}
+.month-label{font-size:9px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+.month-val{font-family:var(--font-display);font-size:12px;color:var(--text-muted);}
+
+/* INSIGHTS */
+.insights-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.insight-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);padding:16px 18px;opacity:0;transform:translateY(8px);transition:opacity 0.5s ease,transform 0.5s ease;}
+.insight-card.visible{opacity:1;transform:translateY(0);}
+.insight-num{font-family:var(--font-display);font-size:13px;color:var(--red);letter-spacing:3px;margin-bottom:5px;}
+.insight-text{font-size:12px;color:var(--text-muted);line-height:1.6;}
+.insight-text strong{color:var(--text);font-weight:500;}
+
+/* FOOTER */
+footer{text-align:center;padding:24px 40px;border-top:1px solid var(--border);font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+
+/* LIVE DOT */
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.4);}}
+.live-dot{display:inline-block;width:6px;height:6px;background:var(--red);border-radius:50%;margin-right:6px;animation:pulse-dot 2s ease-in-out infinite;vertical-align:middle;}
+
+/* TOOLTIP */
+.tooltip{position:fixed;background:#1a1a1a;border:1px solid var(--border);padding:8px 12px;font-size:12px;color:var(--text);pointer-events:none;z-index:9999;display:none;white-space:nowrap;}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;tooltip&quot; id=&quot;tooltip&quot;&gt;&lt;/div&gt;
+
+&lt;header&gt;
+  &lt;div class=&quot;header-inner&quot;&gt;
+    &lt;div class=&quot;logo-mark&quot;&gt;N&lt;/div&gt;
+    &lt;div class=&quot;header-text&quot;&gt;
+      &lt;div class=&quot;header-title&quot;&gt;&lt;span&gt;NETFLIX&lt;/span&gt; CONTENT ANALYTICS&lt;/div&gt;
+      &lt;div class=&quot;header-sub&quot;&gt;Product Analytics Dashboard · MySQL + Power BI + DAX · May 2025 – Jun 2025&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;header-meta&quot;&gt;
+      &lt;div class=&quot;meta-pill&quot;&gt;&lt;div class=&quot;val&quot;&gt;8,807&lt;/div&gt;&lt;div class=&quot;lbl&quot;&gt;Total Titles&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;meta-sep&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;meta-pill&quot;&gt;&lt;div class=&quot;val&quot;&gt;123&lt;/div&gt;&lt;div class=&quot;lbl&quot;&gt;Countries&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;meta-sep&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;meta-pill&quot;&gt;&lt;div class=&quot;val&quot;&gt;17&lt;/div&gt;&lt;div class=&quot;lbl&quot;&gt;SQL Queries&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;meta-sep&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;meta-pill&quot;&gt;&lt;div class=&quot;val&quot; style=&quot;color:var(--red)&quot;&gt;LIVE&lt;/div&gt;&lt;div class=&quot;lbl&quot;&gt;&lt;span class=&quot;live-dot&quot;&gt;&lt;/span&gt;Dashboard&lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/header&gt;
+
+&lt;main&gt;
+  &lt;div class=&quot;kpi-row&quot;&gt;
+    &lt;div class=&quot;kpi-card&quot; style=&quot;--accent:var(--red);--accent-glow:var(--red-glow);&quot;&gt;
+      &lt;div class=&quot;kpi-icon&quot;&gt;🎬&lt;/div&gt;
+      &lt;div class=&quot;kpi-label&quot;&gt;Total Catalog Size&lt;/div&gt;
+      &lt;div class=&quot;kpi-value&quot;&gt;8,807&lt;/div&gt;
+      &lt;div class=&quot;kpi-sub&quot;&gt;Across &lt;strong&gt;123&lt;/strong&gt; countries · 96 years of content&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;kpi-card&quot; style=&quot;--accent:#F5C518;--accent-glow:rgba(245,197,24,0.15);&quot;&gt;
+      &lt;div class=&quot;kpi-icon&quot;&gt;🎥&lt;/div&gt;
+      &lt;div class=&quot;kpi-label&quot;&gt;Movies in Catalog&lt;/div&gt;
+      &lt;div class=&quot;kpi-value&quot;&gt;6,131 &lt;span class=&quot;unit&quot;&gt;69.6%&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;kpi-sub&quot;&gt;Avg runtime: &lt;strong&gt;99.6 min&lt;/strong&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;kpi-card&quot; style=&quot;--accent:#00B4D8;--accent-glow:rgba(0,180,216,0.15);&quot;&gt;
+      &lt;div class=&quot;kpi-icon&quot;&gt;📺&lt;/div&gt;
+      &lt;div class=&quot;kpi-label&quot;&gt;TV Shows&lt;/div&gt;
+      &lt;div class=&quot;kpi-value&quot;&gt;2,676 &lt;span class=&quot;unit&quot;&gt;30.4%&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;kpi-sub&quot;&gt;Growing &lt;strong&gt;+12% YoY&lt;/strong&gt; since 2018&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;kpi-card&quot; style=&quot;--accent:#9B5DE5;--accent-glow:rgba(155,93,229,0.15);&quot;&gt;
+      &lt;div class=&quot;kpi-icon&quot;&gt;🌍&lt;/div&gt;
+      &lt;div class=&quot;kpi-label&quot;&gt;Countries Covered&lt;/div&gt;
+      &lt;div class=&quot;kpi-value&quot;&gt;123&lt;/div&gt;
+      &lt;div class=&quot;kpi-sub&quot;&gt;&lt;strong&gt;42&lt;/strong&gt; genres · 17 query insights&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;grid-2&quot;&gt;
+    &lt;div class=&quot;panel&quot;&gt;
+      &lt;div class=&quot;panel-header&quot;&gt;
+        &lt;div&gt;&lt;div class=&quot;panel-title&quot;&gt;Content &lt;em&gt;Release Trend&lt;/em&gt;&lt;/div&gt;&lt;div class=&quot;panel-desc&quot;&gt;Annual titles by type, 2013–2021&lt;/div&gt;&lt;/div&gt;
+        &lt;div class=&quot;panel-badge&quot;&gt;YoY Analysis&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;area-chart-wrap&quot;&gt;&lt;canvas id=&quot;areaChart&quot;&gt;&lt;/canvas&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;panel&quot;&gt;
+      &lt;div class=&quot;panel-header&quot;&gt;
+        &lt;div&gt;&lt;div class=&quot;panel-title&quot;&gt;Top 10 &lt;em&gt;Genre Mix&lt;/em&gt;&lt;/div&gt;&lt;div class=&quot;panel-desc&quot;&gt;By catalog volume (titles span multiple genres)&lt;/div&gt;&lt;/div&gt;
+        &lt;div class=&quot;panel-badge&quot;&gt;42 Genres Total&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;genre-bars&quot; id=&quot;genreBars&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;grid-bottom&quot;&gt;
+    &lt;div class=&quot;panel&quot;&gt;
+      &lt;div class=&quot;panel-header&quot;&gt;
+        &lt;div&gt;&lt;div class=&quot;panel-title&quot;&gt;Content &lt;em&gt;Type Split&lt;/em&gt;&lt;/div&gt;&lt;div class=&quot;panel-desc&quot;&gt;Movies vs TV Shows composition&lt;/div&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;donut-wrap&quot;&gt;
+        &lt;canvas id=&quot;donutCanvas&quot; width=&quot;140&quot; height=&quot;140&quot;&gt;&lt;/canvas&gt;
+        &lt;div class=&quot;donut-legend&quot;&gt;
+          &lt;div class=&quot;legend-item&quot;&gt;
+            &lt;div class=&quot;legend-dot&quot; style=&quot;background:var(--red)&quot;&gt;&lt;/div&gt;
+            &lt;div class=&quot;legend-text&quot;&gt;&lt;div class=&quot;l-name&quot;&gt;Movies&lt;/div&gt;&lt;div class=&quot;l-val&quot;&gt;6,131&lt;/div&gt;&lt;div class=&quot;l-pct&quot;&gt;69.6% of catalog&lt;/div&gt;&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;legend-item&quot;&gt;
+            &lt;div class=&quot;legend-dot&quot; style=&quot;background:#00B4D8&quot;&gt;&lt;/div&gt;
+            &lt;div class=&quot;legend-text&quot;&gt;&lt;div class=&quot;l-name&quot;&gt;TV Shows&lt;/div&gt;&lt;div class=&quot;l-val&quot;&gt;2,676&lt;/div&gt;&lt;div class=&quot;l-pct&quot;&gt;30.4% of catalog&lt;/div&gt;&lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;panel&quot;&gt;
+      &lt;div class=&quot;panel-header&quot;&gt;
+        &lt;div&gt;&lt;div class=&quot;panel-title&quot;&gt;&lt;em&gt;Rating&lt;/em&gt; Distribution&lt;/div&gt;&lt;div class=&quot;panel-desc&quot;&gt;Audience rating breakdown by volume&lt;/div&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;rating-bars&quot; id=&quot;ratingBars&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;panel&quot;&gt;
+      &lt;div class=&quot;panel-header&quot;&gt;
+        &lt;div&gt;&lt;div class=&quot;panel-title&quot;&gt;Top &lt;em&gt;Producing&lt;/em&gt; Countries&lt;/div&gt;&lt;div class=&quot;panel-desc&quot;&gt;Content origin by title count&lt;/div&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;country-bars&quot; id=&quot;countryBars&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;panel&quot; style=&quot;margin-bottom:16px;&quot;&gt;
+    &lt;div class=&quot;panel-header&quot;&gt;
+      &lt;div&gt;&lt;div class=&quot;panel-title&quot;&gt;Content Acquisition &lt;em&gt;Seasonality&lt;/em&gt;&lt;/div&gt;&lt;div class=&quot;panel-desc&quot;&gt;Titles added per calendar month — reveals Netflix&#x27;s acquisition cadence&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;panel-badge&quot;&gt;8,709 Dated Titles&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;month-grid&quot; id=&quot;monthGrid&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;insights-row&quot; id=&quot;insights&quot;&gt;
+    &lt;div class=&quot;insight-card&quot;&gt;&lt;div class=&quot;insight-num&quot;&gt;01 / GENRE&lt;/div&gt;&lt;div class=&quot;insight-text&quot;&gt;&lt;strong&gt;International Movies &amp; Dramas&lt;/strong&gt; dominate at 2,752 and 2,427 titles — signaling a deliberate global-first content strategy.&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;insight-card&quot;&gt;&lt;div class=&quot;insight-num&quot;&gt;02 / TREND&lt;/div&gt;&lt;div class=&quot;insight-text&quot;&gt;Netflix&#x27;s peak acquisition was &lt;strong&gt;2016–2018&lt;/strong&gt; at 767 movies/year. Post-2019, TV Shows grew as Movies declined — a pivot to serialized content.&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;insight-card&quot;&gt;&lt;div class=&quot;insight-num&quot;&gt;03 / RATING&lt;/div&gt;&lt;div class=&quot;insight-text&quot;&gt;&lt;strong&gt;TV-MA accounts for 36.4%&lt;/strong&gt; of catalog — the highest of any rating — confirming Netflix&#x27;s mature-audience skew across both formats.&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;insight-card&quot;&gt;&lt;div class=&quot;insight-num&quot;&gt;04 / COUNTRY&lt;/div&gt;&lt;div class=&quot;insight-text&quot;&gt;The &lt;strong&gt;US produces 42%&lt;/strong&gt; of content. India is 2nd at 11.9% and growing rapidly — indicating aggressive investment in South Asian originals.&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;insight-card&quot;&gt;&lt;div class=&quot;insight-num&quot;&gt;05 / SEASONALITY&lt;/div&gt;&lt;div class=&quot;insight-text&quot;&gt;&lt;strong&gt;July (819) and December (797)&lt;/strong&gt; are peak acquisition months, aligning with summer and holiday global viewing spikes.&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;insight-card&quot;&gt;&lt;div class=&quot;insight-num&quot;&gt;06 / GAP&lt;/div&gt;&lt;div class=&quot;insight-text&quot;&gt;Africa and Southeast Asia show &lt;strong&gt;major content gaps&lt;/strong&gt; — multiple countries have under 10 titles, a clear signal for expansion strategy.&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/main&gt;
+
+&lt;footer&gt;Netflix Content Analytics · 8,807 Titles Analyzed · MySQL 8.0 · Power BI + DAX · Portfolio Project 2025&lt;/footer&gt;
+
+&lt;script&gt;
+const DATA={yearTrend:[{year:2013,movies:225,shows:63},{year:2014,movies:264,shows:88},{year:2015,movies:398,shows:162},{year:2016,movies:658,shows:244},{year:2017,movies:767,shows:265},{year:2018,movies:767,shows:380},{year:2019,movies:633,shows:397},{year:2020,movies:517,shows:436},{year:2021,movies:277,shows:315}],genres:[[&quot;International Movies&quot;,2752],[&quot;Dramas&quot;,2427],[&quot;Comedies&quot;,1674],[&quot;International TV Shows&quot;,1351],[&quot;Documentaries&quot;,869],[&quot;Action &amp; Adventure&quot;,859],[&quot;TV Dramas&quot;,763],[&quot;Independent Movies&quot;,756],[&quot;Children &amp; Family&quot;,641],[&quot;Romantic Movies&quot;,616]],countries:[[&quot;United States&quot;,3690],[&quot;India&quot;,1046],[&quot;United Kingdom&quot;,806],[&quot;Canada&quot;,445],[&quot;France&quot;,393],[&quot;Japan&quot;,318],[&quot;Spain&quot;,232],[&quot;South Korea&quot;,231],[&quot;Germany&quot;,226],[&quot;Mexico&quot;,169]],ratings:[[&quot;TV-MA&quot;,3207],[&quot;TV-14&quot;,2160],[&quot;TV-PG&quot;,863],[&quot;R&quot;,799],[&quot;PG-13&quot;,490],[&quot;TV-Y7&quot;,334],[&quot;TV-Y&quot;,307],[&quot;PG&quot;,287]],months:{January:727,February:557,March:734,April:759,May:626,June:724,July:819,August:749,September:765,October:755,November:697,December:797}};
+
+const tip=document.getElementById(&#x27;tooltip&#x27;);
+function showTip(e,h){tip.innerHTML=h;tip.style.display=&#x27;block&#x27;;moveTip(e);}
+function moveTip(e){tip.style.left=(e.clientX+14)+&#x27;px&#x27;;tip.style.top=(e.clientY-8)+&#x27;px&#x27;;}
+function hideTip(){tip.style.display=&#x27;none&#x27;;}
+
+function drawAreaChart(){
+  const canvas=document.getElementById(&#x27;areaChart&#x27;);
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
+  canvas.style.width=rect.width+&#x27;px&#x27;;canvas.style.height=rect.height+&#x27;px&#x27;;
+  const ctx=canvas.getContext(&#x27;2d&#x27;);ctx.scale(dpr,dpr);
+  const W=rect.width,H=rect.height,pad={top:20,right:20,bottom:36,left:48};
+  const iW=W-pad.left-pad.right,iH=H-pad.top-pad.bottom;
+  const movies=DATA.yearTrend.map(d=&gt;d.movies),shows=DATA.yearTrend.map(d=&gt;d.shows);
+  const maxVal=Math.max(...movies)*1.12,n=DATA.yearTrend.length;
+  function xPos(i){return pad.left+(i/(n-1))*iW;}
+  function yPos(v){return pad.top+iH-(v/maxVal)*iH;}
+  ctx.strokeStyle=&#x27;rgba(255,255,255,0.04)&#x27;;ctx.lineWidth=1;
+  for(let i=0;i&lt;=4;i++){const y=pad.top+(i/4)*iH;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+iW,y);ctx.stroke();const val=Math.round(maxVal-(i/4)*maxVal);ctx.fillStyle=&#x27;rgba(255,255,255,0.2)&#x27;;ctx.font=&quot;10px &#x27;DM Sans&#x27;,sans-serif&quot;;ctx.textAlign=&#x27;right&#x27;;if(val&gt;0)ctx.fillText(val,pad.left-8,y+3);}
+  ctx.fillStyle=&#x27;rgba(255,255,255,0.25)&#x27;;ctx.font=&quot;10px &#x27;DM Sans&#x27;,sans-serif&quot;;ctx.textAlign=&#x27;center&#x27;;
+  DATA.yearTrend.forEach((d,i)=&gt;ctx.fillText(d.year,xPos(i),H-8));
+  function drawArea(data,c1,c2){
+    const grad=ctx.createLinearGradient(0,pad.top,0,pad.top+iH);grad.addColorStop(0,c1);grad.addColorStop(1,c2);
+    ctx.beginPath();ctx.moveTo(xPos(0),yPos(data[0]));
+    for(let i=1;i&lt;n;i++){const cpx=(xPos(i-1)+xPos(i))/2;ctx.bezierCurveTo(cpx,yPos(data[i-1]),cpx,yPos(data[i]),xPos(i),yPos(data[i]));}
+    ctx.lineTo(xPos(n-1),pad.top+iH);ctx.lineTo(xPos(0),pad.top+iH);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  }
+  function drawLine(data,color){
+    ctx.beginPath();ctx.moveTo(xPos(0),yPos(data[0]));
+    for(let i=1;i&lt;n;i++){const cpx=(xPos(i-1)+xPos(i))/2;ctx.bezierCurveTo(cpx,yPos(data[i-1]),cpx,yPos(data[i]),xPos(i),yPos(data[i]));}
+    ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.stroke();
+  }
+  function drawDots(data,color){data.forEach((v,i)=&gt;{ctx.beginPath();ctx.arc(xPos(i),yPos(v),4,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();ctx.strokeStyle=&#x27;#0a0a0a&#x27;;ctx.lineWidth=2;ctx.stroke();});}
+  drawArea(movies,&#x27;rgba(229,9,20,0.45)&#x27;,&#x27;rgba(229,9,20,0.02)&#x27;);
+  drawArea(shows,&#x27;rgba(0,180,216,0.35)&#x27;,&#x27;rgba(0,180,216,0.01)&#x27;);
+  drawLine(movies,&#x27;#E50914&#x27;);drawLine(shows,&#x27;#00B4D8&#x27;);
+  drawDots(movies,&#x27;#E50914&#x27;);drawDots(shows,&#x27;#00B4D8&#x27;);
+  const lx=pad.left+iW-160,ly=pad.top+6;
+  ctx.fillStyle=&#x27;#E50914&#x27;;ctx.fillRect(lx,ly,16,3);
+  ctx.fillStyle=&#x27;rgba(255,255,255,0.5)&#x27;;ctx.font=&quot;11px &#x27;DM Sans&#x27;&quot;;ctx.textAlign=&#x27;left&#x27;;ctx.fillText(&#x27;Movies&#x27;,lx+22,ly+4);
+  ctx.fillStyle=&#x27;#00B4D8&#x27;;ctx.fillRect(lx+80,ly,16,3);ctx.fillText(&#x27;TV Shows&#x27;,lx+102,ly+4);
+  canvas.onmousemove=function(e){const bRect=canvas.getBoundingClientRect();const mx=e.clientX-bRect.left;let cl=0,mn=Infinity;DATA.yearTrend.forEach((_,i)=&gt;{const d=Math.abs(xPos(i)-mx);if(d&lt;mn){mn=d;cl=i;}});if(mn&lt;30){const d=DATA.yearTrend[cl];showTip(e,`&lt;b&gt;${d.year}&lt;/b&gt; &amp;nbsp;·&amp;nbsp; &lt;span style=&quot;color:#E50914&quot;&gt;▬&lt;/span&gt; ${d.movies} Movies &amp;nbsp;·&amp;nbsp; &lt;span style=&quot;color:#00B4D8&quot;&gt;▬&lt;/span&gt; ${d.shows} TV Shows`);}else hideTip();};
+  canvas.onmouseleave=hideTip;
+}
+
+function buildGenreBars(){
+  const c=document.getElementById(&#x27;genreBars&#x27;),max=DATA.genres[0][1];
+  DATA.genres.forEach(([name,count],i)=&gt;{
+    const pct=(count/max)*100,isAlt=i&gt;=3&amp;&amp;i%2===0;
+    const row=document.createElement(&#x27;div&#x27;);row.className=&#x27;genre-row&#x27;;
+    row.innerHTML=`&lt;div class=&quot;genre-name&quot;&gt;${name}&lt;/div&gt;&lt;div class=&quot;genre-track&quot;&gt;&lt;div class=&quot;genre-fill${isAlt?&#x27; alt&#x27;:&#x27;&#x27;}&quot; style=&quot;width:${pct}%&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;genre-count&quot;&gt;${(count/1000).toFixed(1)}k&lt;/div&gt;`;
+    row.addEventListener(&#x27;mousemove&#x27;,e=&gt;showTip(e,`&lt;b&gt;${name}&lt;/b&gt;: ${count.toLocaleString()} titles`));
+    row.addEventListener(&#x27;mouseleave&#x27;,hideTip);c.appendChild(row);
+  });
+}
+
+function drawDonut(){
+  const canvas=document.getElementById(&#x27;donutCanvas&#x27;),ctx=canvas.getContext(&#x27;2d&#x27;);
+  const cx=70,cy=70,r=55,inner=36,total=8807,movies=6131;
+  const mAngle=(movies/total)*Math.PI*2,start=-Math.PI/2;
+  const segs=[{color:&#x27;#E50914&#x27;,s:start,e:start+mAngle},{color:&#x27;#111&#x27;,s:start+mAngle,e:start+mAngle+0.015},{color:&#x27;#00B4D8&#x27;,s:start+mAngle+0.015,e:start+Math.PI*2}];
+  let p=0;
+  function animate(){
+    ctx.clearRect(0,0,140,140);const ep=Math.min(p,1),ease=ep&lt;0.5?2*ep*ep:-1+(4-2*ep)*ep;
+    segs.forEach(seg=&gt;{const e2=seg.s+(seg.e-seg.s)*ease;if(e2&lt;=seg.s)return;ctx.beginPath();ctx.moveTo(cx+Math.cos(seg.s)*r,cy+Math.sin(seg.s)*r);ctx.arc(cx,cy,r,seg.s,e2);ctx.arc(cx,cy,inner,e2,seg.s,true);ctx.closePath();ctx.fillStyle=seg.color;ctx.fill();});
+    ctx.fillStyle=&#x27;rgba(255,255,255,0.6)&#x27;;ctx.font=&quot;bold 11px &#x27;DM Sans&#x27;&quot;;ctx.textAlign=&#x27;center&#x27;;ctx.fillText(&#x27;SPLIT&#x27;,cx,cy-5);
+    ctx.fillStyle=&#x27;rgba(255,255,255,0.25)&#x27;;ctx.font=&quot;10px &#x27;DM Sans&#x27;&quot;;ctx.fillText(&#x27;by type&#x27;,cx,cy+8);
+    if(p&lt;1){p+=0.022;requestAnimationFrame(animate);}
+  }animate();
+}
+
+function buildRatingBars(){
+  const c=document.getElementById(&#x27;ratingBars&#x27;),max=DATA.ratings[0][1];
+  const cols=[&#x27;#E50914&#x27;,&#x27;#c0392b&#x27;,&#x27;#E50914&#x27;,&#x27;#922b21&#x27;,&#x27;#78281f&#x27;,&#x27;#641e16&#x27;,&#x27;#4a235a&#x27;,&#x27;#1a5276&#x27;];
+  DATA.ratings.forEach(([label,count],i)=&gt;{
+    const pct=(count/max)*100;
+    const row=document.createElement(&#x27;div&#x27;);row.className=&#x27;rating-row&#x27;;
+    row.innerHTML=`&lt;div class=&quot;rating-label&quot;&gt;${label}&lt;/div&gt;&lt;div class=&quot;rating-track&quot;&gt;&lt;div class=&quot;rating-fill&quot; style=&quot;width:${pct}%;background:${cols[i]};opacity:${1-i*0.09}&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;rating-count&quot;&gt;${count.toLocaleString()}&lt;/div&gt;`;
+    row.addEventListener(&#x27;mousemove&#x27;,e=&gt;showTip(e,`&lt;b&gt;${label}&lt;/b&gt;: ${count.toLocaleString()} titles (${(count/8807*100).toFixed(1)}%)`));
+    row.addEventListener(&#x27;mouseleave&#x27;,hideTip);c.appendChild(row);
+  });
+}
+
+function buildCountryBars(){
+  const c=document.getElementById(&#x27;countryBars&#x27;),max=DATA.countries[0][1];
+  const grads=[&#x27;#E50914&#x27;,&#x27;#e8291c&#x27;,&#x27;#d63526&#x27;,&#x27;#c4412f&#x27;,&#x27;#b24d38&#x27;,&#x27;#a05941&#x27;,&#x27;#8e654a&#x27;,&#x27;#7c7153&#x27;,&#x27;#6a7d5c&#x27;,&#x27;#588965&#x27;];
+  DATA.countries.forEach(([name,count],i)=&gt;{
+    const pct=(count/max)*100;
+    const row=document.createElement(&#x27;div&#x27;);row.className=&#x27;country-row&#x27;;
+    row.innerHTML=`&lt;div class=&quot;country-header&quot;&gt;&lt;div class=&quot;country-name&quot;&gt;${name}&lt;/div&gt;&lt;div class=&quot;country-count&quot;&gt;${count.toLocaleString()}&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;country-track&quot;&gt;&lt;div class=&quot;country-fill&quot; style=&quot;width:${pct}%;background:${grads[i]};opacity:${1-i*0.06}&quot;&gt;&lt;/div&gt;&lt;/div&gt;`;
+    row.addEventListener(&#x27;mousemove&#x27;,e=&gt;showTip(e,`&lt;b&gt;${name}&lt;/b&gt;: ${count.toLocaleString()} titles`));
+    row.addEventListener(&#x27;mouseleave&#x27;,hideTip);c.appendChild(row);
+  });
+}
+
+function buildMonthGrid(){
+  const c=document.getElementById(&#x27;monthGrid&#x27;);
+  const months=Object.entries(DATA.months),max=Math.max(...months.map(([,v])=&gt;v));
+  const abbr=[&#x27;Jan&#x27;,&#x27;Feb&#x27;,&#x27;Mar&#x27;,&#x27;Apr&#x27;,&#x27;May&#x27;,&#x27;Jun&#x27;,&#x27;Jul&#x27;,&#x27;Aug&#x27;,&#x27;Sep&#x27;,&#x27;Oct&#x27;,&#x27;Nov&#x27;,&#x27;Dec&#x27;];
+  months.forEach(([name,count],i)=&gt;{
+    const h=(count/max)*80;
+    const col=document.createElement(&#x27;div&#x27;);col.className=&#x27;month-col&#x27;;
+    col.innerHTML=`&lt;div class=&quot;month-val&quot;&gt;${count}&lt;/div&gt;&lt;div class=&quot;month-bar-wrap&quot;&gt;&lt;div class=&quot;month-bar&quot; style=&quot;height:${h}px&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;month-label&quot;&gt;${abbr[i]}&lt;/div&gt;`;
+    col.addEventListener(&#x27;mousemove&#x27;,e=&gt;showTip(e,`&lt;b&gt;${name}&lt;/b&gt;: ${count} titles added`));
+    col.addEventListener(&#x27;mouseleave&#x27;,hideTip);c.appendChild(col);
+  });
+}
+
+function animateFills(panel){
+  panel.querySelectorAll(&#x27;.genre-fill&#x27;).forEach((el,i)=&gt;setTimeout(()=&gt;el.style.transform=&#x27;scaleX(1)&#x27;,i*60));
+  panel.querySelectorAll(&#x27;.rating-fill&#x27;).forEach((el,i)=&gt;setTimeout(()=&gt;el.style.transform=&#x27;scaleX(1)&#x27;,i*80));
+  panel.querySelectorAll(&#x27;.country-fill&#x27;).forEach((el,i)=&gt;setTimeout(()=&gt;el.style.transform=&#x27;scaleX(1)&#x27;,i*90));
+  panel.querySelectorAll(&#x27;.month-bar&#x27;).forEach((el,i)=&gt;setTimeout(()=&gt;el.style.transform=&#x27;scaleY(1)&#x27;,i*50));
+}
+
+const obs=new IntersectionObserver(entries=&gt;{
+  entries.forEach(entry=&gt;{
+    if(entry.isIntersecting){
+      const el=entry.target;
+      setTimeout(()=&gt;el.classList.add(&#x27;visible&#x27;),parseInt(el.dataset.delay||0));
+      animateFills(el);obs.unobserve(el);
+    }
+  });
+},{threshold:0.08});
+
+document.addEventListener(&#x27;DOMContentLoaded&#x27;,()=&gt;{
+  buildGenreBars();buildRatingBars();buildCountryBars();buildMonthGrid();drawDonut();
+  document.querySelectorAll(&#x27;.kpi-card&#x27;).forEach((el,i)=&gt;{el.dataset.delay=i*100;obs.observe(el);});
+  document.querySelectorAll(&#x27;.panel&#x27;).forEach((el,i)=&gt;{el.dataset.delay=i*80;obs.observe(el);});
+  document.querySelectorAll(&#x27;.insight-card&#x27;).forEach((el,i)=&gt;{el.dataset.delay=i*80;obs.observe(el);});
+  setTimeout(drawAreaChart,200);
+  window.addEventListener(&#x27;resize&#x27;,drawAreaChart);
+});
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+" style="width:100%;height:100%;min-height:75vh;border:none;background:#080808;"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+function openDashboard(){document.getElementById("dashModal").classList.add("open");document.body.style.overflow="hidden";}
+function closeDashboard(){document.getElementById("dashModal").classList.remove("open");document.body.style.overflow="";}
+</script>
+
+<!-- DASHBOARD MODAL -->
+<div class="modal" id="dash-modal" style="z-index:300;padding:20px;">
+  <div style="width:100%;max-width:1400px;height:90vh;background:#080808;border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;">
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#F0EBE0;">NETFLIX CONTENT ANALYTICS — LIVE DASHBOARD</span>
+      <button onclick="closeDashboard()" style="background:none;border:none;color:#777;font-size:24px;cursor:pointer;line-height:1;">×</button>
+    </div>
+    <iframe id="dash-frame" style="flex:1;border:none;width:100%;height:100%;" srcdoc=""></iframe>
+  </div>
+</div>
+<script>
+const DASH_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Netflix Content Analytics Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--red:#E50914;--red-dim:#8B0000;--red-glow:rgba(229,9,20,0.18);--bg:#0a0a0a;--surface:#111111;--surface2:#181818;--surface3:#222222;--border:rgba(255,255,255,0.07);--text:#f0f0f0;--text-muted:#777;--text-dim:#444;--teal:#00B4D8;--font-display:'Bebas Neue',sans-serif;--font-serif:'DM Serif Display',serif;--font-body:'DM Sans',sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;line-height:1.5;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#333;border-radius:2px;}
+
+/* HEADER */
+header{position:relative;padding:0 40px;border-bottom:1px solid var(--border);overflow:hidden;}
+header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);}
+.header-inner{max-width:1500px;margin:0 auto;display:flex;align-items:center;gap:32px;padding:28px 0 24px;}
+.logo-mark{width:44px;height:44px;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:24px;flex-shrink:0;clip-path:polygon(8% 0%,92% 0%,100% 8%,100% 92%,92% 100%,8% 100%,0% 92%,0% 8%);}
+.header-text{flex:1;}
+.header-title{font-family:var(--font-display);font-size:28px;letter-spacing:3px;color:#fff;line-height:1;margin-bottom:4px;}
+.header-title span{color:var(--red);}
+.header-sub{font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;}
+.header-meta{display:flex;gap:24px;align-items:center;}
+.meta-pill{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+.meta-pill .val{font-family:var(--font-display);font-size:20px;letter-spacing:1px;color:#fff;}
+.meta-pill .lbl{font-size:10px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;}
+.meta-sep{width:1px;height:36px;background:var(--border);}
+
+/* MAIN */
+main{max-width:1500px;margin:0 auto;padding:36px 40px 60px;}
+
+/* KPI CARDS */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);padding:24px 26px 20px;position:relative;overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity 0.5s ease,transform 0.5s ease,border-color 0.3s;}
+.kpi-card.visible{opacity:1;transform:translateY(0);}
+.kpi-card:hover{border-color:rgba(229,9,20,0.3);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--red));}
+.kpi-card::after{content:'';position:absolute;bottom:-30px;right:-20px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,var(--accent-glow,var(--red-glow)) 0%,transparent 70%);pointer-events:none;}
+.kpi-label{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
+.kpi-value{font-family:var(--font-display);font-size:48px;line-height:1;letter-spacing:1px;color:#fff;margin-bottom:8px;}
+.kpi-value .unit{font-size:20px;color:var(--text-muted);font-family:var(--font-body);font-weight:300;}
+.kpi-sub{font-size:12px;color:var(--text-muted);}
+.kpi-sub strong{color:var(--accent,var(--red));}
+.kpi-icon{position:absolute;top:22px;right:22px;font-size:22px;opacity:0.15;}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+
+/* PANELS */
+.panel{background:var(--surface);border:1px solid var(--border);padding:24px;opacity:0;transform:translateY(12px);transition:opacity 0.6s ease,transform 0.6s ease,border-color 0.3s;}
+.panel.visible{opacity:1;transform:translateY(0);}
+.panel:hover{border-color:rgba(255,255,255,0.12);}
+.panel-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;}
+.panel-title{font-family:var(--font-serif);font-size:17px;color:#fff;line-height:1.2;}
+.panel-title em{font-style:italic;color:var(--red);}
+.panel-desc{font-size:11px;color:var(--text-dim);margin-top:3px;letter-spacing:0.5px;}
+.panel-badge{font-size:10px;padding:4px 10px;border:1px solid var(--border);color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+
+/* AREA CHART */
+.area-chart-wrap{position:relative;height:200px;}
+#areaChart{width:100%;height:100%;}
+
+/* GENRE BARS */
+.genre-bars{display:flex;flex-direction:column;gap:11px;}
+.genre-row{display:grid;grid-template-columns:200px 1fr 52px;align-items:center;gap:12px;}
+.genre-name{font-size:12px;color:var(--text-muted);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color 0.2s;}
+.genre-row:hover .genre-name{color:var(--text);}
+.genre-track{height:6px;background:var(--surface3);overflow:hidden;}
+.genre-fill{height:100%;background:linear-gradient(90deg,var(--red),#ff4040);transform:scaleX(0);transform-origin:left;transition:transform 1.2s cubic-bezier(0.16,1,0.3,1);}
+.genre-fill.alt{background:linear-gradient(90deg,#444,#888);}
+.genre-count{font-family:var(--font-display);font-size:15px;color:var(--text-muted);letter-spacing:0.5px;}
+
+/* DONUT */
+.donut-wrap{display:flex;align-items:center;gap:28px;}
+#donutCanvas{flex-shrink:0;}
+.donut-legend{flex:1;display:flex;flex-direction:column;gap:14px;}
+.legend-item{display:flex;align-items:center;gap:10px;}
+.legend-dot{width:8px;height:8px;flex-shrink:0;}
+.legend-text .l-name{font-size:12px;color:var(--text-muted);}
+.legend-text .l-val{font-family:var(--font-display);font-size:22px;letter-spacing:1px;color:#fff;line-height:1;}
+.legend-text .l-pct{font-size:11px;color:var(--text-dim);}
+
+/* COUNTRY BARS */
+.country-bars{display:flex;flex-direction:column;gap:12px;}
+.country-row{display:flex;flex-direction:column;gap:5px;}
+.country-header{display:flex;justify-content:space-between;align-items:baseline;}
+.country-name{font-size:12px;color:var(--text-muted);}
+.country-count{font-family:var(--font-display);font-size:14px;color:var(--text-muted);letter-spacing:0.5px;}
+.country-track{height:4px;background:var(--surface3);}
+.country-fill{height:100%;transform:scaleX(0);transform-origin:left;transition:transform 1.4s cubic-bezier(0.16,1,0.3,1);}
+
+/* RATING BARS */
+.rating-bars{display:flex;flex-direction:column;gap:10px;}
+.rating-row{display:grid;grid-template-columns:68px 1fr 48px;align-items:center;gap:10px;}
+.rating-label{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-align:right;}
+.rating-track{height:20px;background:var(--surface3);overflow:hidden;}
+.rating-fill{height:100%;transform:scaleX(0);transform-origin:left;transition:transform 1.3s cubic-bezier(0.16,1,0.3,1);}
+.rating-count{font-family:var(--font-display);font-size:14px;color:var(--text-muted);}
+
+/* MONTH GRID */
+.month-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;}
+.month-col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.month-bar-wrap{width:100%;height:80px;display:flex;align-items:flex-end;}
+.month-bar{width:100%;background:var(--red);transform:scaleY(0);transform-origin:bottom;transition:transform 1s cubic-bezier(0.16,1,0.3,1);opacity:0.7;}
+.month-bar:hover{opacity:1;cursor:default;}
+.month-label{font-size:9px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+.month-val{font-family:var(--font-display);font-size:12px;color:var(--text-muted);}
+
+/* INSIGHTS */
+.insights-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.insight-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);padding:16px 18px;opacity:0;transform:translateY(8px);transition:opacity 0.5s ease,transform 0.5s ease;}
+.insight-card.visible{opacity:1;transform:translateY(0);}
+.insight-num{font-family:var(--font-display);font-size:13px;color:var(--red);letter-spacing:3px;margin-bottom:5px;}
+.insight-text{font-size:12px;color:var(--text-muted);line-height:1.6;}
+.insight-text strong{color:var(--text);font-weight:500;}
+
+/* FOOTER */
+footer{text-align:center;padding:24px 40px;border-top:1px solid var(--border);font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+
+/* LIVE DOT */
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.4);}}
+.live-dot{display:inline-block;width:6px;height:6px;background:var(--red);border-radius:50%;margin-right:6px;animation:pulse-dot 2s ease-in-out infinite;vertical-align:middle;}
+
+/* TOOLTIP */
+.tooltip{position:fixed;background:#1a1a1a;border:1px solid var(--border);padding:8px 12px;font-size:12px;color:var(--text);pointer-events:none;z-index:9999;display:none;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="tooltip" id="tooltip"></div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-mark">N</div>
+    <div class="header-text">
+      <div class="header-title"><span>NETFLIX</span> CONTENT ANALYTICS</div>
+      <div class="header-sub">Product Analytics Dashboard · MySQL + Power BI + DAX · May 2025 – Jun 2025</div>
+    </div>
+    <div class="header-meta">
+      <div class="meta-pill"><div class="val">8,807</div><div class="lbl">Total Titles</div></div>
+      <div class="meta-sep"></div>
+      <div class="meta-pill"><div class="val">123</div><div class="lbl">Countries</div></div>
+      <div class="meta-sep"></div>
+      <div class="meta-pill"><div class="val">17</div><div class="lbl">SQL Queries</div></div>
+      <div class="meta-sep"></div>
+      <div class="meta-pill"><div class="val" style="color:var(--red)">LIVE</div><div class="lbl"><span class="live-dot"></span>Dashboard</div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:var(--red);--accent-glow:var(--red-glow);">
+      <div class="kpi-icon">🎬</div>
+      <div class="kpi-label">Total Catalog Size</div>
+      <div class="kpi-value">8,807</div>
+      <div class="kpi-sub">Across <strong>123</strong> countries · 96 years of content</div>
+    </div>
+    <div class="kpi-card" style="--accent:#F5C518;--accent-glow:rgba(245,197,24,0.15);">
+      <div class="kpi-icon">🎥</div>
+      <div class="kpi-label">Movies in Catalog</div>
+      <div class="kpi-value">6,131 <span class="unit">69.6%</span></div>
+      <div class="kpi-sub">Avg runtime: <strong>99.6 min</strong></div>
+    </div>
+    <div class="kpi-card" style="--accent:#00B4D8;--accent-glow:rgba(0,180,216,0.15);">
+      <div class="kpi-icon">📺</div>
+      <div class="kpi-label">TV Shows</div>
+      <div class="kpi-value">2,676 <span class="unit">30.4%</span></div>
+      <div class="kpi-sub">Growing <strong>+12% YoY</strong> since 2018</div>
+    </div>
+    <div class="kpi-card" style="--accent:#9B5DE5;--accent-glow:rgba(155,93,229,0.15);">
+      <div class="kpi-icon">🌍</div>
+      <div class="kpi-label">Countries Covered</div>
+      <div class="kpi-value">123</div>
+      <div class="kpi-sub"><strong>42</strong> genres · 17 query insights</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Content <em>Release Trend</em></div><div class="panel-desc">Annual titles by type, 2013–2021</div></div>
+        <div class="panel-badge">YoY Analysis</div>
+      </div>
+      <div class="area-chart-wrap"><canvas id="areaChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Top 10 <em>Genre Mix</em></div><div class="panel-desc">By catalog volume (titles span multiple genres)</div></div>
+        <div class="panel-badge">42 Genres Total</div>
+      </div>
+      <div class="genre-bars" id="genreBars"></div>
+    </div>
+  </div>
+
+  <div class="grid-bottom">
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Content <em>Type Split</em></div><div class="panel-desc">Movies vs TV Shows composition</div></div>
+      </div>
+      <div class="donut-wrap">
+        <canvas id="donutCanvas" width="140" height="140"></canvas>
+        <div class="donut-legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--red)"></div>
+            <div class="legend-text"><div class="l-name">Movies</div><div class="l-val">6,131</div><div class="l-pct">69.6% of catalog</div></div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#00B4D8"></div>
+            <div class="legend-text"><div class="l-name">TV Shows</div><div class="l-val">2,676</div><div class="l-pct">30.4% of catalog</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title"><em>Rating</em> Distribution</div><div class="panel-desc">Audience rating breakdown by volume</div></div>
+      </div>
+      <div class="rating-bars" id="ratingBars"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Top <em>Producing</em> Countries</div><div class="panel-desc">Content origin by title count</div></div>
+      </div>
+      <div class="country-bars" id="countryBars"></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:16px;">
+    <div class="panel-header">
+      <div><div class="panel-title">Content Acquisition <em>Seasonality</em></div><div class="panel-desc">Titles added per calendar month — reveals Netflix's acquisition cadence</div></div>
+      <div class="panel-badge">8,709 Dated Titles</div>
+    </div>
+    <div class="month-grid" id="monthGrid"></div>
+  </div>
+
+  <div class="insights-row" id="insights">
+    <div class="insight-card"><div class="insight-num">01 / GENRE</div><div class="insight-text"><strong>International Movies & Dramas</strong> dominate at 2,752 and 2,427 titles — signaling a deliberate global-first content strategy.</div></div>
+    <div class="insight-card"><div class="insight-num">02 / TREND</div><div class="insight-text">Netflix's peak acquisition was <strong>2016–2018</strong> at 767 movies/year. Post-2019, TV Shows grew as Movies declined — a pivot to serialized content.</div></div>
+    <div class="insight-card"><div class="insight-num">03 / RATING</div><div class="insight-text"><strong>TV-MA accounts for 36.4%</strong> of catalog — the highest of any rating — confirming Netflix's mature-audience skew across both formats.</div></div>
+    <div class="insight-card"><div class="insight-num">04 / COUNTRY</div><div class="insight-text">The <strong>US produces 42%</strong> of content. India is 2nd at 11.9% and growing rapidly — indicating aggressive investment in South Asian originals.</div></div>
+    <div class="insight-card"><div class="insight-num">05 / SEASONALITY</div><div class="insight-text"><strong>July (819) and December (797)</strong> are peak acquisition months, aligning with summer and holiday global viewing spikes.</div></div>
+    <div class="insight-card"><div class="insight-num">06 / GAP</div><div class="insight-text">Africa and Southeast Asia show <strong>major content gaps</strong> — multiple countries have under 10 titles, a clear signal for expansion strategy.</div></div>
+  </div>
+</main>
+
+<footer>Netflix Content Analytics · 8,807 Titles Analyzed · MySQL 8.0 · Power BI + DAX · Portfolio Project 2025</footer>
+
+<script>
+const DATA={yearTrend:[{year:2013,movies:225,shows:63},{year:2014,movies:264,shows:88},{year:2015,movies:398,shows:162},{year:2016,movies:658,shows:244},{year:2017,movies:767,shows:265},{year:2018,movies:767,shows:380},{year:2019,movies:633,shows:397},{year:2020,movies:517,shows:436},{year:2021,movies:277,shows:315}],genres:[["International Movies",2752],["Dramas",2427],["Comedies",1674],["International TV Shows",1351],["Documentaries",869],["Action & Adventure",859],["TV Dramas",763],["Independent Movies",756],["Children & Family",641],["Romantic Movies",616]],countries:[["United States",3690],["India",1046],["United Kingdom",806],["Canada",445],["France",393],["Japan",318],["Spain",232],["South Korea",231],["Germany",226],["Mexico",169]],ratings:[["TV-MA",3207],["TV-14",2160],["TV-PG",863],["R",799],["PG-13",490],["TV-Y7",334],["TV-Y",307],["PG",287]],months:{January:727,February:557,March:734,April:759,May:626,June:724,July:819,August:749,September:765,October:755,November:697,December:797}};
+
+const tip=document.getElementById('tooltip');
+function showTip(e,h){tip.innerHTML=h;tip.style.display='block';moveTip(e);}
+function moveTip(e){tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-8)+'px';}
+function hideTip(){tip.style.display='none';}
+
+function drawAreaChart(){
+  const canvas=document.getElementById('areaChart');
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
+  canvas.style.width=rect.width+'px';canvas.style.height=rect.height+'px';
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  const W=rect.width,H=rect.height,pad={top:20,right:20,bottom:36,left:48};
+  const iW=W-pad.left-pad.right,iH=H-pad.top-pad.bottom;
+  const movies=DATA.yearTrend.map(d=>d.movies),shows=DATA.yearTrend.map(d=>d.shows);
+  const maxVal=Math.max(...movies)*1.12,n=DATA.yearTrend.length;
+  function xPos(i){return pad.left+(i/(n-1))*iW;}
+  function yPos(v){return pad.top+iH-(v/maxVal)*iH;}
+  ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pad.top+(i/4)*iH;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+iW,y);ctx.stroke();const val=Math.round(maxVal-(i/4)*maxVal);ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font="10px 'DM Sans',sans-serif";ctx.textAlign='right';if(val>0)ctx.fillText(val,pad.left-8,y+3);}
+  ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font="10px 'DM Sans',sans-serif";ctx.textAlign='center';
+  DATA.yearTrend.forEach((d,i)=>ctx.fillText(d.year,xPos(i),H-8));
+  function drawArea(data,c1,c2){
+    const grad=ctx.createLinearGradient(0,pad.top,0,pad.top+iH);grad.addColorStop(0,c1);grad.addColorStop(1,c2);
+    ctx.beginPath();ctx.moveTo(xPos(0),yPos(data[0]));
+    for(let i=1;i<n;i++){const cpx=(xPos(i-1)+xPos(i))/2;ctx.bezierCurveTo(cpx,yPos(data[i-1]),cpx,yPos(data[i]),xPos(i),yPos(data[i]));}
+    ctx.lineTo(xPos(n-1),pad.top+iH);ctx.lineTo(xPos(0),pad.top+iH);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  }
+  function drawLine(data,color){
+    ctx.beginPath();ctx.moveTo(xPos(0),yPos(data[0]));
+    for(let i=1;i<n;i++){const cpx=(xPos(i-1)+xPos(i))/2;ctx.bezierCurveTo(cpx,yPos(data[i-1]),cpx,yPos(data[i]),xPos(i),yPos(data[i]));}
+    ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.stroke();
+  }
+  function drawDots(data,color){data.forEach((v,i)=>{ctx.beginPath();ctx.arc(xPos(i),yPos(v),4,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='#0a0a0a';ctx.lineWidth=2;ctx.stroke();});}
+  drawArea(movies,'rgba(229,9,20,0.45)','rgba(229,9,20,0.02)');
+  drawArea(shows,'rgba(0,180,216,0.35)','rgba(0,180,216,0.01)');
+  drawLine(movies,'#E50914');drawLine(shows,'#00B4D8');
+  drawDots(movies,'#E50914');drawDots(shows,'#00B4D8');
+  const lx=pad.left+iW-160,ly=pad.top+6;
+  ctx.fillStyle='#E50914';ctx.fillRect(lx,ly,16,3);
+  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font="11px 'DM Sans'";ctx.textAlign='left';ctx.fillText('Movies',lx+22,ly+4);
+  ctx.fillStyle='#00B4D8';ctx.fillRect(lx+80,ly,16,3);ctx.fillText('TV Shows',lx+102,ly+4);
+  canvas.onmousemove=function(e){const bRect=canvas.getBoundingClientRect();const mx=e.clientX-bRect.left;let cl=0,mn=Infinity;DATA.yearTrend.forEach((_,i)=>{const d=Math.abs(xPos(i)-mx);if(d<mn){mn=d;cl=i;}});if(mn<30){const d=DATA.yearTrend[cl];showTip(e,\`<b>\${d.year}</b> &nbsp;·&nbsp; <span style="color:#E50914">▬</span> \${d.movies} Movies &nbsp;·&nbsp; <span style="color:#00B4D8">▬</span> \${d.shows} TV Shows\`);}else hideTip();};
+  canvas.onmouseleave=hideTip;
+}
+
+function buildGenreBars(){
+  const c=document.getElementById('genreBars'),max=DATA.genres[0][1];
+  DATA.genres.forEach(([name,count],i)=>{
+    const pct=(count/max)*100,isAlt=i>=3&&i%2===0;
+    const row=document.createElement('div');row.className='genre-row';
+    row.innerHTML=\`<div class="genre-name">\${name}</div><div class="genre-track"><div class="genre-fill\${isAlt?' alt':''}" style="width:\${pct}%"></div></div><div class="genre-count">\${(count/1000).toFixed(1)}k</div>\`;
+    row.addEventListener('mousemove',e=>showTip(e,\`<b>\${name}</b>: \${count.toLocaleString()} titles\`));
+    row.addEventListener('mouseleave',hideTip);c.appendChild(row);
+  });
+}
+
+function drawDonut(){
+  const canvas=document.getElementById('donutCanvas'),ctx=canvas.getContext('2d');
+  const cx=70,cy=70,r=55,inner=36,total=8807,movies=6131;
+  const mAngle=(movies/total)*Math.PI*2,start=-Math.PI/2;
+  const segs=[{color:'#E50914',s:start,e:start+mAngle},{color:'#111',s:start+mAngle,e:start+mAngle+0.015},{color:'#00B4D8',s:start+mAngle+0.015,e:start+Math.PI*2}];
+  let p=0;
+  function animate(){
+    ctx.clearRect(0,0,140,140);const ep=Math.min(p,1),ease=ep<0.5?2*ep*ep:-1+(4-2*ep)*ep;
+    segs.forEach(seg=>{const e2=seg.s+(seg.e-seg.s)*ease;if(e2<=seg.s)return;ctx.beginPath();ctx.moveTo(cx+Math.cos(seg.s)*r,cy+Math.sin(seg.s)*r);ctx.arc(cx,cy,r,seg.s,e2);ctx.arc(cx,cy,inner,e2,seg.s,true);ctx.closePath();ctx.fillStyle=seg.color;ctx.fill();});
+    ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font="bold 11px 'DM Sans'";ctx.textAlign='center';ctx.fillText('SPLIT',cx,cy-5);
+    ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font="10px 'DM Sans'";ctx.fillText('by type',cx,cy+8);
+    if(p<1){p+=0.022;requestAnimationFrame(animate);}
+  }animate();
+}
+
+function buildRatingBars(){
+  const c=document.getElementById('ratingBars'),max=DATA.ratings[0][1];
+  const cols=['#E50914','#c0392b','#E50914','#922b21','#78281f','#641e16','#4a235a','#1a5276'];
+  DATA.ratings.forEach(([label,count],i)=>{
+    const pct=(count/max)*100;
+    const row=document.createElement('div');row.className='rating-row';
+    row.innerHTML=\`<div class="rating-label">\${label}</div><div class="rating-track"><div class="rating-fill" style="width:\${pct}%;background:\${cols[i]};opacity:\${1-i*0.09}"></div></div><div class="rating-count">\${count.toLocaleString()}</div>\`;
+    row.addEventListener('mousemove',e=>showTip(e,\`<b>\${label}</b>: \${count.toLocaleString()} titles (\${(count/8807*100).toFixed(1)}%)\`));
+    row.addEventListener('mouseleave',hideTip);c.appendChild(row);
+  });
+}
+
+function buildCountryBars(){
+  const c=document.getElementById('countryBars'),max=DATA.countries[0][1];
+  const grads=['#E50914','#e8291c','#d63526','#c4412f','#b24d38','#a05941','#8e654a','#7c7153','#6a7d5c','#588965'];
+  DATA.countries.forEach(([name,count],i)=>{
+    const pct=(count/max)*100;
+    const row=document.createElement('div');row.className='country-row';
+    row.innerHTML=\`<div class="country-header"><div class="country-name">\${name}</div><div class="country-count">\${count.toLocaleString()}</div></div><div class="country-track"><div class="country-fill" style="width:\${pct}%;background:\${grads[i]};opacity:\${1-i*0.06}"></div></div>\`;
+    row.addEventListener('mousemove',e=>showTip(e,\`<b>\${name}</b>: \${count.toLocaleString()} titles\`));
+    row.addEventListener('mouseleave',hideTip);c.appendChild(row);
+  });
+}
+
+function buildMonthGrid(){
+  const c=document.getElementById('monthGrid');
+  const months=Object.entries(DATA.months),max=Math.max(...months.map(([,v])=>v));
+  const abbr=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  months.forEach(([name,count],i)=>{
+    const h=(count/max)*80;
+    const col=document.createElement('div');col.className='month-col';
+    col.innerHTML=\`<div class="month-val">\${count}</div><div class="month-bar-wrap"><div class="month-bar" style="height:\${h}px"></div></div><div class="month-label">\${abbr[i]}</div>\`;
+    col.addEventListener('mousemove',e=>showTip(e,\`<b>\${name}</b>: \${count} titles added\`));
+    col.addEventListener('mouseleave',hideTip);c.appendChild(col);
+  });
+}
+
+function animateFills(panel){
+  panel.querySelectorAll('.genre-fill').forEach((el,i)=>setTimeout(()=>el.style.transform='scaleX(1)',i*60));
+  panel.querySelectorAll('.rating-fill').forEach((el,i)=>setTimeout(()=>el.style.transform='scaleX(1)',i*80));
+  panel.querySelectorAll('.country-fill').forEach((el,i)=>setTimeout(()=>el.style.transform='scaleX(1)',i*90));
+  panel.querySelectorAll('.month-bar').forEach((el,i)=>setTimeout(()=>el.style.transform='scaleY(1)',i*50));
+}
+
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const el=entry.target;
+      setTimeout(()=>el.classList.add('visible'),parseInt(el.dataset.delay||0));
+      animateFills(el);obs.unobserve(el);
+    }
+  });
+},{threshold:0.08});
+
+document.addEventListener('DOMContentLoaded',()=>{
+  buildGenreBars();buildRatingBars();buildCountryBars();buildMonthGrid();drawDonut();
+  document.querySelectorAll('.kpi-card').forEach((el,i)=>{el.dataset.delay=i*100;obs.observe(el);});
+  document.querySelectorAll('.panel').forEach((el,i)=>{el.dataset.delay=i*80;obs.observe(el);});
+  document.querySelectorAll('.insight-card').forEach((el,i)=>{el.dataset.delay=i*80;obs.observe(el);});
+  setTimeout(drawAreaChart,200);
+  window.addEventListener('resize',drawAreaChart);
+});
+</script>
+</body>
+</html>
