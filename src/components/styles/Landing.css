@@ -12,7 +12,6 @@
   position: relative;
   max-width: var(--cMaxWidth);
   z-index: 20;
-  pointer-events: none;
 }
 .landing-circle1 {
   top: 0%;
@@ -161,7 +160,7 @@
 }
 .landing-intro {
   position: absolute;
-  z-index: 9;
+  z-index: 30;
   top: 12%;
   left: 0;
   pointer-events: auto;
@@ -203,7 +202,7 @@
   transform: translateX(50%);
   bottom: 40px;
   top: inherit;
-  z-index: 9;
+  z-index: 30;
   pointer-events: auto;
 }
 .landing-info h3 {

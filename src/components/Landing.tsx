@@ -49,9 +49,9 @@ const Landing = ({ children }: PropsWithChildren) => {
             <div className="landing-tagline">
               <p>"Every product is a pitch. Every dashboard tells a story. I find the signal in the noise — then I build what people didn't know they needed."</p>
             </div>
-            <div className="landing-cta-buttons" style={{ position: 'relative', zIndex: 999999, pointerEvents: 'auto' }}>
-              <a href="#work" data-cursor="pointer" style={{ position: 'relative', display: 'inline-block', zIndex: 9999999, pointerEvents: 'all' }} onClick={(e) => handleNavClick(e, "#work")}>View My Work</a>
-              <a href="#contact" data-cursor="pointer" style={{ position: 'relative', display: 'inline-block', zIndex: 9999999, pointerEvents: 'all' }} onClick={(e) => handleNavClick(e, "#contact")}>Let's Connect</a>
+            <div className="landing-cta-buttons">
+              <a href="#work" data-cursor="pointer" onClick={(e) => handleNavClick(e, "#work")}>View My Work</a>
+              <a href="#contact" data-cursor="pointer" onClick={(e) => handleNavClick(e, "#contact")}>Let's Connect</a>
             </div>
           </div>
         </div>
