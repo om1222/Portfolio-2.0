@@ -28,6 +28,19 @@ const Achievements = () => {
           <div className="career-info-box">
             <div className="career-info-in">
               <div className="career-role">
+                <h4>SQL (Intermediate)</h4>
+                <h5>HackerRank Certification</h5>
+              </div>
+              <h3>2024</h3>
+            </div>
+            <p>
+              Certified in SQL (Intermediate), demonstrating proficiency in complex queries, joins, and data manipulation. Successfully solved advanced data retrieval and management challenges.
+            </p>
+          </div>
+
+          <div className="career-info-box">
+            <div className="career-info-in">
+              <div className="career-role">
                 <h4>Generative AI Masterminds</h4>
                 <h5>GrowthSchool Certification</h5>
               </div>
