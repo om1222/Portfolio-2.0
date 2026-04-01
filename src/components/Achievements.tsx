@@ -15,6 +15,19 @@ const Achievements = () => {
           <div className="career-info-box">
             <div className="career-info-in">
               <div className="career-role">
+                <h4>SQL (Intermediate)</h4>
+                <h5>HackerRank Certification</h5>
+              </div>
+              <h3>2026</h3>
+            </div>
+            <p>
+              Certified in SQL (Intermediate), demonstrating proficiency in complex queries, joins, and data manipulation. Successfully solved advanced data retrieval and management challenges.
+            </p>
+          </div>
+
+          <div className="career-info-box">
+            <div className="career-info-in">
+              <div className="career-role">
                 <h4>Best Presenter & Qualifier</h4>
                 <h5>European Hyperloop Week, Zürich</h5>
               </div>
@@ -22,19 +35,6 @@ const Achievements = () => {
             </div>
             <p>
               Won Best Presenter among 400+ students globally for pitching thermal solutions. Qualified for Würth Elektronik Thermal Workshop, solving battery challenges alongside 25+ international teams. Represented India & IIT Delhi, improving design efficiency by 15%.
-            </p>
-          </div>
-
-          <div className="career-info-box">
-            <div className="career-info-in">
-              <div className="career-role">
-                <h4>SQL (Intermediate)</h4>
-                <h5>HackerRank Certification</h5>
-              </div>
-              <h3>2024</h3>
-            </div>
-            <p>
-              Certified in SQL (Intermediate), demonstrating proficiency in complex queries, joins, and data manipulation. Successfully solved advanced data retrieval and management challenges.
             </p>
           </div>
 
